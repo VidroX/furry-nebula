@@ -1,0 +1,19 @@
+directive @isAuthenticated on FIELD_DEFINITION
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+    Admin
+    Shelter
+    User
+}
+
+type User {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  role: Role!
+}
+
+type Query {
+  user: User! @isAuthenticated
+}

@@ -1,0 +1,7 @@
+{
+    "test": "Test",
+    "errors": {
+        "notEnoughPermissions": "You don't have enough permissions to perform this action",
+        "internalError": "Internal error has occurred"
+    }
+}
