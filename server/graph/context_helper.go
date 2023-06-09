@@ -2,9 +2,10 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"log"
 
+	nebula_errors "github.com/VidroX/furry-nebula/errors"
+	general_errors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/repositories"
 	"github.com/VidroX/furry-nebula/services/core"
@@ -17,19 +18,15 @@ type ExtendedContext struct {
 	*gin.Context
 }
 
-func (ctx *ExtendedContext) RequireUser() (*model.User, error) {
+func (ctx *ExtendedContext) RequireUser() (*model.User, *nebula_errors.APIError) {
 	user, ok := ctx.Get(jwx.UserContextKey)
 
 	if user == nil || !ok {
-		return nil, fmt.Errorf(
-			translator.WithKey(translator.KeysNotEnoughPermissions).Translate(ctx.GetLocalizer()),
-		)
+		return nil, &general_errors.ErrNotEnoughPermissions
 	}
 
 	if _, ok := user.(*model.User); !ok {
-		return nil, fmt.Errorf(
-			translator.WithKey(translator.KeysNotEnoughPermissions).Translate(ctx.GetLocalizer()),
-		)
+		return nil, &general_errors.ErrNotEnoughPermissions
 	}
 
 	return user.(*model.User), nil

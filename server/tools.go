@@ -8,6 +8,8 @@ import (
 	_ "github.com/DATA-DOG/go-sqlmock"
 	_ "github.com/alexedwards/argon2id"
 	_ "github.com/gin-gonic/gin"
+	_ "github.com/go-playground/validator/v10"
+	_ "github.com/jackc/pgerrcode"
 	_ "github.com/joho/godotenv"
 	_ "github.com/lestrrat-go/jwx/v2/jwa"
 	_ "github.com/lestrrat-go/jwx/v2/jwk"

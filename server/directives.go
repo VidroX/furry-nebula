@@ -2,19 +2,20 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
+	nebula_errors "github.com/VidroX/furry-nebula/errors"
+	general_errors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/jwx"
-	"github.com/VidroX/furry-nebula/services/translator"
 )
 
 var AppDirectives = graph.DirectiveRoot{
-	HasRole:         hasRoleDirective,
-	IsAuthenticated: isAuthenticatedDirective,
-	NoUserOnly:      noUserOnlyDirective,
+	HasRole:          hasRoleDirective,
+	IsAuthenticated:  isAuthenticatedDirective,
+	NoUserOnly:       noUserOnlyDirective,
+	ApprovedUserOnly: approvedUserOnlyDirective,
 }
 
 func isAuthenticatedDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
@@ -22,7 +23,7 @@ func isAuthenticatedDirective(ctx context.Context, obj interface{}, next graphql
 	user, err := getUser(gCtx)
 
 	if err != nil {
-		return nil, err
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	if user != nil {
@@ -37,11 +38,11 @@ func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolve
 	user, err := getUser(gCtx)
 
 	if err != nil {
-		return nil, err
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	if user != nil && !user.HasRole(role) {
-		return nil, fmt.Errorf(translator.WithKey(translator.KeysNotEnoughPermissions).Translate(gCtx.GetLocalizer()))
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrNotEnoughPermissions)
 	}
 
 	gCtx.Set(jwx.UserContextKey, user)
@@ -54,17 +55,40 @@ func noUserOnlyDirective(ctx context.Context, obj interface{}, next graphql.Reso
 	user, _ := getUser(gCtx)
 
 	if user != nil {
-		return nil, fmt.Errorf(translator.WithKey(translator.KeysNotEnoughPermissions).Translate(gCtx.GetLocalizer()))
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrNotEnoughPermissions)
 	}
 
 	return next(ctx)
 }
 
-func getUser(ctx *graph.ExtendedContext) (*model.User, error) {
+func approvedUserOnlyDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := getUser(gCtx)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	if user == nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrNotEnoughPermissions)
+	}
+
+	isApproved, err2 := gCtx.GetRepositories().UserRepository.IsUserApproved(user.ID)
+
+	if !isApproved || err2 != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrNotEnoughPermissions)
+	}
+
+	gCtx.Set(jwx.UserContextKey, user)
+
+	return next(ctx)
+}
+
+func getUser(ctx *graph.ExtendedContext) (*model.User, *nebula_errors.APIError) {
 	_, public, err := jwx.ReadKeySet()
 
 	if err != nil {
-		return nil, fmt.Errorf(translator.WithKey(translator.KeysInternalError).Translate(ctx.GetLocalizer()))
+		return nil, &general_errors.ErrInternal
 	}
 
 	user := jwx.GetUserFromToken(
@@ -74,7 +98,7 @@ func getUser(ctx *graph.ExtendedContext) (*model.User, error) {
 	)
 
 	if user == nil {
-		return nil, fmt.Errorf(translator.WithKey(translator.KeysNotEnoughPermissions).Translate(ctx.GetLocalizer()))
+		return nil, &general_errors.ErrNotEnoughPermissions
 	}
 
 	return user, nil

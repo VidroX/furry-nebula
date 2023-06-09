@@ -6,11 +6,10 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
+	general_errors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/translator"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // Login is the resolver for the login field.
@@ -21,10 +20,40 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 	user, err := userService.Login(email, password)
 
 	if err != nil {
-		return nil, gqlerror.Errorf(err.Error())
+		return nil, FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	return user, nil
+}
+
+// Register is the resolver for the register field.
+func (r *mutationResolver) Register(ctx context.Context, userInfo model.UserRegistrationInput) (*model.UserWithToken, error) {
+	gCtx := GetGinContext(ctx)
+	userService := gCtx.GetServices().UserService
+
+	user, err := userService.Register(userInfo)
+
+	if err != nil {
+		return nil, FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return user, nil
+}
+
+// ChangeUserApprovalStatus is the resolver for the changeUserApprovalStatus field.
+func (r *mutationResolver) ChangeUserApprovalStatus(ctx context.Context, userID string, isApproved bool) (*model.ResponseMessage, error) {
+	gCtx := GetGinContext(ctx)
+	userService := gCtx.GetServices().UserService
+
+	err := userService.ChangeUserApprovalStatus(userID, isApproved)
+
+	if err != nil {
+		return nil, FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return &model.ResponseMessage{
+		Message: translator.WithKey(translator.KeysUserServiceStatusChanged).Translate(gCtx.GetLocalizer()),
+	}, nil
 }
 
 // User is the resolver for the user field.
@@ -33,7 +62,7 @@ func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	user, err := gCtx.RequireUser()
 
 	if err != nil {
-		return nil, gqlerror.Errorf(err.Error())
+		return nil, FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	return user, nil
@@ -46,10 +75,24 @@ func (r *userResolver) Role(ctx context.Context, obj *model.User) (model.Role, e
 
 	var err error
 	if !role.IsValid() {
-		err = fmt.Errorf(translator.WithKey(translator.KeysInternalError).Translate(gCtx.GetLocalizer()))
+		err = FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
 	}
 
 	return role, err
+}
+
+// IsApproved is the resolver for the isApproved field.
+func (r *userResolver) IsApproved(ctx context.Context, obj *model.User) (bool, error) {
+	gCtx := GetGinContext(ctx)
+	userRepo := gCtx.GetRepositories().UserRepository
+
+	isApproved, err := userRepo.IsUserApproved(obj.ID)
+
+	if err != nil {
+		return false, FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+	}
+
+	return isApproved, nil
 }
 
 // Mutation returns MutationResolver implementation.

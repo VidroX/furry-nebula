@@ -6,7 +6,11 @@
     },
     "userService": {
         "errors": {
-            "notFound": "User with the given E-Mail and Password combination is not found"
-        }
+            "notFound": "User with the given E-Mail and Password combination is not found",
+            "alreadyRegistered": "User with the given E-Mail is already registered"
+        },
+        "successfulLogin": "You have successfully signed in",
+        "successfulRegistration": "You have successfully signed up",
+        "statusChanged": "User status have been successfully changed"
     }
 }

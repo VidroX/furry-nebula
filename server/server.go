@@ -16,10 +16,12 @@ import (
 	"github.com/VidroX/furry-nebula/services/jwx"
 	"github.com/VidroX/furry-nebula/services/translator"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 )
 
 type Environment struct {
+	validate      *validator.Validate
 	controller    *repositories.Repositories
 	jwkPrivateKey *jwk.ECDSAPrivateKey
 	jwkPublicKey  *jwk.ECDSAPublicKey
@@ -38,7 +40,10 @@ func main() {
 	keySet := jwk.NewSet()
 	keySet.AddKey(public)
 
+	validate := validator.New()
+
 	env := Environment{
+		validate:      validate,
 		controller:    controller,
 		jwkPrivateKey: &private,
 		jwkPublicKey:  &public,
@@ -106,6 +111,7 @@ func (env *Environment) environmentMiddleware() gin.HandlerFunc {
 
 		c.Set(core.ServicesKey, core.Init(
 			&core.ServiceDependencies{
+				Validate:     env.validate,
 				Localizer:    &nebulaLocalizer,
 				Repositories: *env.controller,
 				PrivateJWK:   env.jwkPrivateKey,

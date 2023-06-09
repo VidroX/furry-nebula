@@ -8,6 +8,9 @@ import (
 type UserRepository interface {
 	GetUserById(id string) (*model.User, error)
 	GetUserByEmail(email string) (*model.User, error)
+	CreateUser(user *model.User) error
+	IsUserApproved(id string) (bool, error)
+	ChangeUserApprovalStatus(id string, isApproved bool) error
 }
 
 func Get(database *database.NebulaDb) UserRepository {

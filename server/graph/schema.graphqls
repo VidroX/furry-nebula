@@ -1,11 +1,21 @@
 directive @isAuthenticated on FIELD_DEFINITION
 directive @noUserOnly on FIELD_DEFINITION
 directive @hasRole(role: Role!) on FIELD_DEFINITION
+directive @approvedUserOnly on FIELD_DEFINITION
 
 enum Role {
     Admin
     Shelter
     User
+}
+
+enum RegistrationRole {
+    Shelter
+    User
+}
+
+type ResponseMessage {
+  message: String!
 }
 
 type User {
@@ -14,6 +24,17 @@ type User {
   lastName: String!
   role: Role!
   email: String!
+  about: String!
+  isApproved: Boolean!
+}
+
+input UserRegistrationInput {
+  firstName: String!
+  lastName: String!
+  email: String!
+  about: String
+  password: String!
+  role: RegistrationRole
 }
 
 enum TokenType {
@@ -27,9 +48,10 @@ type Token {
 }
 
 type UserWithToken {
-  user: User!
-  accessToken: Token!
-  refreshToken: Token!
+  message: String!
+  user: User
+  accessToken: Token
+  refreshToken: Token
 }
 
 type Query {
@@ -38,4 +60,6 @@ type Query {
 
 type Mutation {
   login(email: String!, password: String!): UserWithToken! @noUserOnly
+  register(userInfo: UserRegistrationInput!): UserWithToken! @noUserOnly
+  changeUserApprovalStatus(userId: ID!, isApproved: Boolean!): ResponseMessage! @hasRole(role: Admin)
 }

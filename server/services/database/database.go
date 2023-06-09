@@ -21,6 +21,7 @@ func (db *NebulaDb) AutoMigrateAll() {
 	db.AutoMigrate(
 		&model.UserRole{},
 		&model.User{},
+		&model.UserApproval{},
 	)
 }
 
@@ -35,7 +36,12 @@ func (db *NebulaDb) PopulateRoles() {
 
 		dbRole.Name = userRole.String()
 
-		db.Create(&dbRole)
+		err := db.Create(&dbRole).Error
+
+		if err != nil {
+			log.Fatalf("Unable to populate user roles. Error: %v", err)
+			return
+		}
 	}
 
 	log.Println("Successfully populated user roles!")
@@ -67,7 +73,24 @@ func (db *NebulaDb) CreateAdminUser() {
 		},
 	}
 
-	db.Create(&adminUser)
+	err := db.Create(&adminUser).Error
+
+	if err != nil {
+		log.Fatalf("Unable to create default admin user. Error: %v", err)
+		return
+	}
+
+	adminUserApproval := model.UserApproval{
+		User:       adminUser,
+		IsApproved: true,
+	}
+
+	err = db.Create(&adminUserApproval).Error
+
+	if err != nil {
+		log.Fatalf("Unable to approve default admin user. Error: %v", err)
+		return
+	}
 
 	log.Println("Successfully created default admin user!")
 }

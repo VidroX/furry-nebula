@@ -4,6 +4,7 @@ import (
 	"github.com/VidroX/furry-nebula/repositories"
 	"github.com/VidroX/furry-nebula/services/core/user"
 	"github.com/VidroX/furry-nebula/services/translator"
+	"github.com/go-playground/validator/v10"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 )
 
@@ -14,6 +15,7 @@ type Services struct {
 }
 
 type ServiceDependencies struct {
+	Validate     *validator.Validate
 	Localizer    *translator.NebulaLocalizer
 	PrivateJWK   *jwk.ECDSAPrivateKey
 	Repositories repositories.Repositories
@@ -21,6 +23,11 @@ type ServiceDependencies struct {
 
 func Init(deps *ServiceDependencies) *Services {
 	return &Services{
-		UserService: user.RegisterUserService(deps.Localizer, deps.PrivateJWK, deps.Repositories.UserRepository),
+		UserService: user.RegisterUserService(
+			deps.Validate,
+			deps.Localizer,
+			deps.PrivateJWK,
+			deps.Repositories.UserRepository,
+		),
 	}
 }
