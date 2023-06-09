@@ -13,6 +13,20 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.UserWithToken, error) {
+	gCtx := GetGinContext(ctx)
+	userService := gCtx.GetServices().UserService
+
+	user, err := userService.Login(email, password)
+
+	if err != nil {
+		return nil, gqlerror.Errorf(err.Error())
+	}
+
+	return user, nil
+}
+
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	gCtx := GetGinContext(ctx)
@@ -38,11 +52,15 @@ func (r *userResolver) Role(ctx context.Context, obj *model.User) (model.Role, e
 	return role, err
 }
 
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }

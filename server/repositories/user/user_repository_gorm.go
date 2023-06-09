@@ -21,3 +21,14 @@ func (repo *UserRepositoryGorm) GetUserById(id string) (*model.User, error) {
 
 	return &user, nil
 }
+
+func (repo *UserRepositoryGorm) GetUserByEmail(email string) (*model.User, error) {
+	var user model.User
+	err := repo.database.First(&user, "email = ?", email).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

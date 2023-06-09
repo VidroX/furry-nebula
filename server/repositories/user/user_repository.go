@@ -7,6 +7,7 @@ import (
 
 type UserRepository interface {
 	GetUserById(id string) (*model.User, error)
+	GetUserByEmail(email string) (*model.User, error)
 }
 
 func Get(database *database.NebulaDb) UserRepository {

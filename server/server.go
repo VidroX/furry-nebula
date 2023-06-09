@@ -106,8 +106,9 @@ func (env *Environment) environmentMiddleware() gin.HandlerFunc {
 
 		c.Set(core.ServicesKey, core.Init(
 			&core.ServiceDependencies{
+				Localizer:    &nebulaLocalizer,
 				Repositories: *env.controller,
-				JWKSet:       env.jwkSet,
+				PrivateJWK:   env.jwkPrivateKey,
 			},
 		))
 

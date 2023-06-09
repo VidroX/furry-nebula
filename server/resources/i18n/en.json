@@ -1,7 +1,12 @@
 {
     "test": "Test",
-    "errors": {
+    "generalErrors": {
         "notEnoughPermissions": "You don't have enough permissions to perform this action",
         "internalError": "Internal error has occurred"
+    },
+    "userService": {
+        "errors": {
+            "notFound": "User with the given E-Mail and Password combination is not found"
+        }
     }
 }

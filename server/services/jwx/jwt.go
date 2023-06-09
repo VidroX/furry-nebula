@@ -2,48 +2,36 @@ package jwx
 
 import (
 	"log"
-	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/repositories/user"
+	"github.com/VidroX/furry-nebula/services/environment"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
-type TokenType string
-
 const (
-	AccessToken    TokenType = "access"
-	RefreshToken   TokenType = "refresh"
-	UserContextKey string    = "user"
+	UserContextKey string = "user"
 )
 
-func getIssuerFromRequest(request *http.Request) string {
-	scheme := "http://"
-	if request.TLS != nil {
-		scheme = "https://"
-	}
-
-	return scheme + request.Host + "/"
-}
-
-func CreateUserToken(request *http.Request, privateKey jwk.Key, tokenType TokenType, user *model.User) string {
-	if tokenType != AccessToken && tokenType != RefreshToken {
-		tokenType = AccessToken
+func CreateUserToken(privateKey jwk.Key, tokenType model.TokenType, user *model.User) string {
+	if tokenType != model.TokenTypeAccess && tokenType != model.TokenTypeRefresh {
+		tokenType = model.TokenTypeAccess
 	}
 
 	issueTime := time.Now()
 
 	builder := jwt.NewBuilder().
 		Claim("typ", tokenType).
-		Issuer(getIssuerFromRequest(request)).
+		Issuer(os.Getenv(environment.KeysTokenIssuer)).
 		IssuedAt(issueTime).
 		Subject(user.ID)
 
-	if tokenType == RefreshToken {
+	if tokenType == model.TokenTypeAccess {
 		builder = builder.Expiration(issueTime.Add(time.Hour * 24 * 7))
 	} else {
 		builder = builder.Expiration(issueTime.Add(time.Minute * 15))
