@@ -14,6 +14,7 @@ import (
 var AppDirectives = graph.DirectiveRoot{
 	HasRole:         hasRoleDirective,
 	IsAuthenticated: isAuthenticatedDirective,
+	NoUserOnly:      noUserOnlyDirective,
 }
 
 func isAuthenticatedDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
@@ -44,6 +45,17 @@ func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolve
 	}
 
 	gCtx.Set(jwx.UserContextKey, user)
+
+	return next(ctx)
+}
+
+func noUserOnlyDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, _ := getUser(gCtx)
+
+	if user != nil {
+		return nil, fmt.Errorf(translator.WithKey(translator.KeysNotEnoughPermissions).Translate(gCtx.GetLocalizer()))
+	}
 
 	return next(ctx)
 }

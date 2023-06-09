@@ -1,4 +1,5 @@
 directive @isAuthenticated on FIELD_DEFINITION
+directive @noUserOnly on FIELD_DEFINITION
 directive @hasRole(role: Role!) on FIELD_DEFINITION
 
 enum Role {

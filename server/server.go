@@ -23,7 +23,7 @@ type Environment struct {
 	controller    *repositories.Repositories
 	jwkPrivateKey *jwk.ECDSAPrivateKey
 	jwkPublicKey  *jwk.ECDSAPublicKey
-	jwkKeySet     *jwk.Set
+	jwkSet        *jwk.Set
 }
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 		controller:    controller,
 		jwkPrivateKey: &private,
 		jwkPublicKey:  &public,
-		jwkKeySet:     &keySet,
+		jwkSet:        &keySet,
 	}
 
 	r := gin.Default()
@@ -63,6 +63,7 @@ func loadDatabase() {
 
 	gormDB.AutoMigrateAll()
 	gormDB.PopulateRoles()
+	gormDB.CreateAdminUser()
 }
 
 func (env *Environment) graphqlHandler() gin.HandlerFunc {
@@ -93,7 +94,7 @@ func (env *Environment) playgroundHandler() gin.HandlerFunc {
 
 func (env *Environment) certsHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, env.jwkKeySet)
+		c.JSON(http.StatusOK, env.jwkSet)
 	}
 }
 
@@ -106,6 +107,7 @@ func (env *Environment) environmentMiddleware() gin.HandlerFunc {
 		c.Set(core.ServicesKey, core.Init(
 			&core.ServiceDependencies{
 				Repositories: *env.controller,
+				JWKSet:       env.jwkSet,
 			},
 		))
 

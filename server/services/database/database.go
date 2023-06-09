@@ -3,9 +3,12 @@ package database
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/environment"
+	sUtils "github.com/VidroX/furry-nebula/utils/string_utils"
+	"github.com/alexedwards/argon2id"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -34,6 +37,39 @@ func (db *NebulaDb) PopulateRoles() {
 
 		db.Create(&dbRole)
 	}
+
+	log.Println("Successfully populated user roles!")
+}
+
+func (db *NebulaDb) CreateAdminUser() {
+	email := os.Getenv(environment.KeysAdminEmail)
+	password := os.Getenv(environment.KeysAdminPassword)
+	if sUtils.IsEmpty(email) || sUtils.IsEmpty(password) {
+		return
+	}
+
+	var count int64 = 0
+	db.Model(&model.User{}).Count(&count)
+
+	if count > 0 {
+		return
+	}
+
+	hashed_password, _ := argon2id.CreateHash(password, argon2id.DefaultParams)
+
+	adminUser := model.User{
+		EMail:     strings.TrimSpace(email),
+		FirstName: "Admin",
+		LastName:  "User",
+		Password:  hashed_password,
+		Role: model.UserRole{
+			Name: "Admin",
+		},
+	}
+
+	db.Create(&adminUser)
+
+	log.Println("Successfully created default admin user!")
 }
 
 var Instance *NebulaDb

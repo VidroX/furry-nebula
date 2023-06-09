@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/alexedwards/argon2id v0.0.0-20230305115115-4b3c3280a736
 	github.com/gin-gonic/gin v1.9.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lestrrat-go/jwx/v2 v2.0.9
