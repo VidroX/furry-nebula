@@ -9,10 +9,12 @@ import (
 )
 
 var (
-	mainErrorCode         = "errors.validation."
-	ErrValidationUnknown  = nebula_errors.APIError{Code: mainErrorCode + "0", Error: errors.New(translator.KeysValidationUnknownError)}
-	ErrValidationRequired = nebula_errors.APIError{Code: mainErrorCode + "1", Error: errors.New(translator.KeysValidationRequiredError)}
-	ErrIncorrectEmail     = nebula_errors.APIError{Code: mainErrorCode + "2", Error: errors.New(translator.KeysValidationIncorrectEmailError)}
+	mainErrorCode            = "errors.validation."
+	ErrValidationUnknown     = nebula_errors.APIError{Code: mainErrorCode + "0", Error: errors.New(translator.KeysValidationUnknownError)}
+	ErrValidationRequired    = nebula_errors.APIError{Code: mainErrorCode + "1", Error: errors.New(translator.KeysValidationRequiredError)}
+	ErrIncorrectEmail        = nebula_errors.APIError{Code: mainErrorCode + "2", Error: errors.New(translator.KeysValidationIncorrectEmailError)}
+	ErrUserNotFound          = nebula_errors.APIError{Code: mainErrorCode + "3", Error: errors.New(translator.KeysUserServiceErrorsNotFound)}
+	ErrUserAlreadyRegistered = nebula_errors.APIError{Code: mainErrorCode + "4", Error: errors.New(translator.KeysUserServiceErrorsAlreadyRegistered)}
 )
 
 func ConstructValidationError(err nebula_errors.APIError, field string) *nebula_errors.APIError {

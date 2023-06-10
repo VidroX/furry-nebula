@@ -21,8 +21,10 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 
 	user, err := userService.Login(email, password)
 
-	if err != nil {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	if err != nil && len(err) > 0 {
+		graph.ProcessErrorsSlice(&ctx, gCtx.GetLocalizer(), err)
+
+		return nil, nil
 	}
 
 	return user, nil

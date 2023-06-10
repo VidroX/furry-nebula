@@ -5,7 +5,6 @@ import (
 
 	nebula_errors "github.com/VidroX/furry-nebula/errors"
 	general_errors "github.com/VidroX/furry-nebula/errors/general"
-	user_errors "github.com/VidroX/furry-nebula/errors/user"
 	"github.com/VidroX/furry-nebula/errors/validation"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/repositories/user"
@@ -21,7 +20,7 @@ import (
 )
 
 type UserService interface {
-	Login(email string, password string) (*model.UserWithToken, *nebula_errors.APIError)
+	Login(email string, password string) (*model.UserWithToken, []*nebula_errors.APIError)
 	Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebula_errors.APIError)
 	ChangeUserApprovalStatus(userId string, isApproved bool) *nebula_errors.APIError
 }
@@ -33,21 +32,30 @@ type userService struct {
 	privateJWK     *jwk.ECDSAPrivateKey
 }
 
-func (service *userService) Login(email string, password string) (*model.UserWithToken, *nebula_errors.APIError) {
+func (service *userService) Login(email string, password string) (*model.UserWithToken, []*nebula_errors.APIError) {
 	if UtilString(email).IsEmpty() || UtilString(password).IsEmpty() {
-		return nil, &user_errors.ErrUserNotFound
+		return nil, []*nebula_errors.APIError{
+			validation.ConstructValidationError(validation.ErrUserNotFound, "EMail"),
+			validation.ConstructValidationError(validation.ErrUserNotFound, "Password"),
+		}
 	}
 
 	user, err := service.userRepository.GetUserByEmail(email)
 
 	if err != nil || user == nil {
-		return nil, &user_errors.ErrUserNotFound
+		return nil, []*nebula_errors.APIError{
+			validation.ConstructValidationError(validation.ErrUserNotFound, "EMail"),
+			validation.ConstructValidationError(validation.ErrUserNotFound, "Password"),
+		}
 	}
 
 	match, err := argon2id.ComparePasswordAndHash(password, user.Password)
 
 	if err != nil || !match {
-		return nil, &user_errors.ErrUserNotFound
+		return nil, []*nebula_errors.APIError{
+			validation.ConstructValidationError(validation.ErrUserNotFound, "EMail"),
+			validation.ConstructValidationError(validation.ErrUserNotFound, "Password"),
+		}
 	}
 
 	accessToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeAccess, user)
@@ -113,7 +121,7 @@ func (service *userService) Register(userInfo model.UserRegistrationInput) (*mod
 
 	var pgErr *pgconn.PgError
 	if err != nil && (errors.Is(err, gorm.ErrDuplicatedKey) || (errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation)) {
-		return nil, []*nebula_errors.APIError{&user_errors.ErrUserAlreadyRegistered}
+		return nil, []*nebula_errors.APIError{validation.ConstructValidationError(validation.ErrUserAlreadyRegistered, "EMail")}
 	} else if err != nil {
 		return nil, []*nebula_errors.APIError{&general_errors.ErrInternal}
 	}
