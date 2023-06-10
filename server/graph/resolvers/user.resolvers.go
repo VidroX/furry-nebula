@@ -8,19 +8,20 @@ import (
 	"context"
 
 	general_errors "github.com/VidroX/furry-nebula/errors/general"
+	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/translator"
 )
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.UserWithToken, error) {
-	gCtx := GetGinContext(ctx)
+	gCtx := graph.GetGinContext(ctx)
 	userService := gCtx.GetServices().UserService
 
 	user, err := userService.Login(email, password)
 
 	if err != nil {
-		return nil, FormatError(gCtx.GetLocalizer(), err)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	return user, nil
@@ -28,13 +29,13 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, userInfo model.UserRegistrationInput) (*model.UserWithToken, error) {
-	gCtx := GetGinContext(ctx)
+	gCtx := graph.GetGinContext(ctx)
 	userService := gCtx.GetServices().UserService
 
 	user, err := userService.Register(userInfo)
 
 	if err != nil {
-		return nil, FormatError(gCtx.GetLocalizer(), err)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	return user, nil
@@ -42,13 +43,13 @@ func (r *mutationResolver) Register(ctx context.Context, userInfo model.UserRegi
 
 // ChangeUserApprovalStatus is the resolver for the changeUserApprovalStatus field.
 func (r *mutationResolver) ChangeUserApprovalStatus(ctx context.Context, userID string, isApproved bool) (*model.ResponseMessage, error) {
-	gCtx := GetGinContext(ctx)
+	gCtx := graph.GetGinContext(ctx)
 	userService := gCtx.GetServices().UserService
 
 	err := userService.ChangeUserApprovalStatus(userID, isApproved)
 
 	if err != nil {
-		return nil, FormatError(gCtx.GetLocalizer(), err)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	return &model.ResponseMessage{
@@ -58,24 +59,50 @@ func (r *mutationResolver) ChangeUserApprovalStatus(ctx context.Context, userID 
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
-	gCtx := GetGinContext(ctx)
+	gCtx := graph.GetGinContext(ctx)
 	user, err := gCtx.RequireUser()
 
 	if err != nil {
-		return nil, FormatError(gCtx.GetLocalizer(), err)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	return user, nil
 }
 
+// UserApprovals is the resolver for the userApprovals field.
+func (r *queryResolver) UserApprovals(ctx context.Context, filters *model.ApprovalFilters) ([]*model.User, error) {
+	gCtx := graph.GetGinContext(ctx)
+	userRepo := gCtx.GetRepositories().UserRepository
+
+	var approvals []*model.UserApproval
+	var err error
+
+	if filters != nil {
+		approvals, err = userRepo.GetUserApprovals(filters.IsApproved)
+	} else {
+		approvals, err = userRepo.GetUserApprovals(nil)
+	}
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+	}
+
+	users := []*model.User{}
+	for _, approval := range approvals {
+		users = append(users, &approval.User)
+	}
+
+	return users, nil
+}
+
 // Role is the resolver for the role field.
 func (r *userResolver) Role(ctx context.Context, obj *model.User) (model.Role, error) {
-	gCtx := GetGinContext(ctx)
+	gCtx := graph.GetGinContext(ctx)
 	role := model.Role(obj.RoleName)
 
 	var err error
 	if !role.IsValid() {
-		err = FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		err = graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
 	}
 
 	return role, err
@@ -83,27 +110,19 @@ func (r *userResolver) Role(ctx context.Context, obj *model.User) (model.Role, e
 
 // IsApproved is the resolver for the isApproved field.
 func (r *userResolver) IsApproved(ctx context.Context, obj *model.User) (bool, error) {
-	gCtx := GetGinContext(ctx)
+	gCtx := graph.GetGinContext(ctx)
 	userRepo := gCtx.GetRepositories().UserRepository
 
 	isApproved, err := userRepo.IsUserApproved(obj.ID)
 
 	if err != nil {
-		return false, FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		return false, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
 	}
 
 	return isApproved, nil
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+// User returns graph.UserResolver implementation.
+func (r *Resolver) User() graph.UserResolver { return &userResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-// User returns UserResolver implementation.
-func (r *Resolver) User() UserResolver { return &userResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }

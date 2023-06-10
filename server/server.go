@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/VidroX/furry-nebula/graph"
+	resolvers "github.com/VidroX/furry-nebula/graph/resolvers"
 	"github.com/VidroX/furry-nebula/repositories"
 	"github.com/VidroX/furry-nebula/services/core"
 	"github.com/VidroX/furry-nebula/services/database"
@@ -73,7 +74,7 @@ func loadDatabase() {
 
 func (env *Environment) graphqlHandler() gin.HandlerFunc {
 	c := graph.Config{
-		Resolvers:  &graph.Resolver{},
+		Resolvers:  &resolvers.Resolver{},
 		Directives: AppDirectives,
 	}
 

@@ -8,6 +8,10 @@ import (
 	"strconv"
 )
 
+type ApprovalFilters struct {
+	IsApproved *bool `json:"isApproved,omitempty"`
+}
+
 type ResponseMessage struct {
 	Message string `json:"message"`
 }

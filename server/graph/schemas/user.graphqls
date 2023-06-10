@@ -1,8 +1,3 @@
-directive @isAuthenticated on FIELD_DEFINITION
-directive @noUserOnly on FIELD_DEFINITION
-directive @hasRole(role: Role!) on FIELD_DEFINITION
-directive @approvedUserOnly on FIELD_DEFINITION
-
 enum Role {
     Admin
     Shelter
@@ -54,11 +49,16 @@ type UserWithToken {
   refreshToken: Token
 }
 
-type Query {
-  user: User! @isAuthenticated
+input ApprovalFilters {
+  isApproved: Boolean
 }
 
-type Mutation {
+extend type Query {
+  user: User! @isAuthenticated
+  userApprovals(filters: ApprovalFilters): [User!] @hasRole(role: Admin)
+}
+
+extend type Mutation {
   login(email: String!, password: String!): UserWithToken! @noUserOnly
   register(userInfo: UserRegistrationInput!): UserWithToken! @noUserOnly
   changeUserApprovalStatus(userId: ID!, isApproved: Boolean!): ResponseMessage! @hasRole(role: Admin)
