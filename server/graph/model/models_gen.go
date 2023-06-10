@@ -63,6 +63,12 @@ type UserWithToken struct {
 	RefreshToken *Token `json:"refreshToken,omitempty"`
 }
 
+// Users list connection
+type UsersConnection struct {
+	Node     []*User   `json:"node"`
+	PageInfo *PageInfo `json:"pageInfo"`
+}
+
 // Limited user roles for registration
 type RegistrationRole string
 

@@ -35,8 +35,10 @@ func (r *mutationResolver) Register(ctx context.Context, userInfo model.UserRegi
 
 	user, err := userService.Register(userInfo)
 
-	if err != nil {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	if err != nil && len(err) > 0 {
+		graph.ProcessErrorsSlice(&ctx, gCtx.GetLocalizer(), err)
+
+		return nil, nil
 	}
 
 	return user, nil
@@ -68,6 +70,23 @@ func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	}
 
 	return user, nil
+}
+
+// Users is the resolver for the users field.
+func (r *queryResolver) Users(ctx context.Context, pagination *model.Pagination) (*model.UsersConnection, error) {
+	gCtx := graph.GetGinContext(ctx)
+	userRepo := gCtx.GetRepositories().UserRepository
+
+	users, total, err := userRepo.GetUsers(pagination)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+	}
+
+	return &model.UsersConnection{
+		Node:     users,
+		PageInfo: database.GetPageInfo(total, pagination),
+	}, nil
 }
 
 // UserApprovals is the resolver for the userApprovals field.

@@ -99,3 +99,22 @@ func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, pagination *P
 
 	return results, total, nil
 }
+
+func (repo *UserRepositoryGorm) GetUsers(pagination *Pagination) ([]*User, int64, error) {
+	users := []*User{}
+	err := repo.database.
+		Model(&User{}).
+		Preload("Role").
+		Scopes(database.PaginationScope(pagination)).
+		Find(&users).
+		Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var total int64 = 0
+	repo.database.Model(&User{}).Count(&total)
+
+	return users, total, nil
+}

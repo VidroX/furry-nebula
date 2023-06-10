@@ -90,11 +90,24 @@ type UserApprovalsConnection {
   pageInfo: PageInfo!
 }
 
+"""
+Users list connection
+"""
+type UsersConnection {
+  node: [User]!
+  pageInfo: PageInfo!
+}
+
 extend type Query {
   """
   Get currently authenticated user info
   """
   user: User! @isAuthenticated
+
+  """
+  Get the list of all users. Admin user is required.
+  """
+  users(pagination: Pagination): UsersConnection! @hasRole(role: Admin)
 
   """
   Get the list of user approvals. Admin user is required.

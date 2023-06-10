@@ -6,6 +6,7 @@ import (
 	nebula_errors "github.com/VidroX/furry-nebula/errors"
 	general_errors "github.com/VidroX/furry-nebula/errors/general"
 	user_errors "github.com/VidroX/furry-nebula/errors/user"
+	"github.com/VidroX/furry-nebula/errors/validation"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/repositories/user"
 	"github.com/VidroX/furry-nebula/services/jwx"
@@ -21,7 +22,7 @@ import (
 
 type UserService interface {
 	Login(email string, password string) (*model.UserWithToken, *nebula_errors.APIError)
-	Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, *nebula_errors.APIError)
+	Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebula_errors.APIError)
 	ChangeUserApprovalStatus(userId string, isApproved bool) *nebula_errors.APIError
 }
 
@@ -68,7 +69,7 @@ func (service *userService) Login(email string, password string) (*model.UserWit
 	}, nil
 }
 
-func (service *userService) Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, *nebula_errors.APIError) {
+func (service *userService) Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebula_errors.APIError) {
 	var properInputRole model.RegistrationRole = model.RegistrationRoleUser
 	if userInfo.Role != nil {
 		properInputRole = *userInfo.Role
@@ -96,16 +97,14 @@ func (service *userService) Register(userInfo model.UserRegistrationInput) (*mod
 
 	err := service.validate.Struct(&user)
 
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			return nil, &nebula_errors.APIError{Code: nebula_errors.UnknownErrorCode, Error: err}
-		}
+	if errors := validation.ProcessValidatorErrors(err); errors != nil && len(errors) > 0 {
+		return nil, errors
 	}
 
 	hashedPassword, err := argon2id.CreateHash(user.Password, argon2id.DefaultParams)
 
 	if err != nil {
-		return nil, &general_errors.ErrInternal
+		return nil, []*nebula_errors.APIError{&general_errors.ErrInternal}
 	}
 
 	user.Password = hashedPassword
@@ -114,9 +113,9 @@ func (service *userService) Register(userInfo model.UserRegistrationInput) (*mod
 
 	var pgErr *pgconn.PgError
 	if err != nil && (errors.Is(err, gorm.ErrDuplicatedKey) || (errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation)) {
-		return nil, &user_errors.ErrUserAlreadyRegistered
+		return nil, []*nebula_errors.APIError{&user_errors.ErrUserAlreadyRegistered}
 	} else if err != nil {
-		return nil, &general_errors.ErrInternal
+		return nil, []*nebula_errors.APIError{&general_errors.ErrInternal}
 	}
 
 	accessToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeAccess, &user)

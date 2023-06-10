@@ -31,7 +31,7 @@ func CreateUserToken(privateKey jwk.Key, tokenType model.TokenType, user *model.
 		IssuedAt(issueTime).
 		Subject(user.ID)
 
-	if tokenType == model.TokenTypeAccess {
+	if tokenType == model.TokenTypeRefresh {
 		builder = builder.Expiration(issueTime.Add(time.Hour * 24 * 7))
 	} else {
 		builder = builder.Expiration(issueTime.Add(time.Minute * 15))
