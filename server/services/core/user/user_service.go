@@ -10,7 +10,7 @@ import (
 	"github.com/VidroX/furry-nebula/repositories/user"
 	"github.com/VidroX/furry-nebula/services/jwx"
 	"github.com/VidroX/furry-nebula/services/translator"
-	"github.com/VidroX/furry-nebula/utils"
+	. "github.com/VidroX/furry-nebula/utils"
 	"github.com/alexedwards/argon2id"
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgerrcode"
@@ -33,7 +33,7 @@ type userService struct {
 }
 
 func (service *userService) Login(email string, password string) (*model.UserWithToken, *nebula_errors.APIError) {
-	if utils.IsEmpty(email) || utils.IsEmpty(password) {
+	if UtilString(email).IsEmpty() || UtilString(password).IsEmpty() {
 		return nil, &user_errors.ErrUserNotFound
 	}
 

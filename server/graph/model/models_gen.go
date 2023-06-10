@@ -8,19 +8,44 @@ import (
 	"strconv"
 )
 
+// Filters for list of user approvals
 type ApprovalFilters struct {
 	IsApproved *bool `json:"isApproved,omitempty"`
 }
 
+// Page information
+type PageInfo struct {
+	Page            *int   `json:"page,omitempty"`
+	ResultsPerPage  *int   `json:"resultsPerPage,omitempty"`
+	TotalResults    *int64 `json:"totalResults,omitempty"`
+	HasNextPage     *bool  `json:"hasNextPage,omitempty"`
+	HasPreviousPage *bool  `json:"hasPreviousPage,omitempty"`
+}
+
+// Pagination filters
+type Pagination struct {
+	Page           *int `json:"page,omitempty"`
+	ResultsPerPage *int `json:"resultsPerPage,omitempty"`
+}
+
+// Simple response with message
 type ResponseMessage struct {
 	Message string `json:"message"`
 }
 
+// Auth token
 type Token struct {
 	Type  TokenType `json:"type"`
 	Token string    `json:"token"`
 }
 
+// User approvals connection
+type UserApprovalsConnection struct {
+	Node     []*User   `json:"node"`
+	PageInfo *PageInfo `json:"pageInfo"`
+}
+
+// Registration input data for User
 type UserRegistrationInput struct {
 	FirstName string            `json:"firstName"`
 	LastName  string            `json:"lastName"`
@@ -30,6 +55,7 @@ type UserRegistrationInput struct {
 	Role      *RegistrationRole `json:"role,omitempty"`
 }
 
+// Messaged response with User and its auth tokens
 type UserWithToken struct {
 	Message      string `json:"message"`
 	User         *User  `json:"user,omitempty"`
@@ -37,6 +63,7 @@ type UserWithToken struct {
 	RefreshToken *Token `json:"refreshToken,omitempty"`
 }
 
+// Limited user roles for registration
 type RegistrationRole string
 
 const (
@@ -78,6 +105,7 @@ func (e RegistrationRole) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// User Roles
 type Role string
 
 const (
@@ -121,6 +149,7 @@ func (e Role) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Auth token types
 type TokenType string
 
 const (

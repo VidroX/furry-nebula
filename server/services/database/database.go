@@ -7,7 +7,7 @@ import (
 
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/environment"
-	"github.com/VidroX/furry-nebula/utils"
+	. "github.com/VidroX/furry-nebula/utils"
 	"github.com/alexedwards/argon2id"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -50,7 +50,7 @@ func (db *NebulaDb) PopulateRoles() {
 func (db *NebulaDb) CreateAdminUser() {
 	email := os.Getenv(environment.KeysAdminEmail)
 	password := os.Getenv(environment.KeysAdminPassword)
-	if utils.IsEmpty(email) || utils.IsEmpty(password) {
+	if UtilString(email).IsEmpty() || UtilString(password).IsEmpty() {
 		return
 	}
 

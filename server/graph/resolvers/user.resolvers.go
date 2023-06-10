@@ -10,6 +10,7 @@ import (
 	general_errors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
+	"github.com/VidroX/furry-nebula/services/database"
 	"github.com/VidroX/furry-nebula/services/translator"
 )
 
@@ -70,17 +71,18 @@ func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 }
 
 // UserApprovals is the resolver for the userApprovals field.
-func (r *queryResolver) UserApprovals(ctx context.Context, filters *model.ApprovalFilters) ([]*model.User, error) {
+func (r *queryResolver) UserApprovals(ctx context.Context, filters *model.ApprovalFilters, pagination *model.Pagination) (*model.UserApprovalsConnection, error) {
 	gCtx := graph.GetGinContext(ctx)
 	userRepo := gCtx.GetRepositories().UserRepository
 
 	var approvals []*model.UserApproval
 	var err error
+	var total int64
 
 	if filters != nil {
-		approvals, err = userRepo.GetUserApprovals(filters.IsApproved)
+		approvals, total, err = userRepo.GetUserApprovals(filters.IsApproved, pagination)
 	} else {
-		approvals, err = userRepo.GetUserApprovals(nil)
+		approvals, total, err = userRepo.GetUserApprovals(nil, pagination)
 	}
 
 	if err != nil {
@@ -92,7 +94,10 @@ func (r *queryResolver) UserApprovals(ctx context.Context, filters *model.Approv
 		users = append(users, &approval.User)
 	}
 
-	return users, nil
+	return &model.UserApprovalsConnection{
+		Node:     users,
+		PageInfo: database.GetPageInfo(total, pagination),
+	}, nil
 }
 
 // Role is the resolver for the role field.

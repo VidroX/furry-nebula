@@ -11,7 +11,7 @@ type UserRepository interface {
 	CreateUser(user *model.User) error
 	IsUserApproved(id string) (bool, error)
 	ChangeUserApprovalStatus(id string, isApproved bool) error
-	GetUserApprovals(isApproved *bool) ([]*model.UserApproval, error)
+	GetUserApprovals(isApproved *bool, pagination *model.Pagination) ([]*model.UserApproval, int64, error)
 }
 
 func Get(database *database.NebulaDb) UserRepository {
