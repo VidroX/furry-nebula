@@ -23,4 +23,12 @@ func TestTranslatorTranslation(t *testing.T) {
 	translation := WithKey(KeysTest).Translate(&localizer)
 
 	assert.Equal(t, "Test", translation)
+
+	localizer = Init("uk")
+
+	assert.NotNil(t, localizer)
+
+	translation = WithKey(KeysTest).Translate(&localizer)
+
+	assert.Equal(t, "Тест", translation)
 }

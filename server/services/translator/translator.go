@@ -24,6 +24,7 @@ func Init(langs ...string) NebulaLocalizer {
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 	bundle.MustLoadMessageFile(os.Getenv(environment.KeysAppPath) + "/resources/i18n/en.json")
+	bundle.MustLoadMessageFile(os.Getenv(environment.KeysAppPath) + "/resources/i18n/uk.json")
 
 	return NebulaLocalizer{i18n.NewLocalizer(bundle, langs...)}
 }
