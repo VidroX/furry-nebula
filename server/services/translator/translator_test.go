@@ -9,7 +9,9 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	os.Setenv("ENVIRONMENT_TYPE", "dev")
+	if len(os.Getenv("ENVIRONMENT_TYPE")) <= 0 {
+		os.Setenv("ENVIRONMENT_TYPE", "dev")
+	}
 	environment.LoadEnvironment(&environment.EnvironmentParams{BasePath: "../../"})
 
 	os.Exit(m.Run())

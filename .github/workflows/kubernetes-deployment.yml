@@ -29,8 +29,10 @@ jobs:
       - name: Install dependencies
         run: go mod tidy
 
-      - name: Build
-        run: go build -v ./...
+      - name: Create an empty .env file required for testing
+        run: |
+          touch release.env
+        shell: bash
 
       - name: Test
         run: go test -v ./...
