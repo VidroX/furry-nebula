@@ -23,6 +23,7 @@ type UserService interface {
 	Login(email string, password string) (*model.UserWithToken, []*nebula_errors.APIError)
 	Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebula_errors.APIError)
 	ChangeUserApprovalStatus(userId string, isApproved bool) *nebula_errors.APIError
+	CreateAccessToken(user *model.User) (*model.Token, *nebula_errors.APIError)
 }
 
 type userService struct {
@@ -145,7 +146,24 @@ func (service *userService) Register(userInfo model.UserRegistrationInput) (*mod
 	}, nil
 }
 
+func (service *userService) CreateAccessToken(user *model.User) (*model.Token, *nebula_errors.APIError) {
+	if user == nil || UtilString(user.ID).IsEmpty() {
+		return nil, validation.ConstructValidationError(validation.ErrValidationRequired, "user")
+	}
+
+	accessToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeAccess, user)
+
+	return &model.Token{
+		Type:  model.TokenTypeAccess,
+		Token: accessToken,
+	}, nil
+}
+
 func (service *userService) ChangeUserApprovalStatus(userId string, isApproved bool) *nebula_errors.APIError {
+	if UtilString(userId).IsEmpty() {
+		return validation.ConstructValidationError(validation.ErrValidationRequired, "userId")
+	}
+
 	err := service.userRepository.ChangeUserApprovalStatus(userId, isApproved)
 
 	if err != nil {

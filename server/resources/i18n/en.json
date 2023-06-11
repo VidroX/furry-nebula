@@ -7,15 +7,17 @@
             "unknownValidationError": "Please, check this field for errors"
         },
         "notEnoughPermissions": "You don't have enough permissions to perform this action",
-        "internalError": "Internal error has occurred"
+        "internalError": "An internal error has occurred",
+        "invalidOrExpiredToken": "Invalid or expired token"
     },
     "userService": {
         "errors": {
             "notFound": "User with the given E-Mail and Password combination is not found",
-            "alreadyRegistered": "User with the given E-Mail is already registered"
+            "alreadyRegistered": "User with the given E-Mail is already registered",
+            "changeOwnStatus": "You cannot change your own status"
         },
         "successfulLogin": "You have successfully signed in",
         "successfulRegistration": "You have successfully signed up",
-        "statusChanged": "User status have been successfully changed"
+        "statusChanged": "User status has been successfully changed"
     }
 }

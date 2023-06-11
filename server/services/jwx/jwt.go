@@ -57,9 +57,9 @@ func CreateUserToken(privateKey jwk.Key, tokenType model.TokenType, user *model.
 	return string(signed)
 }
 
-func GetUserFromToken(token string, publicKey jwk.Key, userRepo *user.UserRepository) *model.User {
-	verifiedToken := ValidateToken(token, publicKey)
-	if verifiedToken == nil || verifiedToken.Expiration().Before(time.Now()) {
+func GetUserFromToken(token string, publicKey jwk.Key, userRepo *user.UserRepository) *model.TokenizedUser {
+	verifiedToken, tokenType := ValidateToken(token, publicKey)
+	if verifiedToken == nil || tokenType == nil || verifiedToken.Expiration().Before(time.Now()) {
 		return nil
 	}
 
@@ -69,10 +69,13 @@ func GetUserFromToken(token string, publicKey jwk.Key, userRepo *user.UserReposi
 		return nil
 	}
 
-	return user
+	return &model.TokenizedUser{
+		User:      user,
+		TokenType: *tokenType,
+	}
 }
 
-func ValidateToken(token string, publicKey jwk.Key) jwt.Token {
+func ValidateToken(token string, publicKey jwk.Key) (jwt.Token, *model.TokenType) {
 	var rawPublicKey interface{}
 	publicKey.Raw(&rawPublicKey)
 
@@ -83,8 +86,21 @@ func ValidateToken(token string, publicKey jwk.Key) jwt.Token {
 		if strings.EqualFold(os.Getenv(environment.KeysGinMode), "debug") {
 			log.Printf("Failed to verify JWS (%s): %s\n", normalizedToken, err)
 		}
-		return nil
+		return nil, nil
 	}
 
-	return verifiedToken
+	tokenType, ok := verifiedToken.Get("typ")
+	stringTokenType, ok2 := tokenType.(string)
+
+	isValidTokenType := ok2 && (strings.EqualFold(stringTokenType, model.TokenTypeAccess.String()) ||
+		strings.EqualFold(stringTokenType, model.TokenTypeRefresh.String()))
+	isProperToken := ok && isValidTokenType
+
+	if !isProperToken {
+		return nil, nil
+	}
+
+	normalizedTokenType := model.TokenType(stringTokenType)
+
+	return verifiedToken, &normalizedTokenType
 }

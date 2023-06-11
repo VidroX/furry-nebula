@@ -6,8 +6,10 @@ package graph
 
 import (
 	"context"
+	"strings"
 
 	general_errors "github.com/VidroX/furry-nebula/errors/general"
+	"github.com/VidroX/furry-nebula/errors/validation"
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/database"
@@ -49,9 +51,18 @@ func (r *mutationResolver) Register(ctx context.Context, userInfo model.UserRegi
 // ChangeUserApprovalStatus is the resolver for the changeUserApprovalStatus field.
 func (r *mutationResolver) ChangeUserApprovalStatus(ctx context.Context, userID string, isApproved bool) (*model.ResponseMessage, error) {
 	gCtx := graph.GetGinContext(ctx)
-	userService := gCtx.GetServices().UserService
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
 
-	err := userService.ChangeUserApprovalStatus(userID, isApproved)
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	if strings.EqualFold(user.ID, userID) {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), validation.ConstructValidationError(validation.ErrChangeOwnStatus, "userId"))
+	}
+
+	userService := gCtx.GetServices().UserService
+	err = userService.ChangeUserApprovalStatus(userID, isApproved)
 
 	if err != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
@@ -65,7 +76,7 @@ func (r *mutationResolver) ChangeUserApprovalStatus(ctx context.Context, userID 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	gCtx := graph.GetGinContext(ctx)
-	user, err := gCtx.RequireUser()
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
 
 	if err != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), err)

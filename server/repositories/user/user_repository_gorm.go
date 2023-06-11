@@ -81,21 +81,23 @@ func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, pagination *P
 	model := repo.database.Model(&UserApproval{}).Preload("User")
 
 	results := []*UserApproval{}
+	var total int64 = 0
 
 	if isApproved != nil {
+		model.Where("is_approved = ?", *isApproved).Count(&total)
+
 		model = model.Where("is_approved = ?", *isApproved).
 			Scopes(database.PaginationScope(pagination)).
 			Find(&results)
 	} else {
+		model.Count(&total)
+
 		model = model.Scopes(database.PaginationScope(pagination)).Find(&results)
 	}
 
 	if err := model.Error; err != nil {
 		return nil, 0, err
 	}
-
-	var total int64 = 0
-	repo.database.Model(&UserApproval{}).Count(&total)
 
 	return results, total, nil
 }

@@ -2,6 +2,7 @@ package validation
 
 import (
 	"errors"
+	"strings"
 
 	nebula_errors "github.com/VidroX/furry-nebula/errors"
 	"github.com/VidroX/furry-nebula/services/translator"
@@ -15,6 +16,7 @@ var (
 	ErrIncorrectEmail        = nebula_errors.APIError{Code: mainErrorCode + "2", Error: errors.New(translator.KeysValidationIncorrectEmailError)}
 	ErrUserNotFound          = nebula_errors.APIError{Code: mainErrorCode + "3", Error: errors.New(translator.KeysUserServiceErrorsNotFound)}
 	ErrUserAlreadyRegistered = nebula_errors.APIError{Code: mainErrorCode + "4", Error: errors.New(translator.KeysUserServiceErrorsAlreadyRegistered)}
+	ErrChangeOwnStatus       = nebula_errors.APIError{Code: mainErrorCode + "5", Error: errors.New(translator.KeysUserServiceErrorsChangeOwnStatus)}
 )
 
 func ConstructValidationError(err nebula_errors.APIError, field string) *nebula_errors.APIError {
@@ -22,7 +24,7 @@ func ConstructValidationError(err nebula_errors.APIError, field string) *nebula_
 		err.CustomInfo = make(map[string]interface{})
 	}
 
-	err.CustomInfo["field"] = field
+	err.CustomInfo["field"] = strings.ToLower(field)
 
 	return &err
 }

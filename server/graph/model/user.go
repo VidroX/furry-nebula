@@ -15,6 +15,11 @@ type User struct {
 	Password  string   `json:"-" validate:"required,gte=6"`
 }
 
+type TokenizedUser struct {
+	User      *User     `json:"user"`
+	TokenType TokenType `json:"tokenType"`
+}
+
 func (user *User) HasRole(userRole Role) bool {
 	return Role(user.RoleName).IsValid() &&
 		userRole.IsValid() &&

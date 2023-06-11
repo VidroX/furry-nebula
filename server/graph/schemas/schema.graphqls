@@ -1,5 +1,6 @@
 directive @isAuthenticated on FIELD_DEFINITION
 directive @noUserOnly on FIELD_DEFINITION
+directive @refreshTokenOnly on FIELD_DEFINITION
 directive @hasRole(role: Role!) on FIELD_DEFINITION
 directive @approvedUserOnly on FIELD_DEFINITION
 
@@ -28,4 +29,9 @@ input Pagination {
 }
 
 type Query
-type Mutation
+type Mutation {
+  """
+  Refresh access token though refresh token provided inside Authorization header
+  """
+  refreshAccessToken: Token! @refreshTokenOnly
+}

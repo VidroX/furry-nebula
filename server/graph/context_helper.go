@@ -18,18 +18,24 @@ type ExtendedContext struct {
 	*gin.Context
 }
 
-func (ctx *ExtendedContext) RequireUser() (*model.User, *nebula_errors.APIError) {
+func (ctx *ExtendedContext) RequireUser(tokenType model.TokenType) (*model.User, *nebula_errors.APIError) {
 	user, ok := ctx.Get(jwx.UserContextKey)
 
 	if user == nil || !ok {
 		return nil, &general_errors.ErrNotEnoughPermissions
 	}
 
-	if _, ok := user.(*model.User); !ok {
+	normalizedUser, ok := user.(*model.TokenizedUser)
+
+	if !ok {
 		return nil, &general_errors.ErrNotEnoughPermissions
 	}
 
-	return user.(*model.User), nil
+	if tokenType != normalizedUser.TokenType {
+		return nil, &general_errors.ErrInvalidOrExpiredToken
+	}
+
+	return normalizedUser.User, nil
 }
 
 func (ctx *ExtendedContext) GetRepositories() *repositories.Repositories {
