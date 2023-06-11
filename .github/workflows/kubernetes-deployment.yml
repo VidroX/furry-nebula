@@ -10,6 +10,7 @@ env:
   WORKING_DIRECTORY: "./server"
   ENVIRONMENT_TYPE: "furry-nebula"
   IMAGE_NAME: "ghcr.io/vidrox/furry-nebula:latest"
+  ESCAPED_IMAGE_NAME: 'ghcr.io\/vidrox\/furry-nebula:latest'
 
 jobs:
   test:
@@ -75,9 +76,6 @@ jobs:
       id-token: write
       contents: read
       actions: read
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIRECTORY }}
     steps:
       - name: Set the Kubernetes context
         uses: azure/k8s-set-context@v3
@@ -94,7 +92,7 @@ jobs:
           sed -i 's/{HOST}/${{ secrets.HOST }}/g' manifests/ingress.yaml &&\
           sed -i 's/{ENVIRONMENT}/${{ env.ENVIRONMENT_TYPE }}/g' manifests/service.yaml &&\
           sed -i 's/{ENVIRONMENT}/${{ env.ENVIRONMENT_TYPE }}/g' manifests/deployment.yaml &&\
-          sed -i 's/{IMAGE}/${{ env.IMAGE_NAME }}/g' manifests/deployment.yaml
+          sed -i 's/{IMAGE}/${{ env.ESCAPED_IMAGE_NAME }}/g' manifests/deployment.yaml
 
       - name: Deploy to the Kubernetes cluster
         uses: azure/k8s-deploy@v4

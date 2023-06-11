@@ -7,6 +7,6 @@ WORKDIR "$APP_HOME"
 COPY . .
 
 RUN go mod tidy
-RUN go build
+RUN go build -o "$APP_NAME"
 
 CMD "./$APP_NAME"
