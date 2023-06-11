@@ -28,7 +28,7 @@ jobs:
 
       - name: Create an empty .env file required for testing
         run: |
-          touch dev.env
+          touch ${{ env.ENVIRONMENT_TYPE }}.env
         shell: bash
 
       - name: Install dependencies

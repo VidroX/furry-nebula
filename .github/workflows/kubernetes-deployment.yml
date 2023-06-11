@@ -26,13 +26,13 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
-      - name: Install dependencies
-        run: go mod tidy
-
       - name: Create an empty .env file required for testing
         run: |
-          touch release.env
+          touch ${{ env.ENVIRONMENT_TYPE }}.env
         shell: bash
+
+      - name: Install dependencies
+        run: go mod tidy
 
       - name: Test
         run: go test -v ./...
