@@ -53,6 +53,7 @@ func main() {
 
 	r := gin.Default()
 	r.Use(GinContextToContextMiddleware())
+	r.Use(env.authMiddleware())
 	r.Use(env.environmentMiddleware())
 	r.Any("/gql", env.graphqlHandler())
 	r.GET("/certs", env.certsHandler())
@@ -101,6 +102,22 @@ func (env *Environment) playgroundHandler() gin.HandlerFunc {
 func (env *Environment) certsHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, env.jwkSet)
+	}
+}
+
+func (env *Environment) authMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user := jwx.GetUserFromToken(
+			c.Request.Header.Get("Authorization"),
+			*env.jwkPublicKey,
+			&env.controller.UserRepository,
+		)
+
+		if user != nil {
+			c.Set(jwx.UserContextKey, user)
+		}
+
+		c.Next()
 	}
 }
 

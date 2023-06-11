@@ -85,21 +85,15 @@ func approvedUserOnlyDirective(ctx context.Context, obj interface{}, next graphq
 }
 
 func getUser(ctx *graph.ExtendedContext) (*model.User, *nebula_errors.APIError) {
-	_, public, err := jwx.ReadKeySet()
+	user, ok := ctx.Get(jwx.UserContextKey)
 
-	if err != nil {
-		return nil, &general_errors.ErrInternal
-	}
-
-	user := jwx.GetUserFromToken(
-		ctx.Request.Header.Get("Authorization"),
-		public,
-		&ctx.GetRepositories().UserRepository,
-	)
-
-	if user == nil {
+	if user == nil || !ok {
 		return nil, &general_errors.ErrNotEnoughPermissions
 	}
 
-	return user, nil
+	if _, ok := user.(*model.User); !ok {
+		return nil, &general_errors.ErrNotEnoughPermissions
+	}
+
+	return user.(*model.User), nil
 }
