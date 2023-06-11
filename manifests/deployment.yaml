@@ -14,21 +14,23 @@ spec:
         app: {ENVIRONMENT}
     spec:
       containers:
-      - name: {ENVIRONMENT}
-        image: {IMAGE}
-        env:
-          - name: PORT
-            value: 80
-          - name: ENVIRONMENT_TYPE
-            value: "release"
-          - name: GIN_MODE
-            value: "release"
-        ports:
-        - containerPort: 80
-        volumeMounts:
-        - name: {ENVIRONMENT}-data
-          mountPath: /app/furry-nebula
+        - name: {ENVIRONMENT}
+          image: {IMAGE}
+          env:
+            - name: PORT
+              value: "80"
+            - name: ENVIRONMENT_TYPE
+              value: "release"
+            - name: GIN_MODE
+              value: "release"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: {ENVIRONMENT}-data
+              mountPath: /app/furry-nebula
+      imagePullSecrets:
+        - name: github-container-registry
       volumes:
-      - name: {ENVIRONMENT}-data
-        persistentVolumeClaim:
-          claimName: nfs-{ENVIRONMENT}
+        - name: {ENVIRONMENT}-data
+          persistentVolumeClaim:
+            claimName: nfs-{ENVIRONMENT}
