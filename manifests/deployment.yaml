@@ -27,7 +27,7 @@ spec:
             - containerPort: 80
           volumeMounts:
             - name: {ENVIRONMENT}-data
-              mountPath: /app/furry-nebula
+              mountPath: /app/furry-nebula/data
       imagePullSecrets:
         - name: github-container-registry
       volumes:

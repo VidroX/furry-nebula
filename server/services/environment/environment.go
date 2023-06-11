@@ -27,15 +27,15 @@ func LoadEnvironment(params *EnvironmentParams) {
 	var envName string
 
 	if len(strings.TrimSpace(environment)) == 0 {
-		envName = ".env"
+		envName = "data/.env"
 		err = godotenv.Load(params.BasePath + envName)
 	} else {
-		envName = fmt.Sprintf("%s.env", strings.TrimSpace(environment))
+		envName = fmt.Sprintf("data/%s.env", strings.TrimSpace(environment))
 		err = godotenv.Load(params.BasePath + envName)
 	}
 
 	if err != nil {
-		log.Fatalf("Error loading .env file (%s)", envName)
+		log.Printf("Error loading .env file (%s)", envName)
 	}
 
 	var path string
