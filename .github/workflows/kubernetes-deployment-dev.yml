@@ -1,4 +1,4 @@
-name: Build and deploy an app to Kubernetes cluster
+name: Build and deploy an app to Kubernetes cluster (DEV)
 
 on:
   push:
@@ -60,7 +60,7 @@ jobs:
       - name: Build and push the Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./server
           platforms: linux/arm64
           tags: |
             ghcr.io/vidrox/furry-nebula:dev-latest

@@ -60,7 +60,7 @@ jobs:
       - name: Build and push the Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./server
           platforms: linux/arm64
           tags: |
             ghcr.io/vidrox/furry-nebula:latest
