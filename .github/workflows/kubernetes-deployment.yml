@@ -9,7 +9,7 @@ env:
   GO_VERSION: "1.20.5"
   WORKING_DIRECTORY: "./server"
   ENVIRONMENT_TYPE: "furry-nebula"
-  IMAGE_NAME: "ghcr.io/VidroX/furry-nebula:latest"
+  IMAGE_NAME: "ghcr.io/vidrox/furry-nebula:latest"
 
 jobs:
   test:
@@ -63,8 +63,8 @@ jobs:
           context: .
           platforms: linux/arm64
           tags: |
-            ghcr.io/VidroX/furry-nebula:latest
-            ghcr.io/VidroX/furry-nebula:${{ github.sha }}
+            ghcr.io/vidrox/furry-nebula:latest
+            ghcr.io/vidrox/furry-nebula:${{ github.sha }}
 
   deploy:
     name: Deploy
@@ -105,4 +105,4 @@ jobs:
             manifests/ingress.yaml
             manifests/service.yaml
           images: |
-            ghcr.io/VidroX/furry-nebula:${{ github.sha }}
+            ghcr.io/vidrox/furry-nebula:${{ github.sha }}
