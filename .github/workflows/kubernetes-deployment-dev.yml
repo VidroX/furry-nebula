@@ -45,6 +45,10 @@ jobs:
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIRECTORY }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
     steps:
       - uses: actions/checkout@v3
     
@@ -64,6 +68,8 @@ jobs:
           push: true
           context: ./server
           platforms: linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ghcr.io/vidrox/furry-nebula:dev-latest
             ghcr.io/vidrox/furry-nebula:dev-${{ github.sha }}
