@@ -2,14 +2,14 @@ name: Build and deploy an app to Kubernetes cluster
 
 on:
   push:
-    branches: ["main"]
+    branches: ["development"]
   workflow_dispatch:
 
 env:
   GO_VERSION: "1.20.5"
   WORKING_DIRECTORY: "./server"
-  ENVIRONMENT_TYPE: "furry-nebula"
-  IMAGE_NAME: "ghcr.io/VidroX/furry-nebula:latest"
+  ENVIRONMENT_TYPE: "furry-nebula-dev"
+  IMAGE_NAME: "ghcr.io/VidroX/furry-nebula:dev-latest"
 
 jobs:
   test:
@@ -61,14 +61,14 @@ jobs:
           context: .
           platforms: linux/arm64
           tags: |
-            ghcr.io/VidroX/furry-nebula:latest
-            ghcr.io/VidroX/furry-nebula:${{ github.sha }}
+            ghcr.io/VidroX/furry-nebula:dev-latest
+            ghcr.io/VidroX/furry-nebula:dev-${{ github.sha }}
 
   deploy:
     name: Deploy
     needs: [ test, build ]
     runs-on: ubuntu-latest
-    environment: Production
+    environment: Development
     permissions:
       id-token: write
       contents: read
@@ -103,4 +103,4 @@ jobs:
             manifests/ingress.yaml
             manifests/service.yaml
           images: |
-            ghcr.io/VidroX/furry-nebula:${{ github.sha }}
+            ghcr.io/VidroX/furry-nebula:dev-${{ github.sha }}
