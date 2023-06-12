@@ -1,0 +1,133 @@
+"""
+User Roles
+"""
+enum Role {
+    Admin
+    Shelter
+    User
+}
+
+
+"""
+Limited user roles for registration
+"""
+enum RegistrationRole {
+    Shelter
+    User
+}
+
+"""
+Simple response with message
+"""
+type ResponseMessage {
+  message: String!
+}
+
+"""
+User model
+"""
+type User {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  role: Role!
+  email: String!
+  about: String!
+  isApproved: Boolean!
+}
+
+"""
+Registration input data for User
+"""
+input UserRegistrationInput {
+  firstName: String!
+  lastName: String!
+  email: String!
+  about: String
+  password: String!
+  role: RegistrationRole
+}
+
+"""
+Auth token types
+"""
+enum TokenType {
+  Access
+  Refresh
+}
+
+"""
+Auth token
+"""
+type Token {
+  type: TokenType!
+  token: String!
+}
+
+
+"""
+Messaged response with User and its auth tokens
+"""
+type UserWithToken {
+  message: String!
+  user: User
+  accessToken: Token
+  refreshToken: Token
+}
+
+"""
+Filters for list of user approvals
+"""
+input ApprovalFilters {
+  isApproved: Boolean
+}
+
+"""
+User approvals connection
+"""
+type UserApprovalsConnection {
+  node: [User]!
+  pageInfo: PageInfo!
+}
+
+"""
+Users list connection
+"""
+type UsersConnection {
+  node: [User]!
+  pageInfo: PageInfo!
+}
+
+extend type Query {
+  """
+  Get currently authenticated user info
+  """
+  user: User! @isAuthenticated
+
+  """
+  Get the list of all users. Admin user is required.
+  """
+  users(pagination: Pagination): UsersConnection! @hasRole(role: Admin)
+
+  """
+  Get the list of user approvals. Admin user is required.
+  """
+  userApprovals(filters: ApprovalFilters, pagination: Pagination): UserApprovalsConnection! @hasRole(role: Admin)
+}
+
+extend type Mutation {
+  """
+  User login. Unauthenticated user only.
+  """
+  login(email: String!, password: String!): UserWithToken! @noUserOnly
+
+  """
+  User registration. Unauthenticated user only.
+  """
+  register(userInfo: UserRegistrationInput!): UserWithToken! @noUserOnly
+
+  """
+  Change approval status of user by id. Admin user is required.
+  """
+  changeUserApprovalStatus(userId: ID!, isApproved: Boolean!): ResponseMessage! @hasRole(role: Admin)
+}

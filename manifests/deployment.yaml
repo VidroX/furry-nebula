@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {ENVIRONMENT}-deployment
+  namespace: furry-nebula
+spec:
+  selector:
+    matchLabels:
+      app: {ENVIRONMENT}
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: {ENVIRONMENT}
+    spec:
+      containers:
+        - name: {ENVIRONMENT}
+          image: {IMAGE}
+          env:
+            - name: PORT
+              value: "80"
+            - name: ENVIRONMENT_TYPE
+              value: "release"
+            - name: GIN_MODE
+              value: "release"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: {ENVIRONMENT}-data
+              mountPath: /app/furry-nebula/data
+      imagePullSecrets:
+        - name: github-container-registry
+      volumes:
+        - name: {ENVIRONMENT}-data
+          persistentVolumeClaim:
+            claimName: nfs-{ENVIRONMENT}

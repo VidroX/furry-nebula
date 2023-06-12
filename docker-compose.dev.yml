@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  server:
+    build:
+      context: ./server/
+      dockerfile: Dockerfile.dev
+    environment:
+      - ENVIRONMENT_TYPE=dev
+      - GIN_MODE=debug
+      - PORT=8080
+    env_file:
+      - ./.env
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./server:/app/furry-nebula
+    depends_on:
+      - postgresql
+    links:
+      - postgresql
+
+  postgresql:
+    image: postgres:15.3
+    restart: always
+    env_file:
+      - ./.env
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data_container:/data/database
+      - ./postgresql/db-init.sh:/docker-entrypoint-initdb.d/db-init.sh:ro
+
+volumes:
+  postgresql_data_container:

@@ -1,0 +1,37 @@
+directive @isAuthenticated on FIELD_DEFINITION
+directive @noUserOnly on FIELD_DEFINITION
+directive @refreshTokenOnly on FIELD_DEFINITION
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+directive @approvedUserOnly on FIELD_DEFINITION
+
+"""
+Int64 scalar
+"""
+scalar Int64
+
+"""
+Page information
+"""
+type PageInfo {
+  page: Int
+  resultsPerPage: Int
+  totalResults: Int64
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}
+
+"""
+Pagination filters
+"""
+input Pagination {
+  page: Int
+  resultsPerPage: Int
+}
+
+type Query
+type Mutation {
+  """
+  Refresh access token though refresh token provided inside Authorization header
+  """
+  refreshAccessToken: Token! @refreshTokenOnly
+}
