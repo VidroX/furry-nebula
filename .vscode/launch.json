@@ -6,7 +6,7 @@
     "configurations": [
         {
             "program": "${workspaceFolder}/server/server.go",
-            "name": "Start App",
+            "name": "Start API",
             "request": "launch",
             "mode": "debug",
             "type": "go"
@@ -18,5 +18,15 @@
             "request": "launch",
             "type": "node-terminal"
         },
+        {
+            "name": "Start Flutter App",
+            "type": "dart",
+            "request": "launch",
+            "program": "app/lib/main.dart",
+            "args": [
+                "-d",
+                "chrome"
+            ]
+        }
     ]
 }

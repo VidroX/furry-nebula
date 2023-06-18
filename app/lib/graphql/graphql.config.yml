@@ -1,0 +1,11 @@
+schema: schema.graphql
+documents: '**/*.graphql'
+
+extensions:
+  endpoints:
+    development:
+      url: https://dev.vidrox.me/gql
+      introspect: false
+    production:
+      url: https://vidrox.me/gql
+      introspect: false

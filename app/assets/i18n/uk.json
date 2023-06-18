@@ -1,0 +1,12 @@
+{
+  "general": {
+    "errors": {
+      "unknownError": "Виникла невідома помилка"
+    }
+  },
+  "auth": {
+    "errors": {
+      "signInError": "Під час входу виникла помилка"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "general": {
+    "errors": {
+      "unknownError": "An unknown error has occurred"
+    }
+  },
+  "auth": {
+    "errors": {
+      "signInError": "An error occurred while signing in"
+    }
+  }
+}
