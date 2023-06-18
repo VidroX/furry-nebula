@@ -9,6 +9,7 @@ import (
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/jwx"
+	. "github.com/VidroX/furry-nebula/utils"
 )
 
 var AppDirectives = graph.DirectiveRoot{
@@ -21,14 +22,10 @@ var AppDirectives = graph.DirectiveRoot{
 
 func isAuthenticatedDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
 	gCtx := graph.GetGinContext(ctx)
-	user, err := getUser(gCtx)
+	_, err := getUser(gCtx, model.TokenTypeAccess)
 
 	if err != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
-	}
-
-	if user.User == nil || user.TokenType != model.TokenTypeAccess {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInvalidOrExpiredToken)
 	}
 
 	return next(ctx)
@@ -36,14 +33,10 @@ func isAuthenticatedDirective(ctx context.Context, obj interface{}, next graphql
 
 func refreshTokenOnlyDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
 	gCtx := graph.GetGinContext(ctx)
-	user, err := getUser(gCtx)
+	_, err := getUser(gCtx, model.TokenTypeRefresh)
 
 	if err != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
-	}
-
-	if user.User == nil || user.TokenType != model.TokenTypeRefresh {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInvalidOrExpiredToken)
 	}
 
 	return next(ctx)
@@ -51,14 +44,10 @@ func refreshTokenOnlyDirective(ctx context.Context, obj interface{}, next graphq
 
 func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role) (interface{}, error) {
 	gCtx := graph.GetGinContext(ctx)
-	user, err := getUser(gCtx)
+	user, err := getUser(gCtx, model.TokenTypeAccess)
 
 	if err != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
-	}
-
-	if user == nil || user.TokenType != model.TokenTypeAccess {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInvalidOrExpiredToken)
 	}
 
 	if !user.User.HasRole(role) {
@@ -70,9 +59,8 @@ func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolve
 
 func noUserOnlyDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
 	gCtx := graph.GetGinContext(ctx)
-	user, _ := getUser(gCtx)
 
-	if user != nil {
+	if isUserExists(gCtx) {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrNotEnoughPermissions)
 	}
 
@@ -81,14 +69,10 @@ func noUserOnlyDirective(ctx context.Context, obj interface{}, next graphql.Reso
 
 func approvedUserOnlyDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
 	gCtx := graph.GetGinContext(ctx)
-	user, err := getUser(gCtx)
+	user, err := getUser(gCtx, model.TokenTypeAccess)
 
 	if err != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
-	}
-
-	if user == nil || user.TokenType != model.TokenTypeAccess {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInvalidOrExpiredToken)
 	}
 
 	isApproved, err2 := gCtx.GetRepositories().UserRepository.IsUserApproved(user.User.ID)
@@ -100,21 +84,43 @@ func approvedUserOnlyDirective(ctx context.Context, obj interface{}, next graphq
 	return next(ctx)
 }
 
-func getUser(ctx *graph.ExtendedContext) (*model.TokenizedUser, *nebula_errors.APIError) {
+func getUser(ctx *graph.ExtendedContext, tokenType model.TokenType) (*model.TokenizedUser, *nebula_errors.APIError) {
 	user, ok := ctx.Get(jwx.UserContextKey)
+
+	if _, ok := user.(*model.TokenizedUser); !ok {
+		if !UtilString(ctx.Request.Header.Get("Authorization")).IsEmpty() {
+			return nil, &general_errors.ErrInvalidOrExpiredToken
+		}
+
+		return nil, &general_errors.ErrInternal
+	}
+
+	normalizedUser := user.(*model.TokenizedUser)
+
+	if normalizedUser.User == nil || normalizedUser.TokenType != tokenType {
+		return nil, &general_errors.ErrInvalidOrExpiredToken
+	}
 
 	if user == nil || !ok {
 		return nil, &general_errors.ErrNotEnoughPermissions
 	}
 
-	if _, ok := user.(*model.TokenizedUser); !ok {
-		return nil, &general_errors.ErrNotEnoughPermissions
-	}
-
-	normalizedUser := user.(*model.TokenizedUser)
-
 	return &model.TokenizedUser{
 		User:      normalizedUser.User,
 		TokenType: normalizedUser.TokenType,
 	}, nil
+}
+
+func isUserExists(ctx *graph.ExtendedContext) bool {
+	user, ok := ctx.Get(jwx.UserContextKey)
+
+	if user == nil || !ok {
+		return false
+	}
+
+	if _, ok := user.(*model.TokenizedUser); !ok {
+		return false
+	}
+
+	return true
 }
