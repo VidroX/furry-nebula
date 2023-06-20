@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/models/user/user.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 
 part 'auth_bloc.freezed.dart';
-
 part 'auth_event.dart';
-
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -22,8 +21,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _login(Login loginData, Emitter<AuthState> emit) async {
-    final user = await userRepository.login(loginData.email, loginData.password);
+    emit(state.copyWith(isLoading: true));
 
-    emit(state.copyWith(user: user));
+    try {
+      final user = await userRepository.login(
+        loginData.email,
+        loginData.password,
+      );
+
+      emit(state.copyWith(user: user));
+    } on ValidationException catch (e) {
+      emit(state.copyWith(validationErrors: e.fieldsValidationMap));
+    } finally {
+      emit(state.copyWith(isLoading: false));
+    }
   }
 }

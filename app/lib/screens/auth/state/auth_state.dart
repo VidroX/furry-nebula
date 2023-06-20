@@ -5,5 +5,6 @@ class AuthState with _$AuthState {
   const factory AuthState({
     @Default(false) bool isLoading,
     @Default(null) User? user,
+    @Default({}) Map<String, String> validationErrors,
   }) = Initial;
 }

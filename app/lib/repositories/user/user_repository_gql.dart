@@ -1,11 +1,16 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/mutations/auth/__generated__/login.req.gql.dart';
 import 'package:furry_nebula/models/user/user.dart';
+import 'package:furry_nebula/models/user/user_token.dart';
 import 'package:furry_nebula/repositories/user/exceptions/login_failed_exception.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 import 'package:furry_nebula/services/api_client.dart';
 
 class UserRepositoryGraphQL extends UserRepository {
   final ApiClient client;
+
+  FlutterSecureStorage get _storage => const FlutterSecureStorage();
 
   UserRepositoryGraphQL({ required this.client });
 
@@ -19,9 +24,23 @@ class UserRepositoryGraphQL extends UserRepository {
 
     final response = await client.ferryClient.request(request).first;
 
-    if (response.data?.login.user == null) {
+    if (response.linkException is ValidationException) {
+      throw response.linkException!;
+    }
+
+    final hasErrors = response.data?.login.user == null
+        || response.data?.login.accessToken?.token == null
+        || response.data?.login.refreshToken?.token == null;
+
+    if (hasErrors) {
       throw const LoginFailedException();
     }
+
+    final accessToken = response.data!.login.accessToken!.token;
+    final refreshToken = response.data!.login.refreshToken!.token;
+
+    await _storage.write(key: UserToken.accessTokenKey, value: accessToken);
+    await _storage.write(key: UserToken.refreshTokenKey, value: refreshToken);
 
     return User(
       id: response.data!.login.user!.id,

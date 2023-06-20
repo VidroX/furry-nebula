@@ -1,12 +1,14 @@
 {
   "general": {
     "errors": {
-      "unknownError": "An unknown error has occurred"
+      "unknownError": "An unknown error has occurred",
+      "validationError": "Please check fields for errors"
     }
   },
   "auth": {
     "errors": {
-      "signInError": "An error occurred while signing in"
+      "signInError": "An error occurred while signing in",
+      "invalidToken": "Provided token is invalid or expired"
     }
   }
 }

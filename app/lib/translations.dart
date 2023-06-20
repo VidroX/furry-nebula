@@ -4,4 +4,5 @@ class Translations {
 
   // Auth
   static const String signInError = 'auth.errors.signInError';
+  static const String invalidTokenError = 'auth.errors.invalidToken';
 }
