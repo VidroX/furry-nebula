@@ -1,7 +1,9 @@
 import "dart:developer";
+import "dart:io";
 
 import "package:dio/dio.dart";
 import "package:ferry/ferry.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter_dotenv/flutter_dotenv.dart";
 import "package:flutter_secure_storage/flutter_secure_storage.dart";
 import "package:furry_nebula/environment_constants.dart";
@@ -9,6 +11,7 @@ import "package:furry_nebula/graphql/__generated__/schema.schema.gql.dart" show 
 import "package:furry_nebula/graphql/exceptions/auth/invalid_token_exception.dart";
 import "package:furry_nebula/graphql/exceptions/auth/token_refresh_failed_exception.dart";
 import "package:furry_nebula/graphql/exceptions/exception_handler.dart" as handler;
+import "package:furry_nebula/graphql/exceptions/general_api_exception.dart";
 import "package:furry_nebula/graphql/exceptions/validation_exception.dart";
 import "package:furry_nebula/graphql/links/token_link.dart";
 import "package:furry_nebula/graphql/mutations/auth/__generated__/refresh_token.req.gql.dart";
@@ -97,6 +100,10 @@ class ApiClient {
     if (validationErrors.keys.isNotEmpty) {
       throw ValidationException(fieldsValidationMap: validationErrors);
     }
+
+    throw GeneralApiException(
+      messages: response.errors?.map((e) => e.message).toList() ?? [],
+    );
   }
 
   Client _createClient(List<Link> links) {
@@ -115,6 +122,7 @@ class ApiClient {
   }
 
   gql.Request _transformRequest(gql.Request request, bool withRefreshToken) {
+    log("Transforming request: ${request.operation.operationName}");
     final tokenEntry = request.context.entry<TokenContextEntry>();
 
     final token = withRefreshToken
@@ -126,6 +134,8 @@ class ApiClient {
             headers: <String, String>{
               ...headers?.headers ?? <String, String>{},
               "Authorization": 'Bearer $token',
+              if (!kIsWeb)
+                "Accept-Language": Platform.localeName.replaceAll('_', '-'),
             },
           ),
     );

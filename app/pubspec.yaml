@@ -33,6 +33,7 @@ dependencies:
   gql_exec: ^1.0.1-alpha+1686240655996
   fluttertoast: ^8.2.2
   gql_transform_link: ^1.0.0
+  shared_preferences: ^2.1.2
 
 dev_dependencies:
   flutter_test:

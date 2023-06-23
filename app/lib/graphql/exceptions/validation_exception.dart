@@ -4,7 +4,7 @@ import 'package:furry_nebula/translations.dart';
 class ValidationException extends ServerException {
   static const String errorCode = 'errors.validation';
 
-  String get message => Translations.invalidTokenError;
+  String get message => Translations.validationError;
 
   final Map<String, String> fieldsValidationMap;
 

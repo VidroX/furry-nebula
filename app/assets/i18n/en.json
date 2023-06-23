@@ -5,10 +5,16 @@
       "validationError": "Please check fields for errors"
     }
   },
+  "signIn": "Sign in",
   "auth": {
     "errors": {
       "signInError": "An error occurred while signing in",
-      "invalidToken": "Provided token is invalid or expired"
-    }
+      "invalidToken": "Provided token is invalid or expired",
+      "tokenRefreshFailed": "Token failed to refresh"
+    },
+    "signIn": "Sign in",
+    "register": "Register",
+    "enterEmail": "Enter your E-Mail",
+    "enterPassword": "Enter your password"
   }
 }

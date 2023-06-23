@@ -6,5 +6,10 @@ class AuthEvent with _$AuthEvent {
     required String email,
     required String password,
     VoidCallback? onSuccess,
+    Function(ServerException? exception)? onError,
   }) = Login;
+
+  const factory AuthEvent.clearValidationErrors({
+    String? field,
+  }) = ClearValidationErrors;
 }

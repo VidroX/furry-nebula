@@ -1,7 +1,8 @@
+import 'package:ferry/ferry.dart';
 import 'package:furry_nebula/translations.dart';
 
-class LoginFailedException implements Exception {
-  String get message => Translations.signInError;
+class LoginFailedException extends ServerException {
+  String get message => Translations.authSignInError;
 
   const LoginFailedException();
 
