@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:furry_nebula/app_colors.dart';
 import 'package:furry_nebula/app_theme.dart';
-import 'package:furry_nebula/widgets/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/nebula_text.dart';
 import 'package:provider/provider.dart';
 
 extension ContextExtension on BuildContext {

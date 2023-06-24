@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:furry_nebula/app_colors.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/gen/assets.gen.dart';
-import 'package:furry_nebula/widgets/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/nebula_text.dart';
 
 class NebulaLogo extends StatelessWidget {
+  final Color? iconColor;
+  final Color? textColor;
   final bool showText;
 
   const NebulaLogo({
     this.showText = true,
+    this.iconColor,
+    this.textColor,
     super.key,
   });
 
@@ -18,7 +21,7 @@ class NebulaLogo extends StatelessWidget {
     children: [
       Assets.svg.paw.svg(
         colorFilter: ColorFilter.mode(
-          context.colors.primaryColors[AppColorsType.text]!,
+          iconColor ?? context.colors.text,
           BlendMode.srcIn,
         ),
         width: 64,
@@ -31,7 +34,8 @@ class NebulaLogo extends StatelessWidget {
             'Rainy Pets',
             style: context.typography
                 .withFontSize(AppFontSize.extraLarge)
-                .withFontWeight(FontWeight.w600),
+                .withFontWeight(FontWeight.w600)
+                .withColor(textColor ?? context.colors.text),
           ),
         ),
     ],

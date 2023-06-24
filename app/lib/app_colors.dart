@@ -74,6 +74,8 @@ class AppColorsTheme with _$AppColorsTheme {
     required Color surfaceColor,
     required Map<AppColorsType, Color> primaryColors,
     required Map<AppColorsType, Color> alternativeColors,
+    required List<BoxShadow> neumorphicShadow,
+    required List<BoxShadow> shadow,
   }) = _AppColorsTheme;
 
   const AppColorsTheme._();
@@ -110,6 +112,26 @@ class AppColorsTheme with _$AppColorsTheme {
       AppColorsType.indicator: Color(0xFFF3EFE0),
       AppColorsType.error: Color(0xFFF3EFE0),
     },
+    neumorphicShadow: [
+      BoxShadow(
+        color: Color(0xFFD9D9D9),
+        blurRadius: 15,
+        offset: Offset(-20, -20),
+      ),
+      BoxShadow(
+        color: Color(0xFFFFFFFF),
+        blurRadius: 15,
+        offset: Offset(20, 20),
+      ),
+    ],
+    shadow: [
+      BoxShadow(
+        color: Color(0x1AFFFFFF),
+        blurRadius: 15,
+        spreadRadius: -3,
+        offset: Offset(0, 10),
+      ),
+    ],
   );
 
   factory AppColorsTheme.dark() => const AppColorsTheme(
@@ -131,7 +153,41 @@ class AppColorsTheme with _$AppColorsTheme {
       AppColorsType.indicator: Color(0xFFF3EFE0),
       AppColorsType.error: Color(0xFFF3EFE0),
     },
+    neumorphicShadow: [
+      BoxShadow(
+        color: Color(0xFF17171A),
+        blurRadius: 15,
+        spreadRadius: 1,
+        offset: Offset(-20, -20),
+      ),
+      BoxShadow(
+        color: Color(0xFF1F1F23),
+        blurRadius: 15,
+        spreadRadius: 1,
+        offset: Offset(20, 20),
+      ),
+    ],
+    shadow: [
+      BoxShadow(
+        color: Color(0x1A1B1B1E),
+        blurRadius: 15,
+        spreadRadius: -3,
+        offset: Offset(0, 10),
+      ),
+    ],
   );
+
+  Color get primary => primaryColors[AppColorsType.primary]!;
+  Color get secondary => primaryColors[AppColorsType.secondary]!;
+  Color get text => primaryColors[AppColorsType.text]!;
+  Color get indicator => primaryColors[AppColorsType.indicator]!;
+  Color get error => primaryColors[AppColorsType.error]!;
+
+  Color get alternativePrimary => alternativeColors[AppColorsType.primary]!;
+  Color get alternativeSecondary => alternativeColors[AppColorsType.secondary]!;
+  Color get alternativeText => alternativeColors[AppColorsType.text]!;
+  Color get alternativeIndicator => alternativeColors[AppColorsType.indicator]!;
+  Color get alternativeError => alternativeColors[AppColorsType.error]!;
 }
 
 enum AppColorsType {

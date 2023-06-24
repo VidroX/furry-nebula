@@ -58,6 +58,10 @@ class NebulaTextStyle with _$NebulaTextStyle {
   NebulaTextStyle withFontWeight(FontWeight fontWeight) => copyWith(
     fontWeight: fontWeight,
   );
+
+  NebulaTextStyle withColor(Color color) => copyWith(
+    color: color,
+  );
 }
 
 enum AppFontSize {

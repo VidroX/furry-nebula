@@ -3,9 +3,9 @@
     "errors": {
       "unknownError": "An unknown error has occurred",
       "validationError": "Please check fields for errors"
-    }
+    },
+    "or": "or"
   },
-  "signIn": "Sign in",
   "auth": {
     "errors": {
       "signInError": "An error occurred while signing in",
@@ -13,8 +13,10 @@
       "tokenRefreshFailed": "Token failed to refresh"
     },
     "signIn": "Sign in",
-    "register": "Register",
+    "signUp": "Sign up",
     "enterEmail": "Enter your E-Mail",
-    "enterPassword": "Enter your password"
+    "enterPassword": "Enter your password",
+    "isShelterRepresentative": "Are you an animal shelter representative?",
+    "signUpHere": "Sign up here"
   }
 }

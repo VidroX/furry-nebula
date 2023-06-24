@@ -4,15 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
+import 'package:furry_nebula/extensions/string_extension.dart';
 import 'package:furry_nebula/repositories/user/exceptions/login_failed_exception.dart';
 import 'package:furry_nebula/screens/auth/state/auth_bloc.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/validators/api_error_validator.dart';
-import 'package:furry_nebula/widgets/nebula_button.dart';
-import 'package:furry_nebula/widgets/nebula_form_field.dart';
-import 'package:furry_nebula/widgets/nebula_logo.dart';
-import 'package:furry_nebula/widgets/screen_layout.dart';
+import 'package:furry_nebula/widgets/layout/screen_layout.dart';
+import 'package:furry_nebula/widgets/ui/nebula_button.dart';
+import 'package:furry_nebula/widgets/ui/nebula_form_field.dart';
+import 'package:furry_nebula/widgets/ui/nebula_logo.dart';
+import 'package:furry_nebula/widgets/ui/nebula_text.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -43,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) => ScreenLayout(
+    scrollable: true,
     child: BlocBuilder<AuthBloc, AuthState>(
       bloc: _bloc,
       builder: (context, state) => Padding(
@@ -57,6 +60,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: NebulaLogo(),
               ),
               const SizedBox(height: 24),
+              NebulaText(
+                context.translate(Translations.authSignIn).tryCapitalize,
+                style: context.typography
+                    .withFontSize(AppFontSize.large)
+                    .withFontWeight(FontWeight.w500),
+              ),
+              const SizedBox(height: 12),
               NebulaFormField(
                 autovalidateMode: AutovalidateMode.always,
                 label: context.translate(Translations.authEnterEmail),

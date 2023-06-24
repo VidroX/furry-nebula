@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 
 @RoutePage()
 class RegistrationScreen extends StatefulWidget {
+  final bool isShelterRep;
+
   static const routePath = 'register';
 
-  const RegistrationScreen({super.key});
+  const RegistrationScreen({
+    @QueryParam('isShelterRep') this.isShelterRep = false,
+    super.key,
+  });
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
