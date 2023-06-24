@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -60,6 +61,12 @@ class AppColors extends ThemeExtension<AppColors> {
               Color.lerp(value, other.theme.alternativeColors[key], t) ?? value,
             ),
         ),
+        neumorphicShadow: theme.neumorphicShadow.mapIndexed((index, shadow) =>
+            BoxShadow.lerp(shadow, other.theme.neumorphicShadow[index], t) ?? shadow,
+        ).toList(),
+        shadow: theme.shadow.mapIndexed((index, shadow) =>
+            BoxShadow.lerp(shadow, other.theme.shadow[index], t) ?? shadow,
+        ).toList(),
       ),
     );
   }
