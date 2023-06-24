@@ -70,6 +70,7 @@ func loadDatabase() {
 
 	gormDB.AutoMigrateAll()
 	gormDB.PopulateRoles()
+	gormDB.PopulateAnimalTypes()
 	gormDB.CreateAdminUser()
 }
 

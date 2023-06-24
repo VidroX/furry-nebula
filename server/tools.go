@@ -7,6 +7,7 @@ import (
 	_ "github.com/99designs/gqlgen"
 	_ "github.com/DATA-DOG/go-sqlmock"
 	_ "github.com/alexedwards/argon2id"
+	_ "github.com/gin-contrib/cors"
 	_ "github.com/gin-gonic/gin"
 	_ "github.com/go-playground/validator/v10"
 	_ "github.com/jackc/pgerrcode"

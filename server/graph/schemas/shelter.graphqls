@@ -1,0 +1,9 @@
+"""
+Animal types
+"""
+enum Animal {
+    Cat
+    Dog
+    Rabbit
+    Bird
+}

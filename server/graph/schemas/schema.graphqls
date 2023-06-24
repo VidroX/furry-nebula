@@ -10,6 +10,16 @@ Int64 scalar
 scalar Int64
 
 """
+Time scalar
+"""
+scalar Time
+
+"""
+Upload scalar
+"""
+scalar Upload
+
+"""
 Page information
 """
 type PageInfo {

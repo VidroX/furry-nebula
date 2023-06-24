@@ -13,5 +13,5 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
-  Widget build(BuildContext context) => const Placeholder();
+  Widget build(BuildContext context) => const AutoRouter();
 }

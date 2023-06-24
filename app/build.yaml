@@ -8,7 +8,7 @@ targets:
           type_overrides:
             Int64:
               name: int
-            Date:
+            Time:
               name: DateTime
       ferry_generator|serializer_builder:
         enabled: true
