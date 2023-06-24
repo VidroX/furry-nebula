@@ -13,6 +13,7 @@ class User with _$User {
     required String about,
     required String email,
     @Default(false) bool isApproved,
+    required DateTime birthDay,
   }) = _User;
 
   const User._();

@@ -50,6 +50,7 @@ class UserRepositoryGraphQL extends UserRepository {
       about: response.data!.login.user!.about,
       role: response.data!.login.user!.role,
       email: response.data!.login.user!.email,
+      birthDay: response.data!.login.user!.birthday,
     );
   }
 }

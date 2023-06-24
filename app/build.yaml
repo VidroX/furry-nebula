@@ -14,3 +14,11 @@ targets:
         enabled: true
         options:
           schema: furry_nebula|lib/graphql/schema.graphql
+          type_overrides:
+            Int64:
+              name: int
+            Time:
+              name: DateTime
+          custom_serializers:
+            - import: "package:furry_nebula/graphql/serializers/time_serializer.dart"
+              name: TimeSerializer

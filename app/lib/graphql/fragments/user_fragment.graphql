@@ -6,4 +6,5 @@ fragment UserFragment on User {
     role
     about
     email
+    birthday
 }
