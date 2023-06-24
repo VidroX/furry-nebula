@@ -2,9 +2,9 @@ import 'package:ferry/ferry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/models/user/user.dart';
-import 'package:furry_nebula/repositories/user/exceptions/login_failed_exception.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 
 part 'auth_bloc.freezed.dart';
@@ -39,7 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on ValidationException catch (e) {
       emit(state.copyWith(validationErrors: e.fieldsValidationMap));
       loginData.onError?.call(e);
-    } on LoginFailedException catch(e) {
+    } on RequestFailedException catch(e) {
       loginData.onError?.call(e);
     } finally {
       emit(state.copyWith(isLoading: false));

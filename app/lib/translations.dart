@@ -2,6 +2,7 @@ class Translations {
   // General
   static const String unknownError = 'general.errors.unknownError';
   static const String validationError = 'general.errors.validationError';
+  static const String requestFailedError = 'general.errors.requestFailed';
   static const String or = 'general.or';
 
   // Auth
@@ -14,4 +15,14 @@ class Translations {
   static const String authEnterPassword = 'auth.enterPassword';
   static const String authIsShelterRepresentative = 'auth.isShelterRepresentative';
   static const String authSignUpHere = 'auth.signUpHere';
+  static const String authSignOut = 'auth.signOut';
+
+  // Accommodations
+  static const String accommodationsTitle = 'home.accommodations.title';
+
+  // Profile
+  static const String profileTitle = 'home.profile.title';
+
+  // User approvals
+  static const String userApprovalsTitle = 'home.userApprovals.title';
 }

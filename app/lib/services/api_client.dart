@@ -21,6 +21,7 @@ import "package:gql_dio_link/gql_dio_link.dart";
 import "package:gql_error_link/gql_error_link.dart";
 import "package:gql_exec/gql_exec.dart" as gql;
 import "package:gql_transform_link/gql_transform_link.dart";
+import "package:jwt_decoder/jwt_decoder.dart";
 
 
 class ApiClient {
@@ -39,6 +40,20 @@ class ApiClient {
     DedupeLink(),
   ]);
 
+  Future<bool> _isRefreshTokenValid(TokenContextEntry? tokenEntry) async {
+    final isInvalidToken = tokenEntry?.tokens?.refreshToken == null
+        || JwtDecoder.isExpired(tokenEntry!.tokens!.refreshToken);
+
+    if (isInvalidToken) {
+      await _storage.delete(key: UserToken.accessTokenKey);
+      await _storage.delete(key: UserToken.refreshTokenKey);
+
+      return false;
+    }
+
+    return true;
+  }
+
   Stream<gql.Response>? _handleError(
       gql.Request request,
       NextLink forward,
@@ -48,6 +63,7 @@ class ApiClient {
       return;
     }
 
+    final tokenEntry = request.context.entry<TokenContextEntry>();
     final Map<String, String> validationErrors = {};
 
     for (final error in response.errors!) {
@@ -80,7 +96,10 @@ class ApiClient {
         validationErrors[field] = message;
       }
 
-      if (exception is InvalidTokenException) {
+      final isTokenRefreshNeeded = exception is InvalidTokenException
+          && await _isRefreshTokenValid(tokenEntry);
+
+      if (isTokenRefreshNeeded) {
         log('Token refresh needed');
 
         final newAccessToken = await _updateToken();

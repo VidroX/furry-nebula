@@ -6,10 +6,8 @@ import 'package:furry_nebula/screens/auth/auth_main/widgets/shelter_sign_up_link
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/widgets/layout/screen_layout.dart';
 import 'package:furry_nebula/widgets/ui/nebula_button.dart';
-import 'package:furry_nebula/widgets/ui/nebula_link.dart';
 import 'package:furry_nebula/widgets/ui/nebula_logo.dart';
 import 'package:furry_nebula/widgets/ui/nebula_text.dart';
-import 'package:furry_nebula/widgets/ui/neumorphic_container.dart';
 
 @RoutePage()
 class AuthMainScreen extends StatelessWidget {

@@ -2,7 +2,8 @@
   "general": {
     "errors": {
       "unknownError": "An unknown error has occurred",
-      "validationError": "Please check fields for errors"
+      "validationError": "Please check fields for errors",
+      "requestFailed": "There was an error while performing your request"
     },
     "or": "or"
   },
@@ -17,6 +18,18 @@
     "enterEmail": "Enter your E-Mail",
     "enterPassword": "Enter your password",
     "isShelterRepresentative": "Are you an animal shelter representative?",
-    "signUpHere": "Sign up here"
+    "signUpHere": "Sign up here",
+    "signOut": "Sign out"
+  },
+  "home": {
+    "accommodations": {
+      "title": "Pet accommodations"
+    },
+    "profile": {
+      "title": "Profile"
+    },
+    "userApprovals": {
+      "title": "Pending users"
+    }
   }
 }

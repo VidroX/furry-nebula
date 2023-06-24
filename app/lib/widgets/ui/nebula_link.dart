@@ -36,6 +36,10 @@ class _NebulaLinkState<T> extends State<NebulaLink<T>> {
         onTap: widget.replace
             ? () => context.replaceRoute(widget.routeInfo)
             : () => context.pushRoute(widget.routeInfo),
+        onTapDown: (_) => setState(() => _isHovering = true),
+        onTapUp: (_) => setState(() => _isHovering = false),
+        onHorizontalDragStart: (_) => setState(() => _isHovering = false),
+        onVerticalDragStart: (_) => setState(() => _isHovering = false),
         child: NebulaText(
           widget.text,
           style: context.typography.withColor(

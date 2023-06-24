@@ -133,7 +133,7 @@ class AppColorsTheme with _$AppColorsTheme {
     ],
     shadow: [
       BoxShadow(
-        color: Color(0x1AFFFFFF),
+        color: Color(0xCC000000),
         blurRadius: 15,
         spreadRadius: -3,
         offset: Offset(0, 10),
@@ -176,7 +176,7 @@ class AppColorsTheme with _$AppColorsTheme {
     ],
     shadow: [
       BoxShadow(
-        color: Color(0x1A1B1B1E),
+        color: Color(0xCCFFFFFF),
         blurRadius: 15,
         spreadRadius: -3,
         offset: Offset(0, 10),

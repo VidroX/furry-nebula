@@ -58,6 +58,7 @@ class NebulaButton extends StatelessWidget {
         height: height,
         child: InkWell(
           splashColor: style.splashColor,
+          highlightColor: style.highlightColor,
           onTap: loading ? null : onPress,
           child: Ink(
             decoration: BoxDecoration(
@@ -96,6 +97,7 @@ class NebulaButton extends StatelessWidget {
 
 class NebulaButtonStyle {
   final Color backgroundColor;
+  final Color? highlightColor;
   final NebulaTextStyle textStyle;
   final Color indicatorColor;
   final Color splashColor;
@@ -108,6 +110,7 @@ class NebulaButtonStyle {
     required this.indicatorColor,
     required this.splashColor,
     required this.borderRadius,
+    this.highlightColor,
     this.border,
   });
 
@@ -130,7 +133,8 @@ class NebulaButtonStyle {
         backgroundColor: Colors.transparent,
         textStyle: context.typography.withColor(context.colors.primary),
         indicatorColor: context.colors.primary,
-        splashColor: context.colors.secondary,
+        highlightColor: context.colors.primary.withOpacity(0.15),
+        splashColor: context.colors.primary.withOpacity(0.05),
         border: Border.all(color: context.colors.primary),
         borderRadius: const BorderRadius.all(Radius.circular(6)),
       );
@@ -150,7 +154,8 @@ class NebulaButtonStyle {
         backgroundColor: Colors.transparent,
         textStyle: context.typography.withColor(context.colors.backgroundColor),
         indicatorColor: context.colors.backgroundColor,
-        splashColor: context.colors.primary,
+        highlightColor: context.colors.backgroundColor.withOpacity(0.15),
+        splashColor: context.colors.backgroundColor.withOpacity(0.05),
         border: Border.all(color: context.colors.backgroundColor),
         borderRadius: const BorderRadius.all(Radius.circular(6)),
       );
@@ -165,6 +170,26 @@ class NebulaButtonStyle {
         ),
         indicatorColor: context.colors.backgroundColor,
         splashColor: context.colors.primary,
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
+      );
+
+  factory NebulaButtonStyle.error(BuildContext context) =>
+      NebulaButtonStyle(
+        backgroundColor: context.colors.error,
+        textStyle: context.typography.withColor(context.colors.alternativeText),
+        indicatorColor: context.colors.alternativeText,
+        splashColor: context.colors.secondary,
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
+      );
+
+  factory NebulaButtonStyle.outlinedError(BuildContext context) =>
+      NebulaButtonStyle(
+        backgroundColor: Colors.transparent,
+        textStyle: context.typography.withColor(context.colors.error),
+        indicatorColor: context.colors.error,
+        highlightColor: context.colors.error.withOpacity(0.15),
+        splashColor: context.colors.error.withOpacity(0.05),
+        border: Border.all(color: context.colors.error),
         borderRadius: const BorderRadius.all(Radius.circular(6)),
       );
 }

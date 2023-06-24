@@ -37,6 +37,8 @@ dependencies:
   intl: ^0.18.0
   built_value: ^8.6.1
   collection: ^1.17.1
+  jwt_decoder: ^2.0.1
+  font_awesome_flutter: ^10.4.0
 
 dev_dependencies:
   flutter_test:
