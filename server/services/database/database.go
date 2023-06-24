@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/environment"
@@ -22,6 +23,11 @@ func (db *NebulaDb) AutoMigrateAll() {
 		&model.UserRole{},
 		&model.User{},
 		&model.UserApproval{},
+		&model.AnimalType{},
+		&model.Shelter{},
+		&model.ShelterAnimal{},
+		&model.AnimalAccommodationRequest{},
+		&model.AnimalAdoptionRequest{},
 	)
 }
 
@@ -47,6 +53,28 @@ func (db *NebulaDb) PopulateRoles() {
 	log.Println("Successfully populated user roles!")
 }
 
+func (db *NebulaDb) PopulateAnimalTypes() {
+	for _, animalType := range model.AllAnimal {
+		dbAnimalType := model.AnimalType{}
+		db.First(&dbAnimalType, "name = ?", animalType.String())
+
+		if len(dbAnimalType.Name) > 0 {
+			continue
+		}
+
+		dbAnimalType.Name = animalType.String()
+
+		err := db.Create(&dbAnimalType).Error
+
+		if err != nil {
+			log.Fatalf("Unable to populate animal types. Error: %v", err)
+			return
+		}
+	}
+
+	log.Println("Successfully populated animal types!")
+}
+
 func (db *NebulaDb) CreateAdminUser() {
 	email := os.Getenv(environment.KeysAdminEmail)
 	password := os.Getenv(environment.KeysAdminPassword)
@@ -67,6 +95,7 @@ func (db *NebulaDb) CreateAdminUser() {
 		EMail:     strings.TrimSpace(email),
 		FirstName: "Admin",
 		LastName:  "User",
+		Birthday:  time.Now(),
 		Password:  hashed_password,
 		Role: model.UserRole{
 			Name: "Admin",

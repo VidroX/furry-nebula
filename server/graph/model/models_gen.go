@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 )
 
 // Filters for list of user approvals
@@ -49,6 +50,7 @@ type UserApprovalsConnection struct {
 type UserRegistrationInput struct {
 	FirstName string            `json:"firstName"`
 	LastName  string            `json:"lastName"`
+	Birthday  time.Time         `json:"birthday"`
 	Email     string            `json:"email"`
 	About     *string           `json:"about,omitempty"`
 	Password  string            `json:"password"`
@@ -67,6 +69,52 @@ type UserWithToken struct {
 type UsersConnection struct {
 	Node     []*User   `json:"node"`
 	PageInfo *PageInfo `json:"pageInfo"`
+}
+
+// Animal types
+type Animal string
+
+const (
+	AnimalCat    Animal = "Cat"
+	AnimalDog    Animal = "Dog"
+	AnimalRabbit Animal = "Rabbit"
+	AnimalBird   Animal = "Bird"
+)
+
+var AllAnimal = []Animal{
+	AnimalCat,
+	AnimalDog,
+	AnimalRabbit,
+	AnimalBird,
+}
+
+func (e Animal) IsValid() bool {
+	switch e {
+	case AnimalCat, AnimalDog, AnimalRabbit, AnimalBird:
+		return true
+	}
+	return false
+}
+
+func (e Animal) String() string {
+	return string(e)
+}
+
+func (e *Animal) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Animal(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Animal", str)
+	}
+	return nil
+}
+
+func (e Animal) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 // Limited user roles for registration

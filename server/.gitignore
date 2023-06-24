@@ -22,5 +22,5 @@ go.work
 
 tmp/
 
-resources/keys/
+data/keys/
 *.pem

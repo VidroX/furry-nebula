@@ -1,0 +1,16 @@
+include: package:lint/strict.yaml
+
+linter:
+  rules:
+    sort_pub_dependencies: false
+
+analyzer:
+  errors:
+    invalid_annotation_target: ignore
+  exclude:
+    - '**.freezed.dart'
+    - '**.g.dart'
+    - '**.gr.dart'
+    - '**.gen.dart'
+    - '**.gql.dart'
+    - '**.gql.g.dart'

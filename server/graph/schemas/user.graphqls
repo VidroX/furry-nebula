@@ -31,6 +31,7 @@ type User {
   firstName: String!
   lastName: String!
   role: Role!
+  birthday: Time!
   email: String!
   about: String!
   isApproved: Boolean!
@@ -42,6 +43,7 @@ Registration input data for User
 input UserRegistrationInput {
   firstName: String!
   lastName: String!
+  birthday: Time!
   email: String!
   about: String
   password: String!

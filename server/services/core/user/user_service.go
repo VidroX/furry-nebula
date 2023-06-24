@@ -99,6 +99,7 @@ func (service *userService) Register(userInfo model.UserRegistrationInput) (*mod
 		FirstName: userInfo.FirstName,
 		LastName:  userInfo.LastName,
 		EMail:     userInfo.Email,
+		Birthday:  userInfo.Birthday,
 		About:     about,
 		Role:      creationRole,
 		Password:  userInfo.Password,

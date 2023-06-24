@@ -1,0 +1,22 @@
+{
+  "general": {
+    "errors": {
+      "unknownError": "An unknown error has occurred",
+      "validationError": "Please check fields for errors"
+    },
+    "or": "or"
+  },
+  "auth": {
+    "errors": {
+      "signInError": "An error occurred while signing in",
+      "invalidToken": "Provided token is invalid or expired",
+      "tokenRefreshFailed": "Token failed to refresh"
+    },
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "enterEmail": "Enter your E-Mail",
+    "enterPassword": "Enter your password",
+    "isShelterRepresentative": "Are you an animal shelter representative?",
+    "signUpHere": "Sign up here"
+  }
+}

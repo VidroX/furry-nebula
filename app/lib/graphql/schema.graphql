@@ -1,0 +1,130 @@
+# This file was generated. Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+directive @approvedUserOnly on FIELD_DEFINITION
+
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+directive @isAuthenticated on FIELD_DEFINITION
+
+directive @noUserOnly on FIELD_DEFINITION
+
+directive @refreshTokenOnly on FIELD_DEFINITION
+
+type Mutation {
+    "Change approval status of user by id. Admin user is required."
+    changeUserApprovalStatus(isApproved: Boolean!, userId: ID!): ResponseMessage!
+    "User login. Unauthenticated user only."
+    login(email: String!, password: String!): UserWithToken!
+    "Refresh access token though refresh token provided inside Authorization header"
+    refreshAccessToken: Token!
+    "User registration. Unauthenticated user only."
+    register(userInfo: UserRegistrationInput!): UserWithToken!
+}
+
+"Page information"
+type PageInfo {
+    hasNextPage: Boolean
+    hasPreviousPage: Boolean
+    page: Int
+    resultsPerPage: Int
+    totalResults: Int64
+}
+
+type Query {
+    "Get currently authenticated user info"
+    user: User!
+    "Get the list of user approvals. Admin user is required."
+    userApprovals(filters: ApprovalFilters, pagination: Pagination): UserApprovalsConnection!
+    "Get the list of all users. Admin user is required."
+    users(pagination: Pagination): UsersConnection!
+}
+
+"Simple response with message"
+type ResponseMessage {
+    message: String!
+}
+
+"Auth token"
+type Token {
+    token: String!
+    type: TokenType!
+}
+
+"User model"
+type User {
+    about: String!
+    email: String!
+    firstName: String!
+    id: ID!
+    isApproved: Boolean!
+    lastName: String!
+    role: Role!
+}
+
+"User approvals connection"
+type UserApprovalsConnection {
+    node: [User]!
+    pageInfo: PageInfo!
+}
+
+"Messaged response with User and its auth tokens"
+type UserWithToken {
+    accessToken: Token
+    message: String!
+    refreshToken: Token
+    user: User
+}
+
+"Users list connection"
+type UsersConnection {
+    node: [User]!
+    pageInfo: PageInfo!
+}
+
+"Limited user roles for registration"
+enum RegistrationRole {
+    Shelter
+    User
+}
+
+"User Roles"
+enum Role {
+    Admin
+    Shelter
+    User
+}
+
+"Auth token types"
+enum TokenType {
+    Access
+    Refresh
+}
+
+"Int64 scalar"
+scalar Int64
+
+"Filters for list of user approvals"
+input ApprovalFilters {
+    isApproved: Boolean
+}
+
+"Pagination filters"
+input Pagination {
+    page: Int
+    resultsPerPage: Int
+}
+
+"Registration input data for User"
+input UserRegistrationInput {
+    about: String
+    email: String!
+    firstName: String!
+    lastName: String!
+    password: String!
+    role: RegistrationRole
+}

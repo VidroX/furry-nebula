@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -83,6 +84,7 @@ type ComplexityRoot struct {
 
 	User struct {
 		About      func(childComplexity int) int
+		Birthday   func(childComplexity int) int
 		EMail      func(childComplexity int) int
 		FirstName  func(childComplexity int) int
 		ID         func(childComplexity int) int
@@ -278,6 +280,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.About(childComplexity), true
 
+	case "User.birthday":
+		if e.complexity.User.Birthday == nil {
+			break
+		}
+
+		return e.complexity.User.Birthday(childComplexity), true
+
 	case "User.email":
 		if e.complexity.User.EMail == nil {
 			break
@@ -446,7 +455,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schemas/schema.graphqls" "schemas/user.graphqls"
+//go:embed "schemas/schema.graphqls" "schemas/shelter.graphqls" "schemas/user.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -459,6 +468,7 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "schemas/schema.graphqls", Input: sourceData("schemas/schema.graphqls"), BuiltIn: false},
+	{Name: "schemas/shelter.graphqls", Input: sourceData("schemas/shelter.graphqls"), BuiltIn: false},
 	{Name: "schemas/user.graphqls", Input: sourceData("schemas/user.graphqls"), BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -1232,6 +1242,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_lastName(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "birthday":
+				return ec.fieldContext_User_birthday(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
 			case "about":
@@ -1852,6 +1864,50 @@ func (ec *executionContext) fieldContext_User_role(ctx context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _User_birthday(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_birthday(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Birthday, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_birthday(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_email(ctx, field)
 	if err != nil {
@@ -2031,6 +2087,8 @@ func (ec *executionContext) fieldContext_UserApprovalsConnection_node(ctx contex
 				return ec.fieldContext_User_lastName(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "birthday":
+				return ec.fieldContext_User_birthday(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
 			case "about":
@@ -2188,6 +2246,8 @@ func (ec *executionContext) fieldContext_UserWithToken_user(ctx context.Context,
 				return ec.fieldContext_User_lastName(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "birthday":
+				return ec.fieldContext_User_birthday(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
 			case "about":
@@ -2342,6 +2402,8 @@ func (ec *executionContext) fieldContext_UsersConnection_node(ctx context.Contex
 				return ec.fieldContext_User_lastName(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "birthday":
+				return ec.fieldContext_User_birthday(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
 			case "about":
@@ -4258,7 +4320,7 @@ func (ec *executionContext) unmarshalInputUserRegistrationInput(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"firstName", "lastName", "email", "about", "password", "role"}
+	fieldsInOrder := [...]string{"firstName", "lastName", "birthday", "email", "about", "password", "role"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4283,6 +4345,15 @@ func (ec *executionContext) unmarshalInputUserRegistrationInput(ctx context.Cont
 				return it, err
 			}
 			it.LastName = data
+		case "birthday":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthday"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Birthday = data
 		case "email":
 			var err error
 
@@ -4665,6 +4736,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 				return innerFunc(ctx)
 
 			})
+		case "birthday":
+
+			out.Values[i] = ec._User_birthday(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "email":
 
 			out.Values[i] = ec._User_email(ctx, field, obj)
@@ -5209,6 +5287,21 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
