@@ -5,7 +5,9 @@
       "validationError": "Please check fields for errors",
       "requestFailed": "There was an error while performing your request"
     },
-    "or": "or"
+    "or": "or",
+    "error": "Error",
+    "info": "Information"
   },
   "auth": {
     "errors": {

@@ -176,7 +176,7 @@ class NebulaButtonStyle {
   factory NebulaButtonStyle.error(BuildContext context) =>
       NebulaButtonStyle(
         backgroundColor: context.colors.error,
-        textStyle: context.typography.withColor(context.colors.alternativeText),
+        textStyle: context.typographyAlt,
         indicatorColor: context.colors.alternativeText,
         splashColor: context.colors.secondary,
         borderRadius: const BorderRadius.all(Radius.circular(6)),

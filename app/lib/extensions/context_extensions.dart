@@ -15,9 +15,19 @@ extension ContextExtension on BuildContext {
       Provider.of<AppThemeProvider>(this, listen: false);
 
   NebulaTextStyle get typography => NebulaTextStyle(
-    color: colors.primaryColors[AppColorsType.text]!,
+    color: colors.text,
     fontSize: AppFontSize.normal.asValue,
   );
+
+  NebulaTextStyle get typographyAlt => NebulaTextStyle(
+    color: colors.alternativeText,
+    fontSize: AppFontSize.normal.asValue,
+  );
+
+  bool get isLandscape =>
+      MediaQuery.of(this).size.width >= MediaQuery.of(this).size.height;
+
+  bool get isPortrait => !isLandscape;
 
   String translate(String key, {
     String? fallbackKey,

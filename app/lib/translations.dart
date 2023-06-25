@@ -4,6 +4,8 @@ class Translations {
   static const String validationError = 'general.errors.validationError';
   static const String requestFailedError = 'general.errors.requestFailed';
   static const String or = 'general.or';
+  static const String error = 'general.error';
+  static const String info = 'general.info';
 
   // Auth
   static const String authSignInError = 'auth.errors.signInError';

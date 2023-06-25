@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/router/router.gr.dart';
-import 'package:furry_nebula/screens/auth/auth_main/widgets/shelter_sign_up_link.dart';
+import 'package:furry_nebula/screens/auth/main/widgets/shelter_sign_up_link.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/widgets/layout/screen_layout.dart';
 import 'package:furry_nebula/widgets/ui/nebula_button.dart';
@@ -69,8 +69,7 @@ class AuthMainScreen extends StatelessWidget {
                           const SizedBox(width: 4),
                           NebulaText(
                             context.translate(Translations.or),
-                            style: context.typography
-                                .withColor(context.colors.alternativeText),
+                            style: context.typographyAlt,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
@@ -100,10 +99,7 @@ class AuthMainScreen extends StatelessWidget {
             ),
           ),
         ),
-        ShelterSignUpLink(
-          textStyle: context.typography
-              .withColor(context.colors.alternativeText),
-        ),
+        ShelterSignUpLink(textStyle: context.typographyAlt),
       ],
     ),
   );

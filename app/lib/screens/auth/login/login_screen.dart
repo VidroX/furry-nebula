@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/extensions/string_extension.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
@@ -15,6 +14,7 @@ import 'package:furry_nebula/widgets/layout/screen_layout.dart';
 import 'package:furry_nebula/widgets/ui/nebula_button.dart';
 import 'package:furry_nebula/widgets/ui/nebula_form_field.dart';
 import 'package:furry_nebula/widgets/ui/nebula_logo.dart';
+import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -26,7 +26,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with NebulaNotificationHandler {
   final _bloc = injector.get<AuthBloc>();
   final _formKey = GlobalKey<FormState>();
 
@@ -41,6 +41,13 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _bloc.close();
+    cancelNotification();
+    super.dispose();
   }
 
   @override
@@ -120,7 +127,12 @@ class _LoginScreenState extends State<LoginScreen> {
           _formKey.currentState?.validate();
 
           if (e is RequestFailedException) {
-            Fluttertoast.showToast(msg: context.translate(e.message));
+            showNotification(
+              NebulaNotification.error(
+                title: context.translate(Translations.error),
+                description: context.translate(e.message),
+              ),
+            );
           }
         },
       ),
