@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/extensions/string_extension.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
+import 'package:furry_nebula/models/user/user_registration_role.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/auth/state/auth_bloc.dart';
 import 'package:furry_nebula/screens/auth/widgets/auth_header.dart';
@@ -193,6 +194,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         lastName: _lastName ?? '',
         about: _about ?? '',
         birthDay: _birthday ?? DateTime.now(),
+        role: widget.isShelterRep
+            ? UserRegistrationRole.shelter
+            : UserRegistrationRole.user,
         onSuccess: () {
           context.showNotification(
             NebulaNotification.primary(

@@ -7,6 +7,7 @@ linter:
 analyzer:
   errors:
     invalid_annotation_target: ignore
+    unused_element: ignore
   exclude:
     - '**.freezed.dart'
     - '**.g.dart'

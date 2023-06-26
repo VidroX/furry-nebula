@@ -8,11 +8,13 @@ class NebulaText extends StatelessWidget {
   final String text;
   final NebulaTextStyle? style;
   final int? maxLines;
+  final TextOverflow? overflow;
 
   const NebulaText(
     this.text, {
       this.style,
       this.maxLines,
+      this.overflow,
       super.key,
     }
   );
@@ -25,6 +27,7 @@ class NebulaText extends StatelessWidget {
       text,
       style: typographyStyle.toTextStyle(),
       maxLines: maxLines,
+      overflow: overflow,
     );
   }
 }
@@ -68,6 +71,7 @@ enum AppFontSize {
   extraSmall,
   small,
   normal,
+  extraNormal,
   large,
   extraLarge,
   huge;
@@ -76,6 +80,7 @@ enum AppFontSize {
     extraSmall: 12.0,
     small: 14.0,
     normal: 16.0,
+    extraNormal: 20.0,
     large: 24.0,
     extraLarge: 28.0,
     huge: 32.0,

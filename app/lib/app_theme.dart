@@ -43,7 +43,7 @@ class AppThemeProvider extends ChangeNotifier {
   AppThemeProvider({ required this.theme, required this.currentThemeName });
 
   FutureOr<void> changeTheme(AppColorsTheme? newTheme, {
-    bool changeCurrentThemeName = false,
+    bool changeCurrentThemeName = true,
   }) async {
     theme = newTheme ?? AppColorsTheme.light();
 
@@ -53,7 +53,9 @@ class AppThemeProvider extends ChangeNotifier {
 
     notifyListeners();
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(AppColors.themeKey, theme.themeName.name);
+    if (changeCurrentThemeName) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppColors.themeKey, theme.themeName.name);
+    }
   }
 }

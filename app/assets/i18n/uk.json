@@ -8,7 +8,10 @@
     "or": "або",
     "error": "Помилка",
     "info": "Інформація",
-    "continue": "Далі"
+    "continue": "Далі",
+    "shelterRepresentative": "Представник притулку",
+    "user": "Користувач",
+    "admin": "Адміністратор"
   },
   "auth": {
     "errors": {
@@ -26,9 +29,7 @@
     "signOut": "Вийти з аккаунта",
     "successfulLogin": "Ви успішно увійшли!",
     "successfulRegistration": "Ви успішно зареєструвалися!",
-    "successfulShelterRepRegistration": "Ви успішно зареєструвалися як Представник Притулку! Очікуйте підтвердження від адміністрації.",
-    "shelterRepresentative": "Представник Притулку",
-    "user": "Користувач",
+    "successfulShelterRepRegistration": "Ви успішно зареєструвалися! Очікуйте підтвердження реєстрації від адміністрації.",
     "enterFirstName": "Введіть своє ім'я",
     "enterLastName": "Введіть своє прізвище",
     "provideInfoAboutYourself": "Надайте інформацію про себе",
@@ -39,7 +40,15 @@
       "title": "Розміщення тварин"
     },
     "profile": {
-      "title": "Профіль"
+      "title": "Профіль",
+      "primaryInfo": "Основна інформація",
+      "details": "Деталі",
+      "email": "Електронна пошта",
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "birthDay": "День народження",
+      "status": "Статус",
+      "hiWithName": "Привіт, {fullName}!"
     },
     "userApprovals": {
       "title": "Користувачі в очікуванні"

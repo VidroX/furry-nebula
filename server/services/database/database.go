@@ -112,6 +112,7 @@ func (db *NebulaDb) CreateAdminUser() {
 	adminUserApproval := model.UserApproval{
 		User:       adminUser,
 		IsApproved: true,
+		IsReviewed: true,
 	}
 
 	err = db.Create(&adminUserApproval).Error

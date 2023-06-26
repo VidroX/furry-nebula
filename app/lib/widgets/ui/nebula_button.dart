@@ -32,7 +32,7 @@ class NebulaButton extends StatelessWidget {
     onPress: onPress,
     buttonStyle: buttonStyle,
     height: height,
-    width: double.infinity,
+    width: double.maxFinite,
   );
 
   static const _padding = EdgeInsetsDirectional.symmetric(

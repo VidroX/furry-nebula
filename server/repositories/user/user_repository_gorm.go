@@ -48,6 +48,7 @@ func (repo *UserRepositoryGorm) CreateUser(user *User) error {
 		userApproval := UserApproval{
 			User:       *user,
 			IsApproved: defaultApproved,
+			IsReviewed: defaultApproved,
 		}
 
 		if err := tx.Create(&userApproval).Error; err != nil {
@@ -68,25 +69,36 @@ func (repo *UserRepositoryGorm) IsUserApproved(id string) (bool, error) {
 		return false, err
 	}
 
-	return userApproval.IsApproved, nil
+	return userApproval.IsApproved && userApproval.IsReviewed, nil
 }
 
 func (repo *UserRepositoryGorm) ChangeUserApprovalStatus(id string, isApproved bool) error {
-	err := repo.database.Model(&UserApproval{}).Where("user_id = ?", id).Update("is_approved", isApproved).Error
+	err := repo.database.Model(&UserApproval{}).
+		Where("user_id = ?", id).
+		Updates(map[string]interface{}{
+			"is_approved": isApproved,
+			"is_reviewed": true,
+		}).
+		Error
 
 	return err
 }
 
-func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, pagination *Pagination) ([]*UserApproval, int64, error) {
+func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, isReviewed *bool, pagination *Pagination) ([]*UserApproval, int64, error) {
 	model := repo.database.Model(&UserApproval{}).Preload("User")
+
+	var normalizedIsReviewed *bool = isReviewed
+	if normalizedIsReviewed == nil {
+		normalizedIsReviewed = boolPointer(true)
+	}
 
 	results := []*UserApproval{}
 	var total int64 = 0
 
 	if isApproved != nil {
-		model.Where("is_approved = ?", *isApproved).Count(&total)
+		model.Where("is_approved = ? and is_reviewed = ?", *isApproved, *normalizedIsReviewed).Count(&total)
 
-		model = model.Where("is_approved = ?", *isApproved).
+		model = model.Where("is_approved = ? and is_reviewed = ?", *isApproved, *normalizedIsReviewed).
 			Scopes(database.PaginationScope(pagination)).
 			Find(&results)
 	} else {
@@ -119,4 +131,8 @@ func (repo *UserRepositoryGorm) GetUsers(pagination *Pagination) ([]*User, int64
 	repo.database.Model(&User{}).Count(&total)
 
 	return users, total, nil
+}
+
+func boolPointer(b bool) *bool {
+	return &b
 }

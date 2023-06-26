@@ -114,7 +114,7 @@ class AppColorsTheme with _$AppColorsTheme {
   factory AppColorsTheme.light() => const AppColorsTheme(
     themeName: AppThemeName.light,
     isLight: true,
-    backgroundColor: Color(0xFFFCFCFC),
+    backgroundColor: Color(0xFFF2F2F2),
     surfaceColor: Color(0xFFFFFFFF),
     containerColor: Color(0xFFFFFFFF),
     primaryColors: {
@@ -177,16 +177,16 @@ class AppColorsTheme with _$AppColorsTheme {
     },
     neumorphicShadow: [
       BoxShadow(
-        color: Color(0xFF17171A),
+        color: Color(0xFF131315),
+        offset: Offset(10, 10),
         blurRadius: 15,
         spreadRadius: 1,
-        offset: Offset(-20, -20),
       ),
       BoxShadow(
-        color: Color(0xFF1F1F23),
+        color: Color(0xFF1B1B1E),
+        offset: Offset(-10, -10),
         blurRadius: 15,
         spreadRadius: 1,
-        offset: Offset(20, 20),
       ),
     ],
     shadow: [

@@ -8,7 +8,10 @@
     "or": "or",
     "error": "Error",
     "info": "Information",
-    "continue": "Continue"
+    "continue": "Continue",
+    "shelterRepresentative": "Shelter representative",
+    "user": "User",
+    "admin": "Administrator"
   },
   "auth": {
     "errors": {
@@ -26,9 +29,7 @@
     "signOut": "Sign out",
     "successfulLogin": "You have successfully signed in!",
     "successfulRegistration": "You have successfully signed up!",
-    "successfulShelterRepRegistration": "You have successfully signed up as a Shelter Representative!\nPlease wait for the confirmation from the administration.",
-    "shelterRepresentative": "Shelter Representative",
-    "user": "User",
+    "successfulShelterRepRegistration": "You have successfully signed up!\nPlease wait for the confirmation from the administration.",
     "enterFirstName": "Enter your name",
     "enterLastName": "Enter your last name",
     "provideInfoAboutYourself": "Provide some information about yourself",
@@ -39,7 +40,15 @@
       "title": "Pet accommodations"
     },
     "profile": {
-      "title": "Profile"
+      "title": "Profile",
+      "primaryInfo": "Primary information",
+      "details": "Details",
+      "email": "E-Mail",
+      "firstName": "Name",
+      "lastName": "Last name",
+      "birthDay": "Birthday",
+      "status": "Status",
+      "hiWithName": "Hi, {fullName}!"
     },
     "userApprovals": {
       "title": "Pending users"

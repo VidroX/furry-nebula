@@ -51,7 +51,7 @@ class MainApp extends StatefulWidget {
   State<MainApp> createState() => _MainAppState();
 }
 
-class _MainAppState extends State<MainApp> {
+class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   final _appRouter = AppRouter();
 
   late final _themeProvider = AppThemeProvider(
@@ -64,25 +64,33 @@ class _MainAppState extends State<MainApp> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
+  }
 
-    if (widget.theme == AppThemeName.auto) {
-      final dispatcher = WidgetsBinding.instance.platformDispatcher;
-      dispatcher.onPlatformBrightnessChanged = () {
-        WidgetsBinding.instance.handlePlatformBrightnessChanged();
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
-        if (_themeProvider.currentThemeName != AppThemeName.auto) {
-          return;
-        }
+  @override
+  void didChangePlatformBrightness() {
+    super.didChangePlatformBrightness();
 
-        final brightness = dispatcher.platformBrightness;
+    if (widget.theme == AppThemeName.auto &&
+        _themeProvider.currentThemeName == AppThemeName.auto) {
 
-        _themeProvider.changeTheme(
-          brightness == Brightness.dark
-              ? AppColorsTheme.dark()
-              : AppColorsTheme.light(),
-        );
-      };
+      final brightness = WidgetsBinding.instance
+          .platformDispatcher
+          .platformBrightness;
+
+      _themeProvider.changeTheme(
+        brightness == Brightness.dark
+            ? AppColorsTheme.dark()
+            : AppColorsTheme.light(),
+        changeCurrentThemeName: false,
+      );
     }
   }
 

@@ -12,6 +12,7 @@ import (
 // Filters for list of user approvals
 type ApprovalFilters struct {
 	IsApproved *bool `json:"isApproved,omitempty"`
+	IsReviewed *bool `json:"isReviewed,omitempty"`
 }
 
 // Page information

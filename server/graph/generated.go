@@ -4253,7 +4253,7 @@ func (ec *executionContext) unmarshalInputApprovalFilters(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"isApproved"}
+	fieldsInOrder := [...]string{"isApproved", "isReviewed"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4269,6 +4269,15 @@ func (ec *executionContext) unmarshalInputApprovalFilters(ctx context.Context, o
 				return it, err
 			}
 			it.IsApproved = data
+		case "isReviewed":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isReviewed"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsReviewed = data
 		}
 	}
 

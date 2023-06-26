@@ -23,17 +23,14 @@ class AuthHeader extends StatelessWidget {
       if (showBackButton)
         Transform.translate(
           offset: offset,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(top: 4),
-            child: IconButton(
-              iconSize: 20,
-              splashRadius: 20,
-              onPressed: () => kIsWeb ? context.back() : context.popRoute(),
-              icon: FaIcon(
-                FontAwesomeIcons.arrowLeftLong,
-                size: 20,
-                color: context.colors.text,
-              ),
+          child: IconButton(
+            iconSize: 20,
+            splashRadius: 20,
+            onPressed: () => kIsWeb ? context.back() : context.popRoute(),
+            icon: FaIcon(
+              FontAwesomeIcons.arrowLeftLong,
+              size: 20,
+              color: context.colors.text,
             ),
           ),
         ),

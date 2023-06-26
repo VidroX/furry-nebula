@@ -18,7 +18,7 @@ services:
       - postgresql
 
   postgresql:
-    image: postgres:15.3
+    image: bitnami/postgresql:15.3.0
     restart: always
     env_file:
       - ./.env
@@ -28,7 +28,6 @@ services:
       - "5432:5432"
     volumes:
       - postgresql_data_container:/data/database
-      - ./postgresql/db-init.sh:/docker-entrypoint-initdb.d/db-init.sh:ro
 
 volumes:
   postgresql_data_container:

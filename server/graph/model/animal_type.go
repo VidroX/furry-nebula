@@ -3,7 +3,7 @@ package model
 type AnimalType struct {
 	Name        string `json:"animalName" gorm:"type:varchar(255);primarykey;not null"`
 	Description string `json:"animalDescription" gorm:"type:text"`
-	PhotoUrl    string `json:"photo_url" gorm:"type:text"`
+	PhotoUrl    string `json:"photoUrl" gorm:"type:text"`
 }
 
 func GetAnimalTypeByGraphQLAnimal(animal Animal) (AnimalType, bool) {

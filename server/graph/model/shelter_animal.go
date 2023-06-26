@@ -5,7 +5,7 @@ type ShelterAnimal struct {
 	ShelterID   string     `json:"-"`
 	Shelter     Shelter    `json:"shelter" gorm:"foreignKey:ShelterID;references:ID;OnDelete:SET NULL"`
 	AnimalType  string     `json:"-"`
-	Animal      AnimalType `json:"animal_type" gorm:"foreignKey:AnimalType;references:Name;OnDelete:SET NULL"`
+	Animal      AnimalType `json:"animalType" gorm:"foreignKey:AnimalType;references:Name;OnDelete:SET NULL"`
 	Name        string     `json:"name" gorm:"type:text;not null"`
 	Description string     `json:"description" gorm:"type:text"`
 	Photo       string     `json:"photo" gorm:"type:text"`

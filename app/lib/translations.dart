@@ -7,6 +7,9 @@ class Translations {
   static const String error = 'general.error';
   static const String info = 'general.info';
   static const String generalContinue = 'general.continue';
+  static const String shelterRepresentative = 'general.shelterRepresentative';
+  static const String user = 'general.user';
+  static const String admin = 'general.admin';
 
   // Auth
   static const String authSignInError = 'auth.errors.signInError';
@@ -23,8 +26,6 @@ class Translations {
   static const String authSuccessfulLogin = 'auth.successfulLogin';
   static const String authSuccessfulRegistration = 'auth.successfulRegistration';
   static const String authSuccessfulShelterRepRegistration = 'auth.successfulShelterRepRegistration';
-  static const String authShelterRepresentative = 'auth.shelterRepresentative';
-  static const String authUser = 'auth.user';
   static const String authEnterFirstName = 'auth.enterFirstName';
   static const String authEnterLastName = 'auth.enterLastName';
   static const String authProvideInfoAboutYourself = 'auth.provideInfoAboutYourself';
@@ -35,6 +36,14 @@ class Translations {
 
   // Profile
   static const String profileTitle = 'home.profile.title';
+  static const String profilePrimaryInfo = 'home.profile.primaryInfo';
+  static const String profileDetails = 'home.profile.details';
+  static const String profileEmail = 'home.profile.email';
+  static const String profileFirstName = 'home.profile.firstName';
+  static const String profileLastName = 'home.profile.lastName';
+  static const String profileBirthDay = 'home.profile.birthDay';
+  static const String profileStatus = 'home.profile.status';
+  static const String profileHiWithName = 'home.profile.hiWithName';
 
   // User approvals
   static const String userApprovalsTitle = 'home.userApprovals.title';

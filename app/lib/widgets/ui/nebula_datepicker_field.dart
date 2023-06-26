@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:intl/intl.dart';
 
 typedef NebulaValidator = String? Function(String? value);
@@ -13,6 +14,7 @@ class NebulaDatePickerField extends StatefulWidget {
   final InputDecoration decoration;
   final FocusNode? focusNode;
   final TextEditingController? controller;
+  final DatePickerMode initialDatePickerMode;
   final DateTime? initialDate;
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -27,6 +29,7 @@ class NebulaDatePickerField extends StatefulWidget {
     this.initialDate,
     this.firstDate,
     this.lastDate,
+    this.initialDatePickerMode = DatePickerMode.year,
     this.autovalidateMode = AutovalidateMode.disabled,
     this.decoration = const InputDecoration(),
     super.key,
@@ -92,11 +95,34 @@ class _NebulaDatePickerFieldState extends State<NebulaDatePickerField> {
       return;
     }
 
+    final colorScheme = context.colors.isLight
+        ? const ColorScheme.light()
+        : const ColorScheme.dark();
+
     final date = await showDatePicker(
-        context: context,
-        initialDate: widget.initialDate ?? DateTime.now(),
-        firstDate: widget.firstDate ?? DateTime(DateTime.now().year - 100),
-        lastDate: widget.lastDate ?? DateTime(DateTime.now().year + 100),
+      context: context,
+      initialDatePickerMode: widget.initialDatePickerMode,
+      initialDate: widget.initialDate ?? DateTime.now(),
+      firstDate: widget.firstDate ?? DateTime(DateTime.now().year - 100),
+      lastDate: widget.lastDate ?? DateTime(DateTime.now().year + 100),
+      builder: (context, child) => Theme(
+        data: context.theme.copyWith(
+          colorScheme: colorScheme.copyWith(
+            primary: context.colors.primary,
+            onPrimary: context.colors.isLight
+                ? context.colors.text
+                : context.colors.alternativeText,
+            surface: context.colors.containerColor,
+            onSurface: context.colors.text,
+          ),
+          datePickerTheme: context.theme.datePickerTheme.copyWith(
+            backgroundColor: context.colors.containerColor,
+            headerBackgroundColor: context.colors.containerColor,
+            surfaceTintColor: context.colors.containerColor,
+          ),
+        ),
+        child: child!,
+      ),
     );
 
     if (date == null) {

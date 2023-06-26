@@ -112,9 +112,9 @@ func (r *queryResolver) UserApprovals(ctx context.Context, filters *model.Approv
 	var total int64
 
 	if filters != nil {
-		approvals, total, err = userRepo.GetUserApprovals(filters.IsApproved, pagination)
+		approvals, total, err = userRepo.GetUserApprovals(filters.IsApproved, filters.IsReviewed, pagination)
 	} else {
-		approvals, total, err = userRepo.GetUserApprovals(nil, pagination)
+		approvals, total, err = userRepo.GetUserApprovals(nil, nil, pagination)
 	}
 
 	if err != nil {

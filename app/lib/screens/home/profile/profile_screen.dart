@@ -1,11 +1,19 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
+import 'package:furry_nebula/extensions/role_extension.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/translations.dart';
+import 'package:furry_nebula/widgets/layout/expandable_scroll_view.dart';
 import 'package:furry_nebula/widgets/ui/nebula_button.dart';
+import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/neumorphic_container.dart';
+import 'package:intl/intl.dart';
 
 @RoutePage()
 class ProfileScreen extends StatefulWidget {
@@ -18,27 +26,72 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  late final DateFormat _dateFormat;
   late final UserBloc _bloc;
 
   @override
   void initState() {
     super.initState();
 
+    _dateFormat = DateFormat(DateFormat.YEAR_MONTH_DAY, Platform.localeName);
     _bloc = BlocProvider.of<UserBloc>(context);
   }
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<UserBloc, UserState>(
-    builder: (context, state) => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        NebulaButton.fill(
-          loading: state.isLogoutLoading,
-          text: context.translate(Translations.authSignOut),
-          onPress: _logout,
-          buttonStyle: NebulaButtonStyle.error(context),
-        ),
-      ],
+  Widget build(BuildContext context) => ExpandableScrollView(
+    child: BlocBuilder<UserBloc, UserState>(
+      builder: (context, state) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          NebulaText(
+            context.translate(Translations.profileHiWithName, params: {
+              'fullName': state.user!.fullName,
+            },),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.typography
+                .withFontWeight(FontWeight.w600)
+                .withFontSize(AppFontSize.extraLarge),
+          ),
+          const SizedBox(height: 12),
+          _ProfileContainer(
+            title: context.translate(Translations.profilePrimaryInfo),
+            children: [
+              _PrimaryInfoContainer(
+                titles: [
+                  context.translate(Translations.profileFirstName),
+                  context.translate(Translations.profileLastName),
+                  context.translate(Translations.profileBirthDay),
+                  context.translate(Translations.profileStatus),
+                ],
+                details: [
+                  state.user!.firstName,
+                  state.user!.lastName,
+                  _dateFormat.format(state.user!.birthDay),
+                  context.translate(state.user!.role.translationKey),
+                ],
+              ),
+            ],
+          ),
+          if (state.user!.about.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: _ProfileContainer(
+                title: context.translate(Translations.profileDetails),
+                children: [
+                  NebulaText(state.user!.about),
+                ],
+              ),
+            ),
+          const SizedBox(height: 16),
+          NebulaButton.fill(
+            loading: state.isLogoutLoading,
+            text: context.translate(Translations.authSignOut),
+            onPress: _logout,
+            buttonStyle: NebulaButtonStyle.error(context),
+          ),
+        ],
+      ),
     ),
   );
 
@@ -49,4 +102,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+
+class _ProfileContainer extends StatelessWidget {
+  final String? title;
+  final List<Widget> children;
+
+  const _ProfileContainer({
+    required this.children,
+    this.title,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) => NeumorphicContainer(
+    decoration: const BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(8)),
+    ),
+    width: double.maxFinite,
+    padding: const EdgeInsets.all(12),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != null)
+          NebulaText(
+            title!,
+            style: context.typography
+                .withFontSize(AppFontSize.extraNormal)
+                .withFontWeight(FontWeight.w600),
+          ),
+        const SizedBox(height: 12),
+        ...children,
+      ],
+    ),
+  );
+}
+
+class _PrimaryInfoContainer extends StatelessWidget {
+  final List<String> titles;
+  final List<String> details;
+
+  const _PrimaryInfoContainer({
+    this.titles = const [],
+    this.details = const [],
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: titles.mapIndexed((index, title) => Padding(
+          padding: index == titles.length
+              ? EdgeInsets.zero
+              : const EdgeInsetsDirectional.only(end: 24, bottom: 6),
+          child: NebulaText(
+            '$title:',
+          ),
+        ),).toList(),
+      ),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: details.mapIndexed((index, detail) => Padding(
+            padding: index == titles.length
+                ? EdgeInsets.zero
+                : const EdgeInsetsDirectional.only(bottom: 6),
+            child: NebulaText(
+              detail,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),).toList(),
+        ),
+      ),
+    ],
+  );
 }
