@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
 
 class NebulaCircularButton extends StatelessWidget {
   final Widget child;

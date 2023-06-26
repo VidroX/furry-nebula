@@ -238,4 +238,3 @@ class _ApprovalItem extends StatelessWidget {
     ),
   );
 }
-

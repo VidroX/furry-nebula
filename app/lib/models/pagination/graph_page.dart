@@ -32,7 +32,7 @@ class GraphPageInfo with _$GraphPageInfo {
 
   factory GraphPageInfo.fromFragment(GPageInfoFragment pageInfo) =>
       GraphPageInfo(
-        page: pageInfo.page ?? 1,
+        page: pageInfo.page,
         hasNextPage: pageInfo.hasNextPage,
         hasPreviousPage: pageInfo.hasPreviousPage,
         resultsPerPage: pageInfo.resultsPerPage,
