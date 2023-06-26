@@ -27,7 +27,7 @@ class NeumorphicContainer extends StatelessWidget {
     height: height,
     constraints: constraints,
     decoration: decoration.copyWith(
-      color: backgroundColor ?? context.colors.surfaceColor,
+      color: backgroundColor ?? context.colors.containerColor,
       boxShadow: context.colors.neumorphicShadow,
     ),
     padding: padding,

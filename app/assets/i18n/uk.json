@@ -7,7 +7,8 @@
     },
     "or": "або",
     "error": "Помилка",
-    "info": "Інформація"
+    "info": "Інформація",
+    "continue": "Далі"
   },
   "auth": {
     "errors": {
@@ -17,11 +18,21 @@
     },
     "signIn": "Увійти",
     "signUp": "Зареєструватись",
+    "shelterRepresentativeSignUp": "Зареєструватися як представник притулку",
     "enterEmail": "Введіть свою електронну пошту",
     "enterPassword": "Введіть свій пароль",
     "isShelterRepresentative": "Ви представник притулку для тварин?",
     "signUpHere": "Зареєструйтеся тут",
-    "signOut": "Вийти з аккаунта"
+    "signOut": "Вийти з аккаунта",
+    "successfulLogin": "Ви успішно увійшли!",
+    "successfulRegistration": "Ви успішно зареєструвалися!",
+    "successfulShelterRepRegistration": "Ви успішно зареєструвалися як Представник Притулку! Очікуйте підтвердження від адміністрації.",
+    "shelterRepresentative": "Представник Притулку",
+    "user": "Користувач",
+    "enterFirstName": "Введіть своє ім'я",
+    "enterLastName": "Введіть своє прізвище",
+    "provideInfoAboutYourself": "Надайте інформацію про себе",
+    "provideBirthday": "Вкажіть свій день народження"
   },
   "home": {
     "accommodations": {

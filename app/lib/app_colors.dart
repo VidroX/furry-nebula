@@ -12,8 +12,8 @@ class AppColors extends ThemeExtension<AppColors> {
 
   const AppColors({ required this.theme });
 
-  factory AppColors.fromThemeName(AppThemeName themeName) {
-    switch (themeName) {
+  factory AppColors.fromColorsTheme(AppColorsTheme theme) {
+    switch (theme.themeName) {
       case AppThemeName.light:
         return AppColors.light();
       case AppThemeName.dark:
@@ -49,6 +49,11 @@ class AppColors extends ThemeExtension<AppColors> {
           other.theme.surfaceColor,
           t,
         ) ?? theme.surfaceColor,
+        containerColor: Color.lerp(
+          theme.containerColor,
+          other.theme.containerColor,
+          t,
+        ) ?? theme.containerColor,
         primaryColors: theme.primaryColors.map((key, value) =>
             MapEntry(
               key,
@@ -79,6 +84,7 @@ class AppColorsTheme with _$AppColorsTheme {
     required bool isLight,
     required Color backgroundColor,
     required Color surfaceColor,
+    required Color containerColor,
     required Map<AppColorsType, Color> primaryColors,
     required Map<AppColorsType, Color> alternativeColors,
     required List<BoxShadow> neumorphicShadow,
@@ -87,10 +93,15 @@ class AppColorsTheme with _$AppColorsTheme {
 
   const AppColorsTheme._();
 
-  factory AppColorsTheme.fromString(String? themeName) {
-    final appThemeName = AppThemeName.fromString(themeName);
-
-    switch (appThemeName) {
+  factory AppColorsTheme.fromAppThemeName(
+      Brightness brightness,
+      AppThemeName? themeName,
+  ) {
+    switch (themeName) {
+      case AppThemeName.auto:
+        return brightness == Brightness.dark
+            ? AppColorsTheme.dark()
+            : AppColorsTheme.light();
       case AppThemeName.light:
         return AppColorsTheme.light();
       case AppThemeName.dark:
@@ -103,8 +114,9 @@ class AppColorsTheme with _$AppColorsTheme {
   factory AppColorsTheme.light() => const AppColorsTheme(
     themeName: AppThemeName.light,
     isLight: true,
-    backgroundColor: Color(0xFFFFFFFF),
+    backgroundColor: Color(0xFFFCFCFC),
     surfaceColor: Color(0xFFFFFFFF),
+    containerColor: Color(0xFFFFFFFF),
     primaryColors: {
       AppColorsType.primary: Color(0xFF7FEFBD),
       AppColorsType.secondary: Color(0xFF6B7FD7),
@@ -122,18 +134,20 @@ class AppColorsTheme with _$AppColorsTheme {
     neumorphicShadow: [
       BoxShadow(
         color: Color(0xFFD9D9D9),
+        offset: Offset(10, 10),
         blurRadius: 15,
-        offset: Offset(-20, -20),
+        spreadRadius: 1,
       ),
       BoxShadow(
         color: Color(0xFFFFFFFF),
+        offset: Offset(-10, -10),
         blurRadius: 15,
-        offset: Offset(20, 20),
+        spreadRadius: 1,
       ),
     ],
     shadow: [
       BoxShadow(
-        color: Color(0xCC000000),
+        color: Color(0x40000000),
         blurRadius: 15,
         spreadRadius: -3,
         offset: Offset(0, 10),
@@ -146,6 +160,7 @@ class AppColorsTheme with _$AppColorsTheme {
     isLight: false,
     backgroundColor: Color(0xFF1B1B1E),
     surfaceColor: Color(0xFFFFFFFF),
+    containerColor: Color(0xFF393941),
     primaryColors: {
       AppColorsType.primary: Color(0xFF7FEFBD),
       AppColorsType.secondary: Color(0xFF6B7FD7),
@@ -176,7 +191,7 @@ class AppColorsTheme with _$AppColorsTheme {
     ],
     shadow: [
       BoxShadow(
-        color: Color(0xCCFFFFFF),
+        color: Color(0x40FFFFFF),
         blurRadius: 15,
         spreadRadius: -3,
         offset: Offset(0, 10),
@@ -206,11 +221,13 @@ enum AppColorsType {
 }
 
 enum AppThemeName {
+  auto,
   light,
   dark;
 
   static AppThemeName fromString(String? themeName) => {
+    auto.name: auto,
     light.name: light,
     dark.name: dark,
-  }[themeName] ?? light;
+  }[themeName] ?? auto;
 }

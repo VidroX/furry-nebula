@@ -1,0 +1,16 @@
+# import '../../fragments/user_fragment.graphql'
+# import '../../fragments/token_fragment.graphql'
+
+mutation RegistrationMutation($userInfo: UserRegistrationInput!) {
+    register(userInfo: $userInfo) {
+        user {
+            ...UserFragment
+        }
+        accessToken {
+            ...TokenFragment
+        }
+        refreshToken {
+            ...TokenFragment
+        }
+    }
+}

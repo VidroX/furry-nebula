@@ -7,7 +7,8 @@
     },
     "or": "or",
     "error": "Error",
-    "info": "Information"
+    "info": "Information",
+    "continue": "Continue"
   },
   "auth": {
     "errors": {
@@ -17,11 +18,21 @@
     },
     "signIn": "Sign in",
     "signUp": "Sign up",
+    "shelterRepresentativeSignUp": "Sign up as a shelter representative",
     "enterEmail": "Enter your E-Mail",
     "enterPassword": "Enter your password",
     "isShelterRepresentative": "Are you an animal shelter representative?",
     "signUpHere": "Sign up here",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "successfulLogin": "You have successfully signed in!",
+    "successfulRegistration": "You have successfully signed up!",
+    "successfulShelterRepRegistration": "You have successfully signed up as a Shelter Representative!\nPlease wait for the confirmation from the administration.",
+    "shelterRepresentative": "Shelter Representative",
+    "user": "User",
+    "enterFirstName": "Enter your name",
+    "enterLastName": "Enter your last name",
+    "provideInfoAboutYourself": "Provide some information about yourself",
+    "provideBirthday": "Provide your birthday"
   },
   "home": {
     "accommodations": {

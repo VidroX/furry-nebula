@@ -48,11 +48,11 @@ class _HomeScreenState extends State<HomeScreen> {
             bottomNavigationBar: Container(
               decoration: BoxDecoration(
                 boxShadow: context.colors.shadow,
-                color: context.colors.backgroundColor,
+                color: context.colors.containerColor,
               ),
               child: BottomNavigationBar(
                 elevation: 0,
-                backgroundColor: context.colors.backgroundColor,
+                backgroundColor: context.colors.containerColor,
                 currentIndex: tabsRouter.activeIndex,
                 onTap: (index) => tabsRouter.setActiveIndex(index),
                 items: state.hasRole(GRole.Admin) ? [

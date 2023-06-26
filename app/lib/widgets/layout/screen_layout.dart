@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/widgets/layout/expandable_scroll_view.dart';
 
 class ScreenLayout extends StatelessWidget {
@@ -19,6 +20,7 @@ class ScreenLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: context.colors.backgroundColor,
     bottomNavigationBar: loading ? null : bottomNavigationBar,
     body: Container(
       width: MediaQuery.of(context).size.width,

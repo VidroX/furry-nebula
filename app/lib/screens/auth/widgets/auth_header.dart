@@ -37,11 +37,14 @@ class AuthHeader extends StatelessWidget {
             ),
           ),
         ),
-      NebulaText(
-        title,
-        style: context.typography
-            .withFontSize(AppFontSize.large)
-            .withFontWeight(FontWeight.w500),
+      Expanded(
+        child: NebulaText(
+          title,
+          style: context.typography
+              .withFontSize(AppFontSize.large)
+              .withFontWeight(FontWeight.w500),
+          maxLines: 2,
+        ),
       ),
     ],
   );

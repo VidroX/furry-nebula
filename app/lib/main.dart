@@ -1,8 +1,6 @@
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -12,6 +10,7 @@ import 'package:furry_nebula/app_theme.dart';
 import 'package:furry_nebula/environment_constants.dart';
 import 'package:furry_nebula/router/router.dart';
 import 'package:furry_nebula/services/injector.dart';
+import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,45 +27,73 @@ Future<void> main() async {
   runApp(MainApp(theme: theme));
 }
 
-Future<AppColorsTheme> _loadTheme() async {
+Future<AppThemeName> _loadTheme() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  var themeName = prefs.getString(AppColors.themeKey);
+  final themeName = prefs.getString(AppColors.themeKey);
 
   if (themeName == null) {
-    final brightness = SchedulerBinding.instance
-        .platformDispatcher
-        .platformBrightness;
-    final isDarkMode = brightness == Brightness.dark;
-
-    themeName = isDarkMode
-        ? AppThemeName.dark.name
-        : AppThemeName.light.name;
-
-    await prefs.setString(AppColors.themeKey, themeName);
+    await prefs.setString(AppColors.themeKey, AppThemeName.auto.name);
   }
 
-  return AppColorsTheme.fromString(themeName);
+  return AppThemeName.fromString(themeName);
 }
 
-class MainApp extends StatelessWidget {
-  final AppColorsTheme theme;
+class MainApp extends StatefulWidget {
+  final AppThemeName theme;
 
-  final _appRouter = AppRouter();
-
-  MainApp({
+  const MainApp({
     required this.theme,
     super.key,
   });
 
   @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  final _appRouter = AppRouter();
+
+  late final _themeProvider = AppThemeProvider(
+    currentThemeName: widget.theme,
+    theme: AppColorsTheme.fromAppThemeName(
+      MediaQuery.of(context).platformBrightness,
+      widget.theme,
+    ),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.theme == AppThemeName.auto) {
+      final dispatcher = WidgetsBinding.instance.platformDispatcher;
+      dispatcher.onPlatformBrightnessChanged = () {
+        WidgetsBinding.instance.handlePlatformBrightnessChanged();
+
+        if (_themeProvider.currentThemeName != AppThemeName.auto) {
+          return;
+        }
+
+        final brightness = dispatcher.platformBrightness;
+
+        _themeProvider.changeTheme(
+          brightness == Brightness.dark
+              ? AppColorsTheme.dark()
+              : AppColorsTheme.light(),
+        );
+      };
+    }
+  }
+
+  @override
   Widget build(BuildContext context) => ChangeNotifierProvider<AppThemeProvider>(
-    create: (_) => AppThemeProvider(theme: theme),
+    create: (_) => _themeProvider,
     child: Consumer<AppThemeProvider>(
       builder: (context, themeProvider, _) => MaterialApp.router(
         debugShowCheckedModeBanner: false,
         theme: ThemeData().customTheme(
-          theme: AppColors.fromThemeName(themeProvider.theme.themeName),
+          theme: AppColors.fromColorsTheme(themeProvider.theme),
         ),
         supportedLocales: const [
           Locale('en'),
@@ -75,7 +102,7 @@ class MainApp extends StatelessWidget {
         localizationsDelegates: [
           FlutterI18nDelegate(
             translationLoader: FileTranslationLoader(
-              basePath: kIsWeb ? 'i18n' : 'assets/i18n',
+              basePath: 'assets/i18n',
             ),
             missingTranslationHandler: (key, locale) {
               log("--- Missing Key: $key, languageCode: ${locale?.languageCode}");
@@ -85,8 +112,37 @@ class MainApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
         ],
         routerConfig: _appRouter.config(),
-        builder: FlutterI18n.rootAppBuilder(),
+        builder: (context, child) => Overlay(
+          initialEntries: [
+            OverlayEntry(builder: (context) => _AppContainer(child: child)),
+          ],
+        ),
       ),
     ),
+  );
+}
+
+class _AppContainer extends StatefulWidget {
+  final Widget? child;
+
+  const _AppContainer({
+    this.child,
+    // ignore: unused_element
+    super.key,
+  });
+
+  @override
+  State<_AppContainer> createState() => _AppContainerState();
+}
+
+class _AppContainerState extends State<_AppContainer> with NebulaNotificationHandler {
+  @override
+  Widget build(BuildContext context) => Provider<NebulaGlobalNotificationProvider>(
+    create: (_) => NebulaGlobalNotificationProvider(
+      showNotification: showNotification,
+      cancelNotification: cancelNotification,
+    ),
+    builder: FlutterI18n.rootAppBuilder(),
+    child: widget.child,
   );
 }

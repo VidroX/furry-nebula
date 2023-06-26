@@ -1,14 +1,16 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/fragments/__generated__/user_fragment.data.gql.dart';
 import 'package:furry_nebula/graphql/mutations/auth/__generated__/login.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/auth/__generated__/register.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/auth/__generated__/get_current_user.req.gql.dart';
 import 'package:furry_nebula/models/user/user.dart';
+import 'package:furry_nebula/models/user/user_registration_role.dart';
 import 'package:furry_nebula/models/user/user_token.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 import 'package:furry_nebula/services/api_client.dart';
-import 'package:furry_nebula/translations.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class UserRepositoryGraphQL extends UserRepository {
@@ -75,7 +77,7 @@ class UserRepositoryGraphQL extends UserRepository {
         || response.data?.login.refreshToken?.token == null;
 
     if (hasErrors) {
-      throw const RequestFailedException(message: Translations.authSignInError);
+      throw const RequestFailedException();
     }
 
     final accessToken = response.data!.login.accessToken!.token;
@@ -85,6 +87,53 @@ class UserRepositoryGraphQL extends UserRepository {
     await _storage.write(key: UserToken.refreshTokenKey, value: refreshToken);
 
     return _buildUser(response.data!.login.user!);
+  }
+
+  @override
+  Future<User> register({
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+    required DateTime birthDay,
+    String? about,
+    UserRegistrationRole role = UserRegistrationRole.user,
+  }) async {
+    final registrationInput = GUserRegistrationInputBuilder()
+      ..email = email
+      ..password = password
+      ..firstName = firstName
+      ..lastName = lastName
+      ..birthday = birthDay
+      ..about = about
+      ..role = role.toGRegistrationRole;
+
+    final request = GRegistrationMutationReq(
+          (b) => b
+            ..vars.userInfo = registrationInput,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException is ValidationException) {
+      throw response.linkException!;
+    }
+
+    final hasErrors = response.data?.register.user == null
+        || response.data?.register.accessToken?.token == null
+        || response.data?.register.refreshToken?.token == null;
+
+    if (hasErrors) {
+      throw const RequestFailedException();
+    }
+
+    final accessToken = response.data!.register.accessToken!.token;
+    final refreshToken = response.data!.register.refreshToken!.token;
+
+    await _storage.write(key: UserToken.accessTokenKey, value: accessToken);
+    await _storage.write(key: UserToken.refreshTokenKey, value: refreshToken);
+
+    return _buildUser(response.data!.register.user!);
   }
 
   @override

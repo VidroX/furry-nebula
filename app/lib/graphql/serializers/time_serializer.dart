@@ -10,13 +10,13 @@ class TimeSerializer implements PrimitiveSerializer<DateTime> {
       "DateSerializer expected 'String' but got ${serialized.runtimeType}",
     );
 
-    return DateTime.parse(serialized as String);
+    return DateTime.parse(serialized as String).toUtc();
   }
 
   @override
   Object serialize(Serializers serializers, DateTime date, {
     FullType specifiedType = FullType.unspecified,
-  }) => date.toString();
+  }) => date.toUtc().toIso8601String();
 
   @override
   Iterable<Type> get types => [DateTime];

@@ -6,6 +6,7 @@ class NebulaFormField extends StatelessWidget {
   final String? label;
   final AutovalidateMode autovalidateMode;
   final bool obscureText;
+  final int? maxLines;
   final NebulaValidator? validator;
   final InputDecoration decoration;
   final TextEditingController? controller;
@@ -16,6 +17,7 @@ class NebulaFormField extends StatelessWidget {
     this.label,
     this.controller,
     this.onChanged,
+    this.maxLines = 1,
     this.autovalidateMode = AutovalidateMode.disabled,
     this.obscureText = false,
     this.decoration = const InputDecoration(),
@@ -29,6 +31,7 @@ class NebulaFormField extends StatelessWidget {
     obscureText: obscureText,
     validator: validator,
     onChanged: onChanged,
+    maxLines: maxLines,
     decoration: decoration.copyWith(
       labelText: label,
       border: const OutlineInputBorder(),

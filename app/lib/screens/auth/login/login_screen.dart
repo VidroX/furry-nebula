@@ -15,6 +15,7 @@ import 'package:furry_nebula/widgets/ui/nebula_button.dart';
 import 'package:furry_nebula/widgets/ui/nebula_form_field.dart';
 import 'package:furry_nebula/widgets/ui/nebula_logo.dart';
 import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
+import 'package:furry_nebula/widgets/ui/nebula_password_field.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -26,7 +27,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with NebulaNotificationHandler {
+class _LoginScreenState extends State<LoginScreen> {
   final _bloc = injector.get<AuthBloc>();
   final _formKey = GlobalKey<FormState>();
 
@@ -46,7 +47,6 @@ class _LoginScreenState extends State<LoginScreen> with NebulaNotificationHandle
   @override
   void dispose() {
     _bloc.close();
-    cancelNotification();
     super.dispose();
   }
 
@@ -86,10 +86,9 @@ class _LoginScreenState extends State<LoginScreen> with NebulaNotificationHandle
                 },
               ),
               const SizedBox(height: 12),
-              NebulaFormField(
+              NebulaPasswordField(
                 autovalidateMode: AutovalidateMode.always,
                 label: context.translate(Translations.authEnterPassword),
-                obscureText: true,
                 validator: ApiErrorValidator(
                   validationErrors: state.validationErrors,
                   fieldName: _passwordFieldName,
@@ -118,16 +117,27 @@ class _LoginScreenState extends State<LoginScreen> with NebulaNotificationHandle
   );
 
   void _onLoginPressed(AuthState state) {
+    FocusScope.of(context).unfocus();
+
     _bloc.add(
       AuthEvent.login(
         email: _email ?? '',
         password: _password ?? '',
-        onSuccess: () => context.replaceRoute(const HomeRoute()),
+        onSuccess: () {
+          context.showNotification(
+            NebulaNotification.primary(
+              title: context.translate(Translations.info),
+              description: context.translate(Translations.authSuccessfulLogin),
+            ),
+          );
+
+          context.replaceRoute(const HomeRoute());
+        },
         onError: (e) {
           _formKey.currentState?.validate();
 
           if (e is RequestFailedException) {
-            showNotification(
+            context.showNotification(
               NebulaNotification.error(
                 title: context.translate(Translations.error),
                 description: context.translate(e.message),

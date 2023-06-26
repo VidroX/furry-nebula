@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:furry_nebula/app_colors.dart';
 import 'package:furry_nebula/app_theme.dart';
+import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
 import 'package:furry_nebula/widgets/ui/nebula_text.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +14,14 @@ extension ContextExtension on BuildContext {
 
   AppThemeProvider get themeProvider =>
       Provider.of<AppThemeProvider>(this, listen: false);
+
+  NebulaGlobalNotificationProvider get notificationProvider =>
+      Provider.of<NebulaGlobalNotificationProvider>(this, listen: false);
+
+  void showNotification(NebulaNotification notification) =>
+      notificationProvider.showNotification(notification);
+
+  void cancelNotification() => notificationProvider.cancelNotification();
 
   NebulaTextStyle get typography => NebulaTextStyle(
     color: colors.text,
