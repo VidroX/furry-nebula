@@ -17,11 +17,11 @@ type ApprovalFilters struct {
 
 // Page information
 type PageInfo struct {
-	Page            *int   `json:"page,omitempty"`
-	ResultsPerPage  *int   `json:"resultsPerPage,omitempty"`
-	TotalResults    *int64 `json:"totalResults,omitempty"`
-	HasNextPage     *bool  `json:"hasNextPage,omitempty"`
-	HasPreviousPage *bool  `json:"hasPreviousPage,omitempty"`
+	Page            int   `json:"page"`
+	ResultsPerPage  int   `json:"resultsPerPage"`
+	TotalResults    int64 `json:"totalResults"`
+	HasNextPage     bool  `json:"hasNextPage"`
+	HasPreviousPage bool  `json:"hasPreviousPage"`
 }
 
 // Pagination filters

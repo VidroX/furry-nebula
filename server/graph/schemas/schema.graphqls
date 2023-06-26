@@ -23,11 +23,11 @@ scalar Upload
 Page information
 """
 type PageInfo {
-  page: Int
-  resultsPerPage: Int
-  totalResults: Int64
-  hasNextPage: Boolean
-  hasPreviousPage: Boolean
+  page: Int!
+  resultsPerPage: Int!
+  totalResults: Int64!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
 }
 
 """
