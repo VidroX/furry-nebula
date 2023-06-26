@@ -1,0 +1,5 @@
+mutation ChangeUserApprovalStatus($userId: ID!, $isApproved: Boolean!) {
+    changeUserApprovalStatus(userId: $userId, isApproved: $isApproved) {
+        message
+    }
+}

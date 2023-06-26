@@ -47,4 +47,7 @@ class Translations {
 
   // User approvals
   static const String userApprovalsTitle = 'home.userApprovals.title';
+  static const String userApprovalsUsersPendingApproval = 'home.userApprovals.usersPendingApproval';
+  static const String userApprovalsUsersWantsToBe = 'home.userApprovals.wantsToBe';
+  static const String userApprovalsUsersNoUsersPendingApproval = 'home.userApprovals.noUsersPendingApproval';
 }

@@ -8,6 +8,7 @@ class ScreenLayout extends StatelessWidget {
   final bool scrollable;
   final Widget? bottomNavigationBar;
   final bool loading;
+  final EdgeInsetsGeometry padding;
 
   const ScreenLayout({
     required this.child,
@@ -15,6 +16,7 @@ class ScreenLayout extends StatelessWidget {
     this.scrollable = false,
     this.bottomNavigationBar,
     this.loading = false,
+    this.padding = const EdgeInsetsDirectional.all(16),
     super.key,
   });
 
@@ -38,7 +40,7 @@ class ScreenLayout extends StatelessWidget {
             if (scrollable) {
               return ExpandableScrollView(
                 child: Padding(
-                  padding: const EdgeInsetsDirectional.all(16),
+                  padding: padding,
                   child: Align(
                     alignment: AlignmentDirectional.topStart,
                     child: child,
@@ -48,7 +50,7 @@ class ScreenLayout extends StatelessWidget {
             }
 
             return Padding(
-              padding: const EdgeInsetsDirectional.all(16),
+              padding: padding,
               child: Align(
                 alignment: AlignmentDirectional.topStart,
                 child: child,

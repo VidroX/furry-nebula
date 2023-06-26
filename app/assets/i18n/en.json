@@ -51,7 +51,10 @@
       "hiWithName": "Hi, {fullName}!"
     },
     "userApprovals": {
-      "title": "Pending users"
+      "title": "Pending users",
+      "usersPendingApproval": "Users pending approval",
+      "wantsToBe": "Wants to be a {userType}",
+      "noUsersPendingApproval": "Currently, no users are pending approval"
     }
   }
 }

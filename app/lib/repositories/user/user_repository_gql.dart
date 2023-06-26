@@ -3,9 +3,13 @@ import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/fragments/__generated__/user_fragment.data.gql.dart';
-import 'package:furry_nebula/graphql/mutations/auth/__generated__/login.req.gql.dart';
-import 'package:furry_nebula/graphql/mutations/auth/__generated__/register.req.gql.dart';
-import 'package:furry_nebula/graphql/queries/auth/__generated__/get_current_user.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/user/__generated__/change_user_approval_status.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/user/__generated__/login.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/user/__generated__/register.req.gql.dart';
+import 'package:furry_nebula/graphql/queries/user/__generated__/get_current_user.req.gql.dart';
+import 'package:furry_nebula/graphql/queries/user/__generated__/get_user_approvals.req.gql.dart';
+import 'package:furry_nebula/models/pagination/graph_page.dart';
+import 'package:furry_nebula/models/pagination/pagination.dart';
 import 'package:furry_nebula/models/user/user.dart';
 import 'package:furry_nebula/models/user/user_registration_role.dart';
 import 'package:furry_nebula/models/user/user_token.dart';
@@ -56,6 +60,14 @@ class UserRepositoryGraphQL extends UserRepository {
     }
 
     return _buildUser(user);
+  }
+
+  @override
+  Future<void> logout() async {
+    client.ferryClient.cache.clear();
+
+    await _storage.delete(key: UserToken.accessTokenKey);
+    await _storage.delete(key: UserToken.refreshTokenKey);
   }
 
   @override
@@ -137,10 +149,54 @@ class UserRepositoryGraphQL extends UserRepository {
   }
 
   @override
-  Future<void> logout() async {
-    client.ferryClient.cache.clear();
+  Future<GraphPage<User>> getUnapprovedUsers({
+    Pagination pagination = const Pagination(),
+  }) async {
+    final filters = GApprovalFiltersBuilder()
+      ..isApproved = false
+      ..isReviewed = false;
 
-    await _storage.delete(key: UserToken.accessTokenKey);
-    await _storage.delete(key: UserToken.refreshTokenKey);
+    final request = GGetUserApprovalsReq(
+          (b) => b
+            ..vars.filters = filters
+            ..vars.pagination = pagination.toGPaginationBuilder,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    final hasErrors = response.data?.userApprovals.node == null
+        || response.data?.userApprovals.pageInfo == null;
+
+    if (hasErrors) {
+      throw const RequestFailedException();
+    }
+
+    final pageInfo = response.data!.userApprovals.pageInfo;
+    final users = response.data!.userApprovals.node
+        .map((user) => _buildUser(user!))
+        .toList();
+
+    return GraphPage.fromFragment(
+      nodes: users,
+      pageInfo: pageInfo,
+    );
+  }
+
+  @override
+  Future<void> changeUserApprovalStatus({
+    required String userId,
+    bool isApproved = false,
+  }) async {
+    final request = GChangeUserApprovalStatusReq(
+          (b) => b
+            ..vars.userId = userId
+            ..vars.isApproved = isApproved,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException != null) {
+      throw const RequestFailedException();
+    }
   }
 }

@@ -14,7 +14,7 @@ import "package:furry_nebula/graphql/exceptions/exception_handler.dart" as handl
 import "package:furry_nebula/graphql/exceptions/general_api_exception.dart";
 import "package:furry_nebula/graphql/exceptions/validation_exception.dart";
 import "package:furry_nebula/graphql/links/token_link.dart";
-import "package:furry_nebula/graphql/mutations/auth/__generated__/refresh_token.req.gql.dart";
+import "package:furry_nebula/graphql/mutations/user/__generated__/refresh_token.req.gql.dart";
 import "package:furry_nebula/models/user/user_token.dart";
 import "package:gql_dedupe_link/gql_dedupe_link.dart";
 import "package:gql_dio_link/gql_dio_link.dart";

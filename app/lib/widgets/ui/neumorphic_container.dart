@@ -12,7 +12,9 @@ class NeumorphicContainer extends StatelessWidget {
 
   const NeumorphicContainer({
     required this.child,
-    this.decoration = const BoxDecoration(),
+    this.decoration = const BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(8)),
+    ),
     this.backgroundColor,
     this.padding,
     this.width,

@@ -51,7 +51,10 @@
       "hiWithName": "Привіт, {fullName}!"
     },
     "userApprovals": {
-      "title": "Користувачі в очікуванні"
+      "title": "Користувачі в очікуванні",
+      "usersPendingApproval": "Користувачі в очікуванні підтвердження",
+      "wantsToBe": "Хоче мати статус {userType}",
+      "noUsersPendingApproval": "Наразі немає користувачів, які очікують підтвердження"
     }
   }
 }

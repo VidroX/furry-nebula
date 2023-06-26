@@ -123,6 +123,7 @@ class AppColorsTheme with _$AppColorsTheme {
       AppColorsType.text: Color(0xFF1B1B1E),
       AppColorsType.indicator: Color(0xFF6B7FD7),
       AppColorsType.error: Color(0xFFFF785A),
+      AppColorsType.hint: Color(0xFF918B76),
     },
     alternativeColors: {
       AppColorsType.primary: Color(0xFF1B1B1E),
@@ -130,6 +131,7 @@ class AppColorsTheme with _$AppColorsTheme {
       AppColorsType.text: Color(0xFFFFFFFF),
       AppColorsType.indicator: Color(0xFFF3EFE0),
       AppColorsType.error: Color(0xFFF3EFE0),
+      AppColorsType.hint: Color(0xFF2E3532),
     },
     neumorphicShadow: [
       BoxShadow(
@@ -167,6 +169,7 @@ class AppColorsTheme with _$AppColorsTheme {
       AppColorsType.text: Color(0xFFFFFFFF),
       AppColorsType.indicator: Color(0xFF6B7FD7),
       AppColorsType.error: Color(0xFFFF785A),
+      AppColorsType.hint: Color(0xFF918B76),
     },
     alternativeColors: {
       AppColorsType.primary: Color(0xFFFFFFFF),
@@ -174,6 +177,7 @@ class AppColorsTheme with _$AppColorsTheme {
       AppColorsType.text: Color(0xFF1B1B1E),
       AppColorsType.indicator: Color(0xFFF3EFE0),
       AppColorsType.error: Color(0xFFF3EFE0),
+      AppColorsType.hint: Color(0xFF2E3532),
     },
     neumorphicShadow: [
       BoxShadow(
@@ -204,12 +208,14 @@ class AppColorsTheme with _$AppColorsTheme {
   Color get text => primaryColors[AppColorsType.text]!;
   Color get indicator => primaryColors[AppColorsType.indicator]!;
   Color get error => primaryColors[AppColorsType.error]!;
+  Color get hint => primaryColors[AppColorsType.hint]!;
 
   Color get alternativePrimary => alternativeColors[AppColorsType.primary]!;
   Color get alternativeSecondary => alternativeColors[AppColorsType.secondary]!;
   Color get alternativeText => alternativeColors[AppColorsType.text]!;
   Color get alternativeIndicator => alternativeColors[AppColorsType.indicator]!;
   Color get alternativeError => alternativeColors[AppColorsType.error]!;
+  Color get alternativeHint => alternativeColors[AppColorsType.hint]!;
 }
 
 enum AppColorsType {
@@ -217,7 +223,8 @@ enum AppColorsType {
   secondary,
   text,
   indicator,
-  error;
+  error,
+  hint;
 }
 
 enum AppThemeName {

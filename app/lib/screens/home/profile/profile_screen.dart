@@ -39,6 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) => ExpandableScrollView(
+    padding: const EdgeInsets.all(16),
     child: BlocBuilder<UserBloc, UserState>(
       builder: (context, state) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 .withFontWeight(FontWeight.w600)
                 .withFontSize(AppFontSize.extraLarge),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
           _ProfileContainer(
             title: context.translate(Translations.profilePrimaryInfo),
             children: [
@@ -75,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           if (state.user!.about.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: 16),
               child: _ProfileContainer(
                 title: context.translate(Translations.profileDetails),
                 children: [
@@ -83,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           NebulaButton.fill(
             loading: state.isLogoutLoading,
             text: context.translate(Translations.authSignOut),
@@ -116,9 +117,6 @@ class _ProfileContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => NeumorphicContainer(
-    decoration: const BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(8)),
-    ),
     width: double.maxFinite,
     padding: const EdgeInsets.all(12),
     child: Column(

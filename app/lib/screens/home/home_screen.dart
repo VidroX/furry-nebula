@@ -44,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final tabsRouter = AutoTabsRouter.of(context);
 
           return ScreenLayout(
+            padding: EdgeInsets.zero,
             loading: state.user == null || state.isLoading,
             bottomNavigationBar: Container(
               decoration: BoxDecoration(

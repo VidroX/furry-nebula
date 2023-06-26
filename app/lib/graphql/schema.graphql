@@ -28,11 +28,11 @@ type Mutation {
 
 "Page information"
 type PageInfo {
-    hasNextPage: Boolean
-    hasPreviousPage: Boolean
-    page: Int
-    resultsPerPage: Int
-    totalResults: Int64
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    page: Int!
+    resultsPerPage: Int!
+    totalResults: Int64!
 }
 
 type Query {
@@ -126,6 +126,7 @@ scalar Upload
 "Filters for list of user approvals"
 input ApprovalFilters {
     isApproved: Boolean
+    isReviewed: Boolean
 }
 
 "Pagination filters"
