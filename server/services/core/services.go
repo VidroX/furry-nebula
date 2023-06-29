@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/VidroX/furry-nebula/repositories"
+	"github.com/VidroX/furry-nebula/services/core/shelter"
 	"github.com/VidroX/furry-nebula/services/core/user"
 	"github.com/VidroX/furry-nebula/services/translator"
 	"github.com/go-playground/validator/v10"
@@ -11,7 +12,8 @@ import (
 const ServicesKey = "Services"
 
 type Services struct {
-	UserService user.UserService
+	UserService    user.UserService
+	ShelterService shelter.ShelterService
 }
 
 type ServiceDependencies struct {
@@ -28,6 +30,11 @@ func Init(deps *ServiceDependencies) *Services {
 			deps.Localizer,
 			deps.PrivateJWK,
 			deps.Repositories.UserRepository,
+		),
+		ShelterService: shelter.RegisterShelterService(
+			deps.Validate,
+			deps.Localizer,
+			deps.Repositories.ShelterRepository,
 		),
 	}
 }

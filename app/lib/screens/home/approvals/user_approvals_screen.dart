@@ -228,7 +228,9 @@ class _ApprovalItem extends StatelessWidget {
                 child: FaIcon(
                   FontAwesomeIcons.thumbsUp,
                   size: 18,
-                  color: context.colors.text,
+                  color: context.colors.isLight
+                      ? context.colors.text
+                      : context.colors.alternativeText,
                 ),
               ),
             ],

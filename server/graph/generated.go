@@ -40,6 +40,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	ShelterAnimal() ShelterAnimalResolver
 	User() UserResolver
 }
 
@@ -53,10 +54,15 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
+		AddShelter               func(childComplexity int, data model.ShelterInput, photo *graphql.Upload) int
+		AddShelterAnimal         func(childComplexity int, data model.ShelterAnimalInput, photo *graphql.Upload) int
 		ChangeUserApprovalStatus func(childComplexity int, userID string, isApproved bool) int
+		DeleteShelter            func(childComplexity int, id string) int
 		Login                    func(childComplexity int, email string, password string) int
 		RefreshAccessToken       func(childComplexity int) int
 		Register                 func(childComplexity int, userInfo model.UserRegistrationInput) int
+		RemoveAnimal             func(childComplexity int, id string) int
+		UpdateAnimalRating       func(childComplexity int, id string, rating float64) int
 	}
 
 	PageInfo struct {
@@ -68,13 +74,45 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		User          func(childComplexity int) int
-		UserApprovals func(childComplexity int, filters *model.ApprovalFilters, pagination *model.Pagination) int
-		Users         func(childComplexity int, pagination *model.Pagination) int
+		ShelterAnimals func(childComplexity int, filters *model.AnimalFilters, pagination *model.Pagination) int
+		Shelters       func(childComplexity int, pagination *model.Pagination) int
+		User           func(childComplexity int) int
+		UserApprovals  func(childComplexity int, filters *model.ApprovalFilters, pagination *model.Pagination) int
+		Users          func(childComplexity int, pagination *model.Pagination) int
 	}
 
 	ResponseMessage struct {
 		Message func(childComplexity int) int
+	}
+
+	Shelter struct {
+		Address            func(childComplexity int) int
+		ID                 func(childComplexity int) int
+		Info               func(childComplexity int) int
+		Name               func(childComplexity int) int
+		Photo              func(childComplexity int) int
+		RepresentativeUser func(childComplexity int) int
+	}
+
+	ShelterAnimal struct {
+		Animal        func(childComplexity int) int
+		Description   func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Name          func(childComplexity int) int
+		OverallRating func(childComplexity int) int
+		Photo         func(childComplexity int) int
+		Shelter       func(childComplexity int) int
+		UserRating    func(childComplexity int) int
+	}
+
+	ShelterAnimalConnection struct {
+		Node     func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ShelterConnection struct {
+		Node     func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	Token struct {
@@ -113,14 +151,27 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	RefreshAccessToken(ctx context.Context) (*model.Token, error)
+	AddShelter(ctx context.Context, data model.ShelterInput, photo *graphql.Upload) (*model.ResponseMessage, error)
+	AddShelterAnimal(ctx context.Context, data model.ShelterAnimalInput, photo *graphql.Upload) (*model.ResponseMessage, error)
+	DeleteShelter(ctx context.Context, id string) (*model.ResponseMessage, error)
+	RemoveAnimal(ctx context.Context, id string) (*model.ResponseMessage, error)
+	UpdateAnimalRating(ctx context.Context, id string, rating float64) (*model.ResponseMessage, error)
 	Login(ctx context.Context, email string, password string) (*model.UserWithToken, error)
 	Register(ctx context.Context, userInfo model.UserRegistrationInput) (*model.UserWithToken, error)
 	ChangeUserApprovalStatus(ctx context.Context, userID string, isApproved bool) (*model.ResponseMessage, error)
 }
 type QueryResolver interface {
+	Shelters(ctx context.Context, pagination *model.Pagination) (*model.ShelterConnection, error)
+	ShelterAnimals(ctx context.Context, filters *model.AnimalFilters, pagination *model.Pagination) (*model.ShelterAnimalConnection, error)
 	User(ctx context.Context) (*model.User, error)
 	Users(ctx context.Context, pagination *model.Pagination) (*model.UsersConnection, error)
 	UserApprovals(ctx context.Context, filters *model.ApprovalFilters, pagination *model.Pagination) (*model.UserApprovalsConnection, error)
+}
+type ShelterAnimalResolver interface {
+	Animal(ctx context.Context, obj *model.ShelterAnimal) (model.Animal, error)
+
+	OverallRating(ctx context.Context, obj *model.ShelterAnimal) (float64, error)
+	UserRating(ctx context.Context, obj *model.ShelterAnimal) (*float64, error)
 }
 type UserResolver interface {
 	Role(ctx context.Context, obj *model.User) (model.Role, error)
@@ -143,6 +194,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Mutation.addShelter":
+		if e.complexity.Mutation.AddShelter == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addShelter_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddShelter(childComplexity, args["data"].(model.ShelterInput), args["photo"].(*graphql.Upload)), true
+
+	case "Mutation.addShelterAnimal":
+		if e.complexity.Mutation.AddShelterAnimal == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addShelterAnimal_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddShelterAnimal(childComplexity, args["data"].(model.ShelterAnimalInput), args["photo"].(*graphql.Upload)), true
+
 	case "Mutation.changeUserApprovalStatus":
 		if e.complexity.Mutation.ChangeUserApprovalStatus == nil {
 			break
@@ -154,6 +229,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.ChangeUserApprovalStatus(childComplexity, args["userId"].(string), args["isApproved"].(bool)), true
+
+	case "Mutation.deleteShelter":
+		if e.complexity.Mutation.DeleteShelter == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteShelter_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteShelter(childComplexity, args["id"].(string)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -185,6 +272,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Register(childComplexity, args["userInfo"].(model.UserRegistrationInput)), true
+
+	case "Mutation.removeAnimal":
+		if e.complexity.Mutation.RemoveAnimal == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeAnimal_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveAnimal(childComplexity, args["id"].(string)), true
+
+	case "Mutation.updateAnimalRating":
+		if e.complexity.Mutation.UpdateAnimalRating == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateAnimalRating_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateAnimalRating(childComplexity, args["id"].(string), args["rating"].(float64)), true
 
 	case "PageInfo.hasNextPage":
 		if e.complexity.PageInfo.HasNextPage == nil {
@@ -220,6 +331,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.TotalResults(childComplexity), true
+
+	case "Query.shelterAnimals":
+		if e.complexity.Query.ShelterAnimals == nil {
+			break
+		}
+
+		args, err := ec.field_Query_shelterAnimals_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ShelterAnimals(childComplexity, args["filters"].(*model.AnimalFilters), args["pagination"].(*model.Pagination)), true
+
+	case "Query.shelters":
+		if e.complexity.Query.Shelters == nil {
+			break
+		}
+
+		args, err := ec.field_Query_shelters_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Shelters(childComplexity, args["pagination"].(*model.Pagination)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -258,6 +393,132 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ResponseMessage.Message(childComplexity), true
+
+	case "Shelter.address":
+		if e.complexity.Shelter.Address == nil {
+			break
+		}
+
+		return e.complexity.Shelter.Address(childComplexity), true
+
+	case "Shelter.id":
+		if e.complexity.Shelter.ID == nil {
+			break
+		}
+
+		return e.complexity.Shelter.ID(childComplexity), true
+
+	case "Shelter.info":
+		if e.complexity.Shelter.Info == nil {
+			break
+		}
+
+		return e.complexity.Shelter.Info(childComplexity), true
+
+	case "Shelter.name":
+		if e.complexity.Shelter.Name == nil {
+			break
+		}
+
+		return e.complexity.Shelter.Name(childComplexity), true
+
+	case "Shelter.photo":
+		if e.complexity.Shelter.Photo == nil {
+			break
+		}
+
+		return e.complexity.Shelter.Photo(childComplexity), true
+
+	case "Shelter.representativeUser":
+		if e.complexity.Shelter.RepresentativeUser == nil {
+			break
+		}
+
+		return e.complexity.Shelter.RepresentativeUser(childComplexity), true
+
+	case "ShelterAnimal.animal":
+		if e.complexity.ShelterAnimal.Animal == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.Animal(childComplexity), true
+
+	case "ShelterAnimal.description":
+		if e.complexity.ShelterAnimal.Description == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.Description(childComplexity), true
+
+	case "ShelterAnimal.id":
+		if e.complexity.ShelterAnimal.ID == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.ID(childComplexity), true
+
+	case "ShelterAnimal.name":
+		if e.complexity.ShelterAnimal.Name == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.Name(childComplexity), true
+
+	case "ShelterAnimal.overallRating":
+		if e.complexity.ShelterAnimal.OverallRating == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.OverallRating(childComplexity), true
+
+	case "ShelterAnimal.photo":
+		if e.complexity.ShelterAnimal.Photo == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.Photo(childComplexity), true
+
+	case "ShelterAnimal.shelter":
+		if e.complexity.ShelterAnimal.Shelter == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.Shelter(childComplexity), true
+
+	case "ShelterAnimal.userRating":
+		if e.complexity.ShelterAnimal.UserRating == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.UserRating(childComplexity), true
+
+	case "ShelterAnimalConnection.node":
+		if e.complexity.ShelterAnimalConnection.Node == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimalConnection.Node(childComplexity), true
+
+	case "ShelterAnimalConnection.pageInfo":
+		if e.complexity.ShelterAnimalConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimalConnection.PageInfo(childComplexity), true
+
+	case "ShelterConnection.node":
+		if e.complexity.ShelterConnection.Node == nil {
+			break
+		}
+
+		return e.complexity.ShelterConnection.Node(childComplexity), true
+
+	case "ShelterConnection.pageInfo":
+		if e.complexity.ShelterConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ShelterConnection.PageInfo(childComplexity), true
 
 	case "Token.token":
 		if e.complexity.Token.Token == nil {
@@ -393,8 +654,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAnimalFilters,
 		ec.unmarshalInputApprovalFilters,
 		ec.unmarshalInputPagination,
+		ec.unmarshalInputShelterAnimalInput,
+		ec.unmarshalInputShelterInput,
 		ec.unmarshalInputUserRegistrationInput,
 	)
 	first := true
@@ -492,6 +756,54 @@ func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[st
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_addShelterAnimal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ShelterAnimalInput
+	if tmp, ok := rawArgs["data"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+		arg0, err = ec.unmarshalNShelterAnimalInput2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimalInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["data"] = arg0
+	var arg1 *graphql.Upload
+	if tmp, ok := rawArgs["photo"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("photo"))
+		arg1, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["photo"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_addShelter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ShelterInput
+	if tmp, ok := rawArgs["data"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+		arg0, err = ec.unmarshalNShelterInput2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["data"] = arg0
+	var arg1 *graphql.Upload
+	if tmp, ok := rawArgs["photo"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("photo"))
+		arg1, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["photo"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_changeUserApprovalStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -513,6 +825,21 @@ func (ec *executionContext) field_Mutation_changeUserApprovalStatus_args(ctx con
 		}
 	}
 	args["isApproved"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteShelter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -555,6 +882,45 @@ func (ec *executionContext) field_Mutation_register_args(ctx context.Context, ra
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_removeAnimal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateAnimalRating_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 float64
+	if tmp, ok := rawArgs["rating"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rating"))
+		arg1, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rating"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -567,6 +933,45 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_shelterAnimals_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.AnimalFilters
+	if tmp, ok := rawArgs["filters"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+		arg0, err = ec.unmarshalOAnimalFilters2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimalFilters(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filters"] = arg0
+	var arg1 *model.Pagination
+	if tmp, ok := rawArgs["pagination"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		arg1, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐPagination(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_shelters_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.Pagination
+	if tmp, ok := rawArgs["pagination"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		arg0, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐPagination(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg0
 	return args, nil
 }
 
@@ -713,6 +1118,417 @@ func (ec *executionContext) fieldContext_Mutation_refreshAccessToken(ctx context
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Token", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addShelter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addShelter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddShelter(rctx, fc.Args["data"].(model.ShelterInput), fc.Args["photo"].(*graphql.Upload))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐRole(ctx, "Shelter")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ResponseMessage); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ResponseMessage`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ResponseMessage)
+	fc.Result = res
+	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addShelter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_ResponseMessage_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResponseMessage", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addShelter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addShelterAnimal(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addShelterAnimal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddShelterAnimal(rctx, fc.Args["data"].(model.ShelterAnimalInput), fc.Args["photo"].(*graphql.Upload))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐRole(ctx, "Shelter")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ResponseMessage); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ResponseMessage`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ResponseMessage)
+	fc.Result = res
+	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addShelterAnimal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_ResponseMessage_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResponseMessage", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addShelterAnimal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteShelter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteShelter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteShelter(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐRole(ctx, "Shelter")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ResponseMessage); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ResponseMessage`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ResponseMessage)
+	fc.Result = res
+	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteShelter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_ResponseMessage_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResponseMessage", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteShelter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeAnimal(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeAnimal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().RemoveAnimal(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐRole(ctx, "Shelter")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ResponseMessage); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ResponseMessage`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ResponseMessage)
+	fc.Result = res
+	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeAnimal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_ResponseMessage_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResponseMessage", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeAnimal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateAnimalRating(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateAnimalRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateAnimalRating(rctx, fc.Args["id"].(string), fc.Args["rating"].(float64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ResponseMessage); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ResponseMessage`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ResponseMessage)
+	fc.Result = res
+	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateAnimalRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_ResponseMessage_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResponseMessage", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateAnimalRating_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -1190,6 +2006,168 @@ func (ec *executionContext) fieldContext_PageInfo_hasPreviousPage(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_shelters(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_shelters(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Shelters(rctx, fc.Args["pagination"].(*model.Pagination))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ShelterConnection); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ShelterConnection`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ShelterConnection)
+	fc.Result = res
+	return ec.marshalNShelterConnection2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_shelters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "node":
+				return ec.fieldContext_ShelterConnection_node(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_ShelterConnection_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ShelterConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_shelters_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_shelterAnimals(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_shelterAnimals(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ShelterAnimals(rctx, fc.Args["filters"].(*model.AnimalFilters), fc.Args["pagination"].(*model.Pagination))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ShelterAnimalConnection); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ShelterAnimalConnection`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ShelterAnimalConnection)
+	fc.Result = res
+	return ec.marshalNShelterAnimalConnection2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimalConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_shelterAnimals(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "node":
+				return ec.fieldContext_ShelterAnimalConnection_node(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_ShelterAnimalConnection_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimalConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_shelterAnimals_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_user(ctx, field)
 	if err != nil {
@@ -1610,6 +2588,877 @@ func (ec *executionContext) fieldContext_ResponseMessage_message(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shelter_id(ctx context.Context, field graphql.CollectedField, obj *model.Shelter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shelter_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shelter_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shelter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shelter_representativeUser(ctx context.Context, field graphql.CollectedField, obj *model.Shelter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shelter_representativeUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RepresentativeUser, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.User)
+	fc.Result = res
+	return ec.marshalNUser2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shelter_representativeUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shelter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "firstName":
+				return ec.fieldContext_User_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_User_lastName(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
+			case "birthday":
+				return ec.fieldContext_User_birthday(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "about":
+				return ec.fieldContext_User_about(ctx, field)
+			case "isApproved":
+				return ec.fieldContext_User_isApproved(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shelter_name(ctx context.Context, field graphql.CollectedField, obj *model.Shelter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shelter_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shelter_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shelter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shelter_address(ctx context.Context, field graphql.CollectedField, obj *model.Shelter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shelter_address(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Address, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shelter_address(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shelter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shelter_info(ctx context.Context, field graphql.CollectedField, obj *model.Shelter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shelter_info(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Info, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shelter_info(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shelter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Shelter_photo(ctx context.Context, field graphql.CollectedField, obj *model.Shelter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Shelter_photo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Photo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Shelter_photo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Shelter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimal_id(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimal_shelter(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_shelter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Shelter, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Shelter)
+	fc.Result = res
+	return ec.marshalNShelter2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_shelter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Shelter_id(ctx, field)
+			case "representativeUser":
+				return ec.fieldContext_Shelter_representativeUser(ctx, field)
+			case "name":
+				return ec.fieldContext_Shelter_name(ctx, field)
+			case "address":
+				return ec.fieldContext_Shelter_address(ctx, field)
+			case "info":
+				return ec.fieldContext_Shelter_info(ctx, field)
+			case "photo":
+				return ec.fieldContext_Shelter_photo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Shelter", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimal_animal(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_animal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ShelterAnimal().Animal(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Animal)
+	fc.Result = res
+	return ec.marshalNAnimal2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimal(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_animal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Animal does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimal_name(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimal_description(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimal_photo(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_photo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Photo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_photo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimal_overallRating(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ShelterAnimal().OverallRating(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_overallRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimal_userRating(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_userRating(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ShelterAnimal().UserRating(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_userRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimalConnection_node(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimalConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimalConnection_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ShelterAnimal)
+	fc.Result = res
+	return ec.marshalNShelterAnimal2ᚕᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimalConnection_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimalConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ShelterAnimal_id(ctx, field)
+			case "shelter":
+				return ec.fieldContext_ShelterAnimal_shelter(ctx, field)
+			case "animal":
+				return ec.fieldContext_ShelterAnimal_animal(ctx, field)
+			case "name":
+				return ec.fieldContext_ShelterAnimal_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ShelterAnimal_description(ctx, field)
+			case "photo":
+				return ec.fieldContext_ShelterAnimal_photo(ctx, field)
+			case "overallRating":
+				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
+			case "userRating":
+				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterAnimalConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimalConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimalConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimalConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimalConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "page":
+				return ec.fieldContext_PageInfo_page(ctx, field)
+			case "resultsPerPage":
+				return ec.fieldContext_PageInfo_resultsPerPage(ctx, field)
+			case "totalResults":
+				return ec.fieldContext_PageInfo_totalResults(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterConnection_node(ctx context.Context, field graphql.CollectedField, obj *model.ShelterConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterConnection_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Shelter)
+	fc.Result = res
+	return ec.marshalNShelter2ᚕᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterConnection_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Shelter_id(ctx, field)
+			case "representativeUser":
+				return ec.fieldContext_Shelter_representativeUser(ctx, field)
+			case "name":
+				return ec.fieldContext_Shelter_name(ctx, field)
+			case "address":
+				return ec.fieldContext_Shelter_address(ctx, field)
+			case "info":
+				return ec.fieldContext_Shelter_info(ctx, field)
+			case "photo":
+				return ec.fieldContext_Shelter_photo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Shelter", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShelterConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.ShelterConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "page":
+				return ec.fieldContext_PageInfo_page(ctx, field)
+			case "resultsPerPage":
+				return ec.fieldContext_PageInfo_resultsPerPage(ctx, field)
+			case "totalResults":
+				return ec.fieldContext_PageInfo_totalResults(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -4261,6 +6110,44 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAnimalFilters(ctx context.Context, obj interface{}) (model.AnimalFilters, error) {
+	var it model.AnimalFilters
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"shelterId", "animal"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "shelterId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shelterId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShelterID = data
+		case "animal":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("animal"))
+			data, err := ec.unmarshalOAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimal(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Animal = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputApprovalFilters(ctx context.Context, obj interface{}) (model.ApprovalFilters, error) {
 	var it model.ApprovalFilters
 	asMap := map[string]interface{}{}
@@ -4331,6 +6218,118 @@ func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj in
 				return it, err
 			}
 			it.ResultsPerPage = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputShelterAnimalInput(ctx context.Context, obj interface{}) (model.ShelterAnimalInput, error) {
+	var it model.ShelterAnimalInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"shelterId", "animal", "name", "description"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "shelterId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shelterId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShelterID = data
+		case "animal":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("animal"))
+			data, err := ec.unmarshalNAnimal2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimal(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Animal = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputShelterInput(ctx context.Context, obj interface{}) (model.ShelterInput, error) {
+	var it model.ShelterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"representativeUserId", "name", "address", "info"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "representativeUserId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("representativeUserId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RepresentativeUserID = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Address = data
+		case "info":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("info"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Info = data
 		}
 	}
 
@@ -4456,6 +6455,51 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "addShelter":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addShelter(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "addShelterAnimal":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addShelterAnimal(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteShelter":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteShelter(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "removeAnimal":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeAnimal(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateAnimalRating":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateAnimalRating(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "login":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -4569,6 +6613,52 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "shelters":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_shelters(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "shelterAnimals":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_shelterAnimals(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "user":
 			field := field
 
@@ -4674,6 +6764,246 @@ func (ec *executionContext) _ResponseMessage(ctx context.Context, sel ast.Select
 		case "message":
 
 			out.Values[i] = ec._ResponseMessage_message(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var shelterImplementors = []string{"Shelter"}
+
+func (ec *executionContext) _Shelter(ctx context.Context, sel ast.SelectionSet, obj *model.Shelter) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, shelterImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Shelter")
+		case "id":
+
+			out.Values[i] = ec._Shelter_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "representativeUser":
+
+			out.Values[i] = ec._Shelter_representativeUser(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._Shelter_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "address":
+
+			out.Values[i] = ec._Shelter_address(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "info":
+
+			out.Values[i] = ec._Shelter_info(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "photo":
+
+			out.Values[i] = ec._Shelter_photo(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var shelterAnimalImplementors = []string{"ShelterAnimal"}
+
+func (ec *executionContext) _ShelterAnimal(ctx context.Context, sel ast.SelectionSet, obj *model.ShelterAnimal) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, shelterAnimalImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ShelterAnimal")
+		case "id":
+
+			out.Values[i] = ec._ShelterAnimal_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "shelter":
+
+			out.Values[i] = ec._ShelterAnimal_shelter(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "animal":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShelterAnimal_animal(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "name":
+
+			out.Values[i] = ec._ShelterAnimal_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "description":
+
+			out.Values[i] = ec._ShelterAnimal_description(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "photo":
+
+			out.Values[i] = ec._ShelterAnimal_photo(ctx, field, obj)
+
+		case "overallRating":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShelterAnimal_overallRating(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "userRating":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShelterAnimal_userRating(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var shelterAnimalConnectionImplementors = []string{"ShelterAnimalConnection"}
+
+func (ec *executionContext) _ShelterAnimalConnection(ctx context.Context, sel ast.SelectionSet, obj *model.ShelterAnimalConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, shelterAnimalConnectionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ShelterAnimalConnection")
+		case "node":
+
+			out.Values[i] = ec._ShelterAnimalConnection_node(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "pageInfo":
+
+			out.Values[i] = ec._ShelterAnimalConnection_pageInfo(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var shelterConnectionImplementors = []string{"ShelterConnection"}
+
+func (ec *executionContext) _ShelterConnection(ctx context.Context, sel ast.SelectionSet, obj *model.ShelterConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, shelterConnectionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ShelterConnection")
+		case "node":
+
+			out.Values[i] = ec._ShelterConnection_node(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "pageInfo":
+
+			out.Values[i] = ec._ShelterConnection_pageInfo(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -5255,6 +7585,16 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) unmarshalNAnimal2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimal(ctx context.Context, v interface{}) (model.Animal, error) {
+	var res model.Animal
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAnimal2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimal(ctx context.Context, sel ast.SelectionSet, v model.Animal) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5268,6 +7608,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloatContext(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
@@ -5347,6 +7702,124 @@ func (ec *executionContext) unmarshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebul
 
 func (ec *executionContext) marshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v model.Role) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNShelter2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx context.Context, sel ast.SelectionSet, v model.Shelter) graphql.Marshaler {
+	return ec._Shelter(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNShelter2ᚕᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx context.Context, sel ast.SelectionSet, v []*model.Shelter) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOShelter2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalNShelterAnimal2ᚕᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx context.Context, sel ast.SelectionSet, v []*model.ShelterAnimal) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOShelterAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalNShelterAnimalConnection2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimalConnection(ctx context.Context, sel ast.SelectionSet, v model.ShelterAnimalConnection) graphql.Marshaler {
+	return ec._ShelterAnimalConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNShelterAnimalConnection2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimalConnection(ctx context.Context, sel ast.SelectionSet, v *model.ShelterAnimalConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ShelterAnimalConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNShelterAnimalInput2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimalInput(ctx context.Context, v interface{}) (model.ShelterAnimalInput, error) {
+	res, err := ec.unmarshalInputShelterAnimalInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNShelterConnection2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterConnection(ctx context.Context, sel ast.SelectionSet, v model.ShelterConnection) graphql.Marshaler {
+	return ec._ShelterConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNShelterConnection2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterConnection(ctx context.Context, sel ast.SelectionSet, v *model.ShelterConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ShelterConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNShelterInput2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterInput(ctx context.Context, v interface{}) (model.ShelterInput, error) {
+	res, err := ec.unmarshalInputShelterInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -5755,6 +8228,30 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) unmarshalOAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimal(ctx context.Context, v interface{}) (*model.Animal, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.Animal)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimal(ctx context.Context, sel ast.SelectionSet, v *model.Animal) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOAnimalFilters2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐAnimalFilters(ctx context.Context, v interface{}) (*model.AnimalFilters, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAnimalFilters(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOApprovalFilters2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐApprovalFilters(ctx context.Context, v interface{}) (*model.ApprovalFilters, error) {
 	if v == nil {
 		return nil, nil
@@ -5786,6 +8283,38 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(*v)
 	return res
 }
 
@@ -5829,6 +8358,30 @@ func (ec *executionContext) marshalORegistrationRole2ᚖgithubᚗcomᚋVidroXᚋ
 	return v
 }
 
+func (ec *executionContext) marshalOShelter2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx context.Context, sel ast.SelectionSet, v *model.Shelter) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Shelter(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOShelterAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx context.Context, sel ast.SelectionSet, v *model.ShelterAnimal) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ShelterAnimal(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -5850,6 +8403,22 @@ func (ec *executionContext) marshalOToken2ᚖgithubᚗcomᚋVidroXᚋfurryᚑneb
 		return graphql.Null
 	}
 	return ec._Token(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (*graphql.Upload, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalUpload(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v *graphql.Upload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalUpload(*v)
+	return res
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

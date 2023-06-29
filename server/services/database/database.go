@@ -26,6 +26,7 @@ func (db *NebulaDb) AutoMigrateAll() {
 		&model.AnimalType{},
 		&model.Shelter{},
 		&model.ShelterAnimal{},
+		&model.ShelterAnimalRating{},
 		&model.AnimalAccommodationRequest{},
 		&model.AnimalAdoptionRequest{},
 	)

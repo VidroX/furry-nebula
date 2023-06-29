@@ -9,7 +9,6 @@ import (
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/jwx"
-	. "github.com/VidroX/furry-nebula/utils"
 )
 
 var AppDirectives = graph.DirectiveRoot{
@@ -88,11 +87,7 @@ func getUser(ctx *graph.ExtendedContext, tokenType model.TokenType) (*model.Toke
 	user, ok := ctx.Get(jwx.UserContextKey)
 
 	if _, ok := user.(*model.TokenizedUser); !ok {
-		if !UtilString(ctx.Request.Header.Get("Authorization")).IsEmpty() {
-			return nil, &general_errors.ErrInvalidOrExpiredToken
-		}
-
-		return nil, &general_errors.ErrInternal
+		return nil, &general_errors.ErrInvalidOrExpiredToken
 	}
 
 	normalizedUser := user.(*model.TokenizedUser)

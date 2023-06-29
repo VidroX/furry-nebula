@@ -1,7 +1,6 @@
 package model
 
 import (
-	"strings"
 	"time"
 )
 
@@ -22,8 +21,17 @@ type TokenizedUser struct {
 	TokenType TokenType `json:"tokenType"`
 }
 
+var rolePower = map[Role]int{
+	RoleUser:    1,
+	RoleShelter: 2,
+	RoleAdmin:   100,
+}
+
 func (user *User) HasRole(userRole Role) bool {
-	return Role(user.RoleName).IsValid() &&
+	dbRole := Role(user.RoleName)
+	isValidRole := dbRole.IsValid() &&
 		userRole.IsValid() &&
-		strings.EqualFold(user.RoleName, userRole.String())
+		rolePower[dbRole] >= rolePower[userRole]
+
+	return isValidRole
 }

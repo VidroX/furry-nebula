@@ -9,5 +9,5 @@ type ShelterAnimal struct {
 	Name        string     `json:"name" gorm:"type:text;not null"`
 	Description string     `json:"description" gorm:"type:text"`
 	Photo       string     `json:"photo" gorm:"type:text"`
-	Rating      float32    `json:"rating" validate:"gt=0,lte=5" gorm:"type:real"`
+	Removed     bool       `json:"removed" gorm:"type:boolean;default:false;not null"`
 }

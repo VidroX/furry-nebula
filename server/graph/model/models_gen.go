@@ -9,6 +9,12 @@ import (
 	"time"
 )
 
+// Filters for the shelter animals list
+type AnimalFilters struct {
+	ShelterID *string `json:"shelterId,omitempty"`
+	Animal    *Animal `json:"animal,omitempty"`
+}
+
 // Filters for list of user approvals
 type ApprovalFilters struct {
 	IsApproved *bool `json:"isApproved,omitempty"`
@@ -33,6 +39,34 @@ type Pagination struct {
 // Simple response with message
 type ResponseMessage struct {
 	Message string `json:"message"`
+}
+
+// Animal list connection
+type ShelterAnimalConnection struct {
+	Node     []*ShelterAnimal `json:"node"`
+	PageInfo *PageInfo        `json:"pageInfo"`
+}
+
+// Shelter animal creation input
+type ShelterAnimalInput struct {
+	ShelterID   string  `json:"shelterId"`
+	Animal      Animal  `json:"animal"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+}
+
+// Shelter list connection
+type ShelterConnection struct {
+	Node     []*Shelter `json:"node"`
+	PageInfo *PageInfo  `json:"pageInfo"`
+}
+
+// Animal shelter creation input
+type ShelterInput struct {
+	RepresentativeUserID string  `json:"representativeUserId"`
+	Name                 string  `json:"name"`
+	Address              string  `json:"address"`
+	Info                 *string `json:"info,omitempty"`
 }
 
 // Auth token

@@ -8,4 +8,5 @@ type Shelter struct {
 	Address            string `json:"address" gorm:"type:text;not null"`
 	Info               string `json:"info" gorm:"type:text"`
 	Photo              string `json:"photo" gorm:"type:text"`
+	Deleted            bool   `json:"deleted" gorm:"type:boolean;default:false;not null"`
 }
