@@ -45,7 +45,7 @@ func CreateUserToken(privateKey jwk.Key, tokenType model.TokenType, user *model.
 	}
 
 	var rawPrivateKey interface{}
-	privateKey.Raw(&rawPrivateKey)
+	_ = privateKey.Raw(&rawPrivateKey)
 
 	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.ES512, rawPrivateKey))
 
@@ -63,21 +63,21 @@ func GetUserFromToken(token string, publicKey jwk.Key, userRepo *user.UserReposi
 		return nil
 	}
 
-	user, err := (*userRepo).GetUserById(verifiedToken.Subject())
+	dbUser, err := (*userRepo).GetUserById(verifiedToken.Subject())
 
 	if err != nil {
 		return nil
 	}
 
 	return &model.TokenizedUser{
-		User:      user,
+		User:      dbUser,
 		TokenType: *tokenType,
 	}
 }
 
 func ValidateToken(token string, publicKey jwk.Key) (jwt.Token, *model.TokenType) {
 	var rawPublicKey interface{}
-	publicKey.Raw(&rawPublicKey)
+	_ = publicKey.Raw(&rawPublicKey)
 
 	normalizedToken := strings.TrimSpace(strings.TrimPrefix(token, "Bearer"))
 

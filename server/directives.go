@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
-	nebula_errors "github.com/VidroX/furry-nebula/errors"
-	general_errors "github.com/VidroX/furry-nebula/errors/general"
+	nebulaErrors "github.com/VidroX/furry-nebula/errors"
+	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/jwx"
@@ -50,7 +50,7 @@ func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolve
 	}
 
 	if !user.User.HasRole(role) {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrNotEnoughPermissions)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrNotEnoughPermissions)
 	}
 
 	return next(ctx)
@@ -60,7 +60,7 @@ func noUserOnlyDirective(ctx context.Context, obj interface{}, next graphql.Reso
 	gCtx := graph.GetGinContext(ctx)
 
 	if isUserExists(gCtx) {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrNotEnoughPermissions)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrNotEnoughPermissions)
 	}
 
 	return next(ctx)
@@ -77,27 +77,27 @@ func approvedUserOnlyDirective(ctx context.Context, obj interface{}, next graphq
 	isApproved, err2 := gCtx.GetRepositories().UserRepository.IsUserApproved(user.User.ID)
 
 	if !isApproved || err2 != nil {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrNotEnoughPermissions)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrNotEnoughPermissions)
 	}
 
 	return next(ctx)
 }
 
-func getUser(ctx *graph.ExtendedContext, tokenType model.TokenType) (*model.TokenizedUser, *nebula_errors.APIError) {
+func getUser(ctx *graph.ExtendedContext, tokenType model.TokenType) (*model.TokenizedUser, *nebulaErrors.APIError) {
 	user, ok := ctx.Get(jwx.UserContextKey)
 
 	if _, ok := user.(*model.TokenizedUser); !ok {
-		return nil, &general_errors.ErrInvalidOrExpiredToken
+		return nil, &generalErrors.ErrInvalidOrExpiredToken
 	}
 
 	normalizedUser := user.(*model.TokenizedUser)
 
 	if normalizedUser.User == nil || normalizedUser.TokenType != tokenType {
-		return nil, &general_errors.ErrInvalidOrExpiredToken
+		return nil, &generalErrors.ErrInvalidOrExpiredToken
 	}
 
 	if user == nil || !ok {
-		return nil, &general_errors.ErrNotEnoughPermissions
+		return nil, &generalErrors.ErrNotEnoughPermissions
 	}
 
 	return &model.TokenizedUser{

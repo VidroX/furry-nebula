@@ -40,7 +40,7 @@ func (repo *UserRepositoryGorm) CreateUser(user *User) error {
 			return err
 		}
 
-		var defaultApproved bool = false
+		var defaultApproved = false
 		if user.HasRole(RoleUser) {
 			defaultApproved = true
 		}
@@ -87,12 +87,12 @@ func (repo *UserRepositoryGorm) ChangeUserApprovalStatus(id string, isApproved b
 func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, isReviewed *bool, pagination *Pagination) ([]*UserApproval, int64, error) {
 	model := repo.database.Model(&UserApproval{}).Preload("User")
 
-	var normalizedIsReviewed *bool = isReviewed
+	var normalizedIsReviewed = isReviewed
 	if normalizedIsReviewed == nil {
 		normalizedIsReviewed = boolPointer(true)
 	}
 
-	results := []*UserApproval{}
+	var results []*UserApproval
 	var total int64 = 0
 
 	if isApproved != nil {
@@ -115,7 +115,7 @@ func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, isReviewed *b
 }
 
 func (repo *UserRepositoryGorm) GetUsers(pagination *Pagination) ([]*User, int64, error) {
-	users := []*User{}
+	var users []*User
 	err := repo.database.
 		Model(&User{}).
 		Preload("Role").

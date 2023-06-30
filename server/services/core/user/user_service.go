@@ -3,8 +3,8 @@ package user
 import (
 	"errors"
 
-	nebula_errors "github.com/VidroX/furry-nebula/errors"
-	general_errors "github.com/VidroX/furry-nebula/errors/general"
+	nebulaErrors "github.com/VidroX/furry-nebula/errors"
+	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/errors/validation"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/repositories/user"
@@ -20,10 +20,10 @@ import (
 )
 
 type UserService interface {
-	Login(email string, password string) (*model.UserWithToken, []*nebula_errors.APIError)
-	Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebula_errors.APIError)
-	ChangeUserApprovalStatus(userId string, isApproved bool) *nebula_errors.APIError
-	CreateAccessToken(user *model.User) (*model.Token, *nebula_errors.APIError)
+	Login(email string, password string) (*model.UserWithToken, []*nebulaErrors.APIError)
+	Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebulaErrors.APIError)
+	ChangeUserApprovalStatus(userId string, isApproved bool) *nebulaErrors.APIError
+	CreateAccessToken(user *model.User) (*model.Token, *nebulaErrors.APIError)
 }
 
 type userService struct {
@@ -33,40 +33,40 @@ type userService struct {
 	privateJWK     *jwk.ECDSAPrivateKey
 }
 
-func (service *userService) Login(email string, password string) (*model.UserWithToken, []*nebula_errors.APIError) {
+func (service *userService) Login(email string, password string) (*model.UserWithToken, []*nebulaErrors.APIError) {
 	if UtilString(email).IsEmpty() || UtilString(password).IsEmpty() {
-		return nil, []*nebula_errors.APIError{
+		return nil, []*nebulaErrors.APIError{
 			validation.ConstructValidationError(validation.ErrUserNotFound, "EMail"),
 			validation.ConstructValidationError(validation.ErrUserNotFound, "Password"),
 		}
 	}
 
-	user, err := service.userRepository.GetUserByEmail(email)
+	dbUser, err := service.userRepository.GetUserByEmail(email)
 
-	if err != nil || user == nil {
-		return nil, []*nebula_errors.APIError{
+	if err != nil || dbUser == nil {
+		return nil, []*nebulaErrors.APIError{
 			validation.ConstructValidationError(validation.ErrUserNotFound, "EMail"),
 			validation.ConstructValidationError(validation.ErrUserNotFound, "Password"),
 		}
 	}
 
-	match, err := argon2id.ComparePasswordAndHash(password, user.Password)
+	match, err := argon2id.ComparePasswordAndHash(password, dbUser.Password)
 
 	if err != nil || !match {
-		return nil, []*nebula_errors.APIError{
+		return nil, []*nebulaErrors.APIError{
 			validation.ConstructValidationError(validation.ErrUserNotFound, "EMail"),
 			validation.ConstructValidationError(validation.ErrUserNotFound, "Password"),
 		}
 	}
 
-	accessToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeAccess, user)
-	refreshToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeRefresh, user)
+	accessToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeAccess, dbUser)
+	refreshToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeRefresh, dbUser)
 
 	return &model.UserWithToken{
 		Message: translator.
 			WithKey(translator.KeysUserServiceSuccessfulLogin).
 			Translate(service.localizer),
-		User: user,
+		User: dbUser,
 		AccessToken: &model.Token{
 			Type:  model.TokenTypeAccess,
 			Token: accessToken,
@@ -78,8 +78,8 @@ func (service *userService) Login(email string, password string) (*model.UserWit
 	}, nil
 }
 
-func (service *userService) Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebula_errors.APIError) {
-	var properInputRole model.RegistrationRole = model.RegistrationRoleUser
+func (service *userService) Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebulaErrors.APIError) {
+	var properInputRole = model.RegistrationRoleUser
 	if userInfo.Role != nil {
 		properInputRole = *userInfo.Role
 	}
@@ -90,12 +90,12 @@ func (service *userService) Register(userInfo model.UserRegistrationInput) (*mod
 		creationRole = model.DefaultUserRole
 	}
 
-	var about string = ""
+	var about = ""
 	if userInfo.About != nil {
 		about = *userInfo.About
 	}
 
-	user := model.User{
+	dbUser := model.User{
 		FirstName: userInfo.FirstName,
 		LastName:  userInfo.LastName,
 		EMail:     userInfo.Email,
@@ -105,37 +105,37 @@ func (service *userService) Register(userInfo model.UserRegistrationInput) (*mod
 		Password:  userInfo.Password,
 	}
 
-	err := service.validate.Struct(&user)
+	err := service.validate.Struct(&dbUser)
 
-	if errors := validation.ProcessValidatorErrors(err); errors != nil && len(errors) > 0 {
-		return nil, errors
+	if apiErrors := validation.ProcessValidatorErrors(err); apiErrors != nil && len(apiErrors) > 0 {
+		return nil, apiErrors
 	}
 
-	hashedPassword, err := argon2id.CreateHash(user.Password, argon2id.DefaultParams)
+	hashedPassword, err := argon2id.CreateHash(dbUser.Password, argon2id.DefaultParams)
 
 	if err != nil {
-		return nil, []*nebula_errors.APIError{&general_errors.ErrInternal}
+		return nil, []*nebulaErrors.APIError{&generalErrors.ErrInternal}
 	}
 
-	user.Password = hashedPassword
+	dbUser.Password = hashedPassword
 
-	err = service.userRepository.CreateUser(&user)
+	err = service.userRepository.CreateUser(&dbUser)
 
 	var pgErr *pgconn.PgError
 	if err != nil && (errors.Is(err, gorm.ErrDuplicatedKey) || (errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation)) {
-		return nil, []*nebula_errors.APIError{validation.ConstructValidationError(validation.ErrUserAlreadyRegistered, "EMail")}
+		return nil, []*nebulaErrors.APIError{validation.ConstructValidationError(validation.ErrUserAlreadyRegistered, "EMail")}
 	} else if err != nil {
-		return nil, []*nebula_errors.APIError{&general_errors.ErrInternal}
+		return nil, []*nebulaErrors.APIError{&generalErrors.ErrInternal}
 	}
 
-	accessToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeAccess, &user)
-	refreshToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeRefresh, &user)
+	accessToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeAccess, &dbUser)
+	refreshToken := jwx.CreateUserToken(*service.privateJWK, model.TokenTypeRefresh, &dbUser)
 
 	return &model.UserWithToken{
 		Message: translator.
 			WithKey(translator.KeysUserServiceSuccessfulRegistration).
 			Translate(service.localizer),
-		User: &user,
+		User: &dbUser,
 		AccessToken: &model.Token{
 			Type:  model.TokenTypeAccess,
 			Token: accessToken,
@@ -147,7 +147,7 @@ func (service *userService) Register(userInfo model.UserRegistrationInput) (*mod
 	}, nil
 }
 
-func (service *userService) CreateAccessToken(user *model.User) (*model.Token, *nebula_errors.APIError) {
+func (service *userService) CreateAccessToken(user *model.User) (*model.Token, *nebulaErrors.APIError) {
 	if user == nil || UtilString(user.ID).IsEmpty() {
 		return nil, validation.ConstructValidationError(validation.ErrValidationRequired, "user")
 	}
@@ -160,7 +160,7 @@ func (service *userService) CreateAccessToken(user *model.User) (*model.Token, *
 	}, nil
 }
 
-func (service *userService) ChangeUserApprovalStatus(userId string, isApproved bool) *nebula_errors.APIError {
+func (service *userService) ChangeUserApprovalStatus(userId string, isApproved bool) *nebulaErrors.APIError {
 	if UtilString(userId).IsEmpty() {
 		return validation.ConstructValidationError(validation.ErrValidationRequired, "userId")
 	}
@@ -168,7 +168,7 @@ func (service *userService) ChangeUserApprovalStatus(userId string, isApproved b
 	err := service.userRepository.ChangeUserApprovalStatus(userId, isApproved)
 
 	if err != nil {
-		return &general_errors.ErrInternal
+		return &generalErrors.ErrInternal
 	}
 
 	return nil

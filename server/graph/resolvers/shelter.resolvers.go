@@ -9,19 +9,19 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
-	general_errors "github.com/VidroX/furry-nebula/errors/general"
+	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/database"
 )
 
 // AddShelter is the resolver for the addShelter field.
-func (r *mutationResolver) AddShelter(ctx context.Context, data model.ShelterInput, photo *graphql.Upload) (*model.ResponseMessage, error) {
+func (r *mutationResolver) AddShelter(ctx context.Context, data model.ShelterInput, photo *graphql.Upload) (*model.Shelter, error) {
 	panic(fmt.Errorf("not implemented: AddShelter - addShelter"))
 }
 
 // AddShelterAnimal is the resolver for the addShelterAnimal field.
-func (r *mutationResolver) AddShelterAnimal(ctx context.Context, data model.ShelterAnimalInput, photo *graphql.Upload) (*model.ResponseMessage, error) {
+func (r *mutationResolver) AddShelterAnimal(ctx context.Context, data model.ShelterAnimalInput, photo *graphql.Upload) (*model.ShelterAnimal, error) {
 	panic(fmt.Errorf("not implemented: AddShelterAnimal - addShelterAnimal"))
 }
 
@@ -36,7 +36,7 @@ func (r *mutationResolver) RemoveAnimal(ctx context.Context, id string) (*model.
 }
 
 // UpdateAnimalRating is the resolver for the updateAnimalRating field.
-func (r *mutationResolver) UpdateAnimalRating(ctx context.Context, id string, rating float64) (*model.ResponseMessage, error) {
+func (r *mutationResolver) UpdateAnimalRating(ctx context.Context, id string, rating float64) (*model.ShelterAnimal, error) {
 	panic(fmt.Errorf("not implemented: UpdateAnimalRating - updateAnimalRating"))
 }
 
@@ -48,7 +48,7 @@ func (r *queryResolver) Shelters(ctx context.Context, pagination *model.Paginati
 	shelters, total, err := shelterRepo.GetShelters(pagination)
 
 	if err != nil {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
 	}
 
 	return &model.ShelterConnection{
@@ -65,7 +65,7 @@ func (r *queryResolver) ShelterAnimals(ctx context.Context, filters *model.Anima
 	shelterAnimals, total, err := shelterRepo.GetShelterAnimals(filters, pagination)
 
 	if err != nil {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
 	}
 
 	return &model.ShelterAnimalConnection{
@@ -81,7 +81,7 @@ func (r *shelterAnimalResolver) Animal(ctx context.Context, obj *model.ShelterAn
 
 	var err error
 	if !animalType.IsValid() {
-		err = graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		err = graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
 	}
 
 	return animalType, err

@@ -151,11 +151,11 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	RefreshAccessToken(ctx context.Context) (*model.Token, error)
-	AddShelter(ctx context.Context, data model.ShelterInput, photo *graphql.Upload) (*model.ResponseMessage, error)
-	AddShelterAnimal(ctx context.Context, data model.ShelterAnimalInput, photo *graphql.Upload) (*model.ResponseMessage, error)
+	AddShelter(ctx context.Context, data model.ShelterInput, photo *graphql.Upload) (*model.Shelter, error)
+	AddShelterAnimal(ctx context.Context, data model.ShelterAnimalInput, photo *graphql.Upload) (*model.ShelterAnimal, error)
 	DeleteShelter(ctx context.Context, id string) (*model.ResponseMessage, error)
 	RemoveAnimal(ctx context.Context, id string) (*model.ResponseMessage, error)
-	UpdateAnimalRating(ctx context.Context, id string, rating float64) (*model.ResponseMessage, error)
+	UpdateAnimalRating(ctx context.Context, id string, rating float64) (*model.ShelterAnimal, error)
 	Login(ctx context.Context, email string, password string) (*model.UserWithToken, error)
 	Register(ctx context.Context, userInfo model.UserRegistrationInput) (*model.UserWithToken, error)
 	ChangeUserApprovalStatus(ctx context.Context, userID string, isApproved bool) (*model.ResponseMessage, error)
@@ -1157,10 +1157,10 @@ func (ec *executionContext) _Mutation_addShelter(ctx context.Context, field grap
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.ResponseMessage); ok {
+		if data, ok := tmp.(*model.Shelter); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ResponseMessage`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.Shelter`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1172,9 +1172,9 @@ func (ec *executionContext) _Mutation_addShelter(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ResponseMessage)
+	res := resTmp.(*model.Shelter)
 	fc.Result = res
-	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
+	return ec.marshalNShelter2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_addShelter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1185,10 +1185,20 @@ func (ec *executionContext) fieldContext_Mutation_addShelter(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "message":
-				return ec.fieldContext_ResponseMessage_message(ctx, field)
+			case "id":
+				return ec.fieldContext_Shelter_id(ctx, field)
+			case "representativeUser":
+				return ec.fieldContext_Shelter_representativeUser(ctx, field)
+			case "name":
+				return ec.fieldContext_Shelter_name(ctx, field)
+			case "address":
+				return ec.fieldContext_Shelter_address(ctx, field)
+			case "info":
+				return ec.fieldContext_Shelter_info(ctx, field)
+			case "photo":
+				return ec.fieldContext_Shelter_photo(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ResponseMessage", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Shelter", field.Name)
 		},
 	}
 	defer func() {
@@ -1240,10 +1250,10 @@ func (ec *executionContext) _Mutation_addShelterAnimal(ctx context.Context, fiel
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.ResponseMessage); ok {
+		if data, ok := tmp.(*model.ShelterAnimal); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ResponseMessage`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ShelterAnimal`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1255,9 +1265,9 @@ func (ec *executionContext) _Mutation_addShelterAnimal(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ResponseMessage)
+	res := resTmp.(*model.ShelterAnimal)
 	fc.Result = res
-	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
+	return ec.marshalNShelterAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_addShelterAnimal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1268,10 +1278,24 @@ func (ec *executionContext) fieldContext_Mutation_addShelterAnimal(ctx context.C
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "message":
-				return ec.fieldContext_ResponseMessage_message(ctx, field)
+			case "id":
+				return ec.fieldContext_ShelterAnimal_id(ctx, field)
+			case "shelter":
+				return ec.fieldContext_ShelterAnimal_shelter(ctx, field)
+			case "animal":
+				return ec.fieldContext_ShelterAnimal_animal(ctx, field)
+			case "name":
+				return ec.fieldContext_ShelterAnimal_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ShelterAnimal_description(ctx, field)
+			case "photo":
+				return ec.fieldContext_ShelterAnimal_photo(ctx, field)
+			case "overallRating":
+				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
+			case "userRating":
+				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ResponseMessage", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
 		},
 	}
 	defer func() {
@@ -1485,10 +1509,10 @@ func (ec *executionContext) _Mutation_updateAnimalRating(ctx context.Context, fi
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.ResponseMessage); ok {
+		if data, ok := tmp.(*model.ShelterAnimal); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ResponseMessage`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ShelterAnimal`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1500,9 +1524,9 @@ func (ec *executionContext) _Mutation_updateAnimalRating(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ResponseMessage)
+	res := resTmp.(*model.ShelterAnimal)
 	fc.Result = res
-	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
+	return ec.marshalNShelterAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateAnimalRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1513,10 +1537,24 @@ func (ec *executionContext) fieldContext_Mutation_updateAnimalRating(ctx context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "message":
-				return ec.fieldContext_ResponseMessage_message(ctx, field)
+			case "id":
+				return ec.fieldContext_ShelterAnimal_id(ctx, field)
+			case "shelter":
+				return ec.fieldContext_ShelterAnimal_shelter(ctx, field)
+			case "animal":
+				return ec.fieldContext_ShelterAnimal_animal(ctx, field)
+			case "name":
+				return ec.fieldContext_ShelterAnimal_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ShelterAnimal_description(ctx, field)
+			case "photo":
+				return ec.fieldContext_ShelterAnimal_photo(ctx, field)
+			case "overallRating":
+				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
+			case "userRating":
+				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ResponseMessage", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
 		},
 	}
 	defer func() {
@@ -7746,6 +7784,20 @@ func (ec *executionContext) marshalNShelter2ᚕᚖgithubᚗcomᚋVidroXᚋfurry�
 	return ret
 }
 
+func (ec *executionContext) marshalNShelter2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx context.Context, sel ast.SelectionSet, v *model.Shelter) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Shelter(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNShelterAnimal2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx context.Context, sel ast.SelectionSet, v model.ShelterAnimal) graphql.Marshaler {
+	return ec._ShelterAnimal(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNShelterAnimal2ᚕᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx context.Context, sel ast.SelectionSet, v []*model.ShelterAnimal) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -7782,6 +7834,16 @@ func (ec *executionContext) marshalNShelterAnimal2ᚕᚖgithubᚗcomᚋVidroXᚋ
 	wg.Wait()
 
 	return ret
+}
+
+func (ec *executionContext) marshalNShelterAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx context.Context, sel ast.SelectionSet, v *model.ShelterAnimal) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ShelterAnimal(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNShelterAnimalConnection2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimalConnection(ctx context.Context, sel ast.SelectionSet, v model.ShelterAnimalConnection) graphql.Marshaler {

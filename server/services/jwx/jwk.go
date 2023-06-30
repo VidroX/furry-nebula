@@ -22,10 +22,10 @@ const (
 func InitKeySet() (private jwk.ECDSAPrivateKey, public jwk.ECDSAPublicKey) {
 	if !IsKeyPresent(Private) || !IsKeyPresent(Public) {
 		if IsKeyPresent(Public) {
-			os.Remove(GetKeyPath(Public))
+			_ = os.Remove(GetKeyPath(Public))
 		}
 		if IsKeyPresent(Private) {
-			os.Remove(GetKeyPath(Private))
+			_ = os.Remove(GetKeyPath(Private))
 		}
 
 		private, public := GenerateKeySet()

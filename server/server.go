@@ -39,7 +39,7 @@ func main() {
 	controller := repositories.Init()
 
 	keySet := jwk.NewSet()
-	keySet.AddKey(public)
+	_ = keySet.AddKey(public)
 
 	validate := validator.New()
 
@@ -62,7 +62,7 @@ func main() {
 		r.GET("/", env.playgroundHandler())
 	}
 
-	r.Run()
+	_ = r.Run()
 }
 
 func loadDatabase() {

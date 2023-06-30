@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	nebula_errors "github.com/VidroX/furry-nebula/errors"
-	general_errors "github.com/VidroX/furry-nebula/errors/general"
+	nebulaErrors "github.com/VidroX/furry-nebula/errors"
+	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/repositories"
 	"github.com/VidroX/furry-nebula/services/core"
@@ -18,21 +18,21 @@ type ExtendedContext struct {
 	*gin.Context
 }
 
-func (ctx *ExtendedContext) RequireUser(tokenType model.TokenType) (*model.User, *nebula_errors.APIError) {
+func (ctx *ExtendedContext) RequireUser(tokenType model.TokenType) (*model.User, *nebulaErrors.APIError) {
 	user, ok := ctx.Get(jwx.UserContextKey)
 
 	if user == nil || !ok {
-		return nil, &general_errors.ErrNotEnoughPermissions
+		return nil, &generalErrors.ErrNotEnoughPermissions
 	}
 
 	normalizedUser, ok := user.(*model.TokenizedUser)
 
 	if !ok {
-		return nil, &general_errors.ErrNotEnoughPermissions
+		return nil, &generalErrors.ErrNotEnoughPermissions
 	}
 
 	if tokenType != normalizedUser.TokenType {
-		return nil, &general_errors.ErrInvalidOrExpiredToken
+		return nil, &generalErrors.ErrInvalidOrExpiredToken
 	}
 
 	return normalizedUser.User, nil

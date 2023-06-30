@@ -94,12 +94,12 @@ extend type Mutation {
   """
   Add shelter. User with Shelter role is required.
   """
-  addShelter(data: ShelterInput!, photo: Upload): ResponseMessage! @hasRole(role: Shelter)
+  addShelter(data: ShelterInput!, photo: Upload): Shelter! @hasRole(role: Shelter)
 
   """
   Add animal to the shelter. User with Shelter role is required.
   """
-  addShelterAnimal(data: ShelterAnimalInput!, photo: Upload): ResponseMessage! @hasRole(role: Shelter)
+  addShelterAnimal(data: ShelterAnimalInput!, photo: Upload): ShelterAnimal! @hasRole(role: Shelter)
 
   """
   Delete shelter. All animals inside will be removed automatically. User with Shelter role is required.
@@ -114,5 +114,5 @@ extend type Mutation {
   """
   Update animal rating. Authenticated user is required.
   """
-  updateAnimalRating(id: ID!, rating: Float!): ResponseMessage! @isAuthenticated
+  updateAnimalRating(id: ID!, rating: Float!): ShelterAnimal! @isAuthenticated
 }

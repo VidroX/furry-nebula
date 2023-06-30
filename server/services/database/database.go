@@ -19,7 +19,7 @@ type NebulaDb struct {
 }
 
 func (db *NebulaDb) AutoMigrateAll() {
-	db.AutoMigrate(
+	err := db.AutoMigrate(
 		&model.UserRole{},
 		&model.User{},
 		&model.UserApproval{},
@@ -30,6 +30,10 @@ func (db *NebulaDb) AutoMigrateAll() {
 		&model.AnimalAccommodationRequest{},
 		&model.AnimalAdoptionRequest{},
 	)
+
+	if err != nil {
+		log.Fatalf("Unable to migrate database models: %s", err.Error())
+	}
 }
 
 func (db *NebulaDb) PopulateRoles() {
@@ -90,14 +94,14 @@ func (db *NebulaDb) CreateAdminUser() {
 		return
 	}
 
-	hashed_password, _ := argon2id.CreateHash(password, argon2id.DefaultParams)
+	hashedPassword, _ := argon2id.CreateHash(password, argon2id.DefaultParams)
 
 	adminUser := model.User{
 		EMail:     strings.TrimSpace(email),
 		FirstName: "Admin",
 		LastName:  "User",
 		Birthday:  time.Now(),
-		Password:  hashed_password,
+		Password:  hashedPassword,
 		Role: model.UserRole{
 			Name: "Admin",
 		},

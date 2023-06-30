@@ -10,7 +10,7 @@ type ShelterRepositoryGorm struct {
 }
 
 func (repo *ShelterRepositoryGorm) GetShelters(pagination *model.Pagination) ([]*model.Shelter, int64, error) {
-	shelters := []*model.Shelter{}
+	var shelters []*model.Shelter
 
 	err := repo.database.
 		Model(&model.Shelter{}).
@@ -31,17 +31,17 @@ func (repo *ShelterRepositoryGorm) GetShelters(pagination *model.Pagination) ([]
 }
 
 func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilters, pagination *model.Pagination) ([]*model.ShelterAnimal, int64, error) {
-	shelterAnimals := []*model.ShelterAnimal{}
+	var shelterAnimals []*model.ShelterAnimal
 
-	var animal_type *string
+	var animalType *string
 	if filters.Animal != nil {
-		animal_type = (*string)(filters.Animal)
+		animalType = (*string)(filters.Animal)
 	}
 
 	filterMap := map[string]interface{}{
 		"removed":     false,
 		"shelter_id":  filters.ShelterID,
-		"animal_type": animal_type,
+		"animal_type": animalType,
 	}
 
 	err := repo.database.
