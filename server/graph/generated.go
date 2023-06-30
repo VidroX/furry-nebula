@@ -75,7 +75,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		ShelterAnimals func(childComplexity int, filters *model.AnimalFilters, pagination *model.Pagination) int
-		Shelters       func(childComplexity int, pagination *model.Pagination) int
+		Shelters       func(childComplexity int, filters *model.ShelterFilters, pagination *model.Pagination) int
 		User           func(childComplexity int) int
 		UserApprovals  func(childComplexity int, filters *model.ApprovalFilters, pagination *model.Pagination) int
 		Users          func(childComplexity int, pagination *model.Pagination) int
@@ -161,7 +161,7 @@ type MutationResolver interface {
 	ChangeUserApprovalStatus(ctx context.Context, userID string, isApproved bool) (*model.ResponseMessage, error)
 }
 type QueryResolver interface {
-	Shelters(ctx context.Context, pagination *model.Pagination) (*model.ShelterConnection, error)
+	Shelters(ctx context.Context, filters *model.ShelterFilters, pagination *model.Pagination) (*model.ShelterConnection, error)
 	ShelterAnimals(ctx context.Context, filters *model.AnimalFilters, pagination *model.Pagination) (*model.ShelterAnimalConnection, error)
 	User(ctx context.Context) (*model.User, error)
 	Users(ctx context.Context, pagination *model.Pagination) (*model.UsersConnection, error)
@@ -354,7 +354,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Shelters(childComplexity, args["pagination"].(*model.Pagination)), true
+		return e.complexity.Query.Shelters(childComplexity, args["filters"].(*model.ShelterFilters), args["pagination"].(*model.Pagination)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -658,6 +658,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputApprovalFilters,
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputShelterAnimalInput,
+		ec.unmarshalInputShelterFilters,
 		ec.unmarshalInputShelterInput,
 		ec.unmarshalInputUserRegistrationInput,
 	)
@@ -963,15 +964,45 @@ func (ec *executionContext) field_Query_shelterAnimals_args(ctx context.Context,
 func (ec *executionContext) field_Query_shelters_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.Pagination
+	var arg0 *model.ShelterFilters
+	if tmp, ok := rawArgs["filters"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+		directive0 := func(ctx context.Context) (interface{}, error) {
+			return ec.unmarshalOShelterFilters2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterFilters(ctx, tmp)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐRole(ctx, "Shelter")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, rawArgs, directive0, role)
+		}
+
+		tmp, err = directive1(ctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if data, ok := tmp.(*model.ShelterFilters); ok {
+			arg0 = data
+		} else if tmp == nil {
+			arg0 = nil
+		} else {
+			return nil, graphql.ErrorOnPath(ctx, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ShelterFilters`, tmp))
+		}
+	}
+	args["filters"] = arg0
+	var arg1 *model.Pagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-		arg0, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐPagination(ctx, tmp)
+		arg1, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐPagination(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["pagination"] = arg0
+	args["pagination"] = arg1
 	return args, nil
 }
 
@@ -2059,7 +2090,7 @@ func (ec *executionContext) _Query_shelters(ctx context.Context, field graphql.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Shelters(rctx, fc.Args["pagination"].(*model.Pagination))
+			return ec.resolvers.Query().Shelters(rctx, fc.Args["filters"].(*model.ShelterFilters), fc.Args["pagination"].(*model.Pagination))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -2892,9 +2923,9 @@ func (ec *executionContext) _Shelter_photo(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Shelter_photo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3167,9 +3198,9 @@ func (ec *executionContext) _ShelterAnimal_photo(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ShelterAnimal_photo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6318,6 +6349,35 @@ func (ec *executionContext) unmarshalInputShelterAnimalInput(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputShelterFilters(ctx context.Context, obj interface{}) (model.ShelterFilters, error) {
+	var it model.ShelterFilters
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"showOnlyOwnShelters"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "showOnlyOwnShelters":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("showOnlyOwnShelters"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShowOnlyOwnShelters = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputShelterInput(ctx context.Context, obj interface{}) (model.ShelterInput, error) {
 	var it model.ShelterInput
 	asMap := map[string]interface{}{}
@@ -6325,22 +6385,13 @@ func (ec *executionContext) unmarshalInputShelterInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"representativeUserId", "name", "address", "info"}
+	fieldsInOrder := [...]string{"name", "address", "info"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "representativeUserId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("representativeUserId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.RepresentativeUserID = data
 		case "name":
 			var err error
 
@@ -8434,14 +8485,12 @@ func (ec *executionContext) marshalOShelterAnimal2ᚖgithubᚗcomᚋVidroXᚋfur
 	return ec._ShelterAnimal(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
-	return res
+func (ec *executionContext) unmarshalOShelterFilters2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterFilters(ctx context.Context, v interface{}) (*model.ShelterFilters, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputShelterFilters(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

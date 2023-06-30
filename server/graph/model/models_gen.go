@@ -61,12 +61,16 @@ type ShelterConnection struct {
 	PageInfo *PageInfo  `json:"pageInfo"`
 }
 
+// Shelter list filters
+type ShelterFilters struct {
+	ShowOnlyOwnShelters *bool `json:"showOnlyOwnShelters,omitempty"`
+}
+
 // Animal shelter creation input
 type ShelterInput struct {
-	RepresentativeUserID string  `json:"representativeUserId"`
-	Name                 string  `json:"name"`
-	Address              string  `json:"address"`
-	Info                 *string `json:"info,omitempty"`
+	Name    string  `json:"name"`
+	Address string  `json:"address"`
+	Info    *string `json:"info,omitempty"`
 }
 
 // Auth token

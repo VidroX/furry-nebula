@@ -17,6 +17,9 @@ var (
 	ErrUserNotFound          = nebulaErrors.APIError{Code: mainErrorCode + "3", Error: errors.New(translator.KeysUserServiceErrorsNotFound)}
 	ErrUserAlreadyRegistered = nebulaErrors.APIError{Code: mainErrorCode + "4", Error: errors.New(translator.KeysUserServiceErrorsAlreadyRegistered)}
 	ErrChangeOwnStatus       = nebulaErrors.APIError{Code: mainErrorCode + "5", Error: errors.New(translator.KeysUserServiceErrorsChangeOwnStatus)}
+	ErrInvalidFileFormat     = nebulaErrors.APIError{Code: mainErrorCode + "6", Error: errors.New(translator.KeysInvalidFileFormat)}
+	ErrCorruptedFile         = nebulaErrors.APIError{Code: mainErrorCode + "7", Error: errors.New(translator.KeysCorruptedFile)}
+	ErrShelterAlreadyExists  = nebulaErrors.APIError{Code: mainErrorCode + "8", Error: errors.New(translator.KeysShelterServiceShelterAlreadyExists)}
 )
 
 func ConstructValidationError(err nebulaErrors.APIError, field string) *nebulaErrors.APIError {

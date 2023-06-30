@@ -9,12 +9,84 @@ type ShelterRepositoryGorm struct {
 	database *database.NebulaDb
 }
 
-func (repo *ShelterRepositoryGorm) GetShelters(pagination *model.Pagination) ([]*model.Shelter, int64, error) {
-	var shelters []*model.Shelter
+func (repo *ShelterRepositoryGorm) GetShelterOwner(shelterId string) (*model.User, error) {
+	var shelter *model.Shelter
+
+	err := repo.database.Model(&model.Shelter{}).
+		Preload("RepresentativeUser").
+		First(&shelter, "id = ?", shelterId).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &shelter.RepresentativeUser, nil
+}
+
+func (repo *ShelterRepositoryGorm) GetShelterOwnerByShelterAnimalId(shelterAnimalId string) (*model.User, error) {
+	var shelterAnimal *model.ShelterAnimal
+
+	err := repo.database.Model(&model.ShelterAnimal{}).
+		InnerJoins("Shelter").
+		Preload("Shelter.RepresentativeUser").
+		First(&shelterAnimal, "shelter_animals.id = ?", shelterAnimalId).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &shelterAnimal.Shelter.RepresentativeUser, nil
+}
+
+func (repo *ShelterRepositoryGorm) GetShelterById(shelterId string) (*model.Shelter, error) {
+	var shelter *model.Shelter
 
 	err := repo.database.
 		Model(&model.Shelter{}).
-		Where("deleted = ?", false).
+		Preload("RepresentativeUser").
+		First(&shelter, "id = ?", shelterId).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return shelter, nil
+}
+
+func (repo *ShelterRepositoryGorm) GetShelterAnimalById(shelterAnimalId string) (*model.ShelterAnimal, error) {
+	var shelterAnimal *model.ShelterAnimal
+
+	err := repo.database.
+		Model(&model.ShelterAnimal{}).
+		InnerJoins("Shelter").
+		Preload("Shelter.RepresentativeUser").
+		First(&shelterAnimal, "shelter_animals.id = ?", shelterAnimalId).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return shelterAnimal, nil
+}
+
+func (repo *ShelterRepositoryGorm) GetShelters(user *model.User, filters *model.ShelterFilters, pagination *model.Pagination) ([]*model.Shelter, int64, error) {
+	var shelters []*model.Shelter
+
+	var shelterFilters = map[string]interface{}{
+		"deleted": false,
+	}
+
+	if filters != nil && filters.ShowOnlyOwnShelters != nil && user != nil && *filters.ShowOnlyOwnShelters {
+		shelterFilters["representative_id"] = user.ID
+	}
+
+	err := repo.database.
+		Model(&model.Shelter{}).
+		Where(shelterFilters).
 		Preload("RepresentativeUser").
 		Scopes(database.PaginationScope(pagination)).
 		Find(&shelters).
@@ -33,15 +105,16 @@ func (repo *ShelterRepositoryGorm) GetShelters(pagination *model.Pagination) ([]
 func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilters, pagination *model.Pagination) ([]*model.ShelterAnimal, int64, error) {
 	var shelterAnimals []*model.ShelterAnimal
 
-	var animalType *string
-	if filters.Animal != nil {
-		animalType = (*string)(filters.Animal)
+	filterMap := map[string]interface{}{
+		"removed": false,
 	}
 
-	filterMap := map[string]interface{}{
-		"removed":     false,
-		"shelter_id":  filters.ShelterID,
-		"animal_type": animalType,
+	if filters.Animal != nil {
+		filterMap["animal_type"] = (*filters.Animal).String()
+	}
+
+	if filters.ShelterID != nil {
+		filterMap["shelter_id"] = *filters.ShelterID
 	}
 
 	err := repo.database.
@@ -74,4 +147,16 @@ func (repo *ShelterRepositoryGorm) AddShelter(shelter *model.Shelter) error {
 
 func (repo *ShelterRepositoryGorm) AddShelterAnimal(shelterAnimal *model.ShelterAnimal) error {
 	return repo.database.Create(shelterAnimal).Error
+}
+
+func (repo *ShelterRepositoryGorm) UpdateShelterPhoto(shelterId string, photo *string) error {
+	return repo.database.Model(&model.Shelter{}).
+		Where("id = ?", shelterId).
+		Update("photo", photo).Error
+}
+
+func (repo *ShelterRepositoryGorm) UpdateShelterAnimalPhoto(shelterAnimalId string, photo *string) error {
+	return repo.database.Model(&model.ShelterAnimal{}).
+		Where("id = ?", shelterAnimalId).
+		Update("photo", photo).Error
 }

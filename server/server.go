@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"net/http"
-	"os"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -19,6 +16,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/lestrrat-go/jwx/v2/jwk"
+	"net/http"
+	"os"
 )
 
 type Environment struct {
@@ -57,6 +56,8 @@ func main() {
 	r.Use(env.environmentMiddleware())
 	r.Any("/gql", env.graphqlHandler())
 	r.GET("/certs", env.certsHandler())
+
+	r.StaticFS("/uploads", gin.Dir(os.Getenv(environment.KeysUploadsLocation), false))
 
 	if os.Getenv(environment.KeysGinMode) != "release" {
 		r.GET("/", env.playgroundHandler())

@@ -43,6 +43,13 @@ input AnimalFilters {
 }
 
 """
+Shelter list filters
+"""
+input ShelterFilters {
+  showOnlyOwnShelters: Boolean
+}
+
+"""
 Shelter list connection
 """
 type ShelterConnection {
@@ -62,7 +69,6 @@ type ShelterAnimalConnection {
 Animal shelter creation input
 """
 input ShelterInput {
-  representativeUserId: ID!
   name: String!
   address: String!
   info: String
@@ -82,7 +88,7 @@ extend type Query {
   """
   Get the list of shelters added by shelter representatives. Authenticated user is required.
   """
-  shelters(pagination: Pagination): ShelterConnection! @isAuthenticated
+  shelters(filters: ShelterFilters @hasRole(role: Shelter), pagination: Pagination): ShelterConnection! @isAuthenticated
 
   """
   Get the list of animals in shelters. Authenticated user is required.

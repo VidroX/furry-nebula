@@ -13,6 +13,8 @@ const KeysInvalidOrExpiredTokenError = "generalErrors.invalidOrExpiredToken"
 const KeysValidationRequiredError = "generalErrors.validation.fieldRequired"
 const KeysValidationIncorrectEmailError = "generalErrors.validation.incorrectEmail"
 const KeysValidationUnknownError = "generalErrors.validation.unknownValidationError"
+const KeysInvalidFileFormat = "generalErrors.validation.invalidFileFormat"
+const KeysCorruptedFile = "generalErrors.validation.corruptedFile"
 
 // User Service
 
@@ -22,3 +24,7 @@ const KeysUserServiceErrorsChangeOwnStatus = "userService.errors.changeOwnStatus
 const KeysUserServiceSuccessfulLogin = "userService.successfulLogin"
 const KeysUserServiceSuccessfulRegistration = "userService.successfulRegistration"
 const KeysUserServiceStatusChanged = "userService.statusChanged"
+
+// Shelter Service
+
+const KeysShelterServiceShelterAlreadyExists = "shelterService.errors.alreadyExists"

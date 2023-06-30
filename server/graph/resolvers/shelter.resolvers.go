@@ -10,6 +10,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
+	"github.com/VidroX/furry-nebula/errors/validation"
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/database"
@@ -17,12 +18,72 @@ import (
 
 // AddShelter is the resolver for the addShelter field.
 func (r *mutationResolver) AddShelter(ctx context.Context, data model.ShelterInput, photo *graphql.Upload) (*model.Shelter, error) {
-	panic(fmt.Errorf("not implemented: AddShelter - addShelter"))
+	gCtx := graph.GetGinContext(ctx)
+	shelterService := gCtx.GetServices().ShelterService
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	if photo != nil && !graph.IsImageTypeSupported(photo.ContentType) {
+		return nil, graph.FormatError(
+			gCtx.GetLocalizer(),
+			validation.ConstructValidationError(validation.ErrInvalidFileFormat, "photo"),
+		)
+	}
+
+	shelter, errors := shelterService.AddShelter(user.ID, data)
+
+	if errors != nil && len(errors) > 0 {
+		graph.ProcessErrorsSlice(&ctx, gCtx.GetLocalizer(), errors)
+
+		return nil, nil
+	}
+
+	if photo != nil {
+		fPath, _ := graph.ProcessGraphPhotoUpload(gCtx, user, photo)
+		_ = shelterService.UpdateShelterPhoto(user.ID, shelter.ID, fPath)
+
+		shelter.Photo = fPath
+	}
+
+	return shelter, nil
 }
 
 // AddShelterAnimal is the resolver for the addShelterAnimal field.
 func (r *mutationResolver) AddShelterAnimal(ctx context.Context, data model.ShelterAnimalInput, photo *graphql.Upload) (*model.ShelterAnimal, error) {
-	panic(fmt.Errorf("not implemented: AddShelterAnimal - addShelterAnimal"))
+	gCtx := graph.GetGinContext(ctx)
+	shelterService := gCtx.GetServices().ShelterService
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	if photo != nil && !graph.IsImageTypeSupported(photo.ContentType) {
+		return nil, graph.FormatError(
+			gCtx.GetLocalizer(),
+			validation.ConstructValidationError(validation.ErrInvalidFileFormat, "photo"),
+		)
+	}
+
+	shelterAnimal, errors := shelterService.AddShelterAnimal(user.ID, data)
+
+	if errors != nil && len(errors) > 0 {
+		graph.ProcessErrorsSlice(&ctx, gCtx.GetLocalizer(), errors)
+
+		return nil, nil
+	}
+
+	if photo != nil {
+		fPath, _ := graph.ProcessGraphPhotoUpload(gCtx, user, photo)
+		_ = shelterService.UpdateShelterPhoto(user.ID, shelterAnimal.ID, fPath)
+
+		shelterAnimal.Photo = fPath
+	}
+
+	return shelterAnimal, nil
 }
 
 // DeleteShelter is the resolver for the deleteShelter field.
@@ -41,13 +102,18 @@ func (r *mutationResolver) UpdateAnimalRating(ctx context.Context, id string, ra
 }
 
 // Shelters is the resolver for the shelters field.
-func (r *queryResolver) Shelters(ctx context.Context, pagination *model.Pagination) (*model.ShelterConnection, error) {
+func (r *queryResolver) Shelters(ctx context.Context, filters *model.ShelterFilters, pagination *model.Pagination) (*model.ShelterConnection, error) {
 	gCtx := graph.GetGinContext(ctx)
 	shelterRepo := gCtx.GetRepositories().ShelterRepository
-
-	shelters, total, err := shelterRepo.GetShelters(pagination)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
 
 	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelters, total, err2 := shelterRepo.GetShelters(user, filters, pagination)
+
+	if err2 != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
 	}
 

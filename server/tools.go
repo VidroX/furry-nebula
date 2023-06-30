@@ -10,6 +10,7 @@ import (
 	_ "github.com/gin-contrib/cors"
 	_ "github.com/gin-gonic/gin"
 	_ "github.com/go-playground/validator/v10"
+	_ "github.com/google/uuid"
 	_ "github.com/jackc/pgerrcode"
 	_ "github.com/joho/godotenv"
 	_ "github.com/lestrrat-go/jwx/v2/jwa"
