@@ -46,7 +46,7 @@ type ResolverRoot interface {
 
 type DirectiveRoot struct {
 	ApprovedUserOnly func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
-	HasRole          func(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role) (res interface{}, err error)
+	HasRole          func(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role, approvedOnly *bool) (res interface{}, err error)
 	IsAuthenticated  func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 	NoUserOnly       func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 	RefreshTokenOnly func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
@@ -754,6 +754,15 @@ func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[st
 		}
 	}
 	args["role"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["approvedOnly"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("approvedOnly"))
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["approvedOnly"] = arg1
 	return args, nil
 }
 
@@ -978,7 +987,7 @@ func (ec *executionContext) field_Query_shelters_args(ctx context.Context, rawAr
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, rawArgs, directive0, role)
+			return ec.directives.HasRole(ctx, rawArgs, directive0, role, nil)
 		}
 
 		tmp, err = directive1(ctx)
@@ -1178,7 +1187,7 @@ func (ec *executionContext) _Mutation_addShelter(ctx context.Context, field grap
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
+			return ec.directives.HasRole(ctx, nil, directive0, role, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1271,7 +1280,7 @@ func (ec *executionContext) _Mutation_addShelterAnimal(ctx context.Context, fiel
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
+			return ec.directives.HasRole(ctx, nil, directive0, role, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1368,7 +1377,7 @@ func (ec *executionContext) _Mutation_deleteShelter(ctx context.Context, field g
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
+			return ec.directives.HasRole(ctx, nil, directive0, role, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1451,7 +1460,7 @@ func (ec *executionContext) _Mutation_removeAnimal(ctx context.Context, field gr
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
+			return ec.directives.HasRole(ctx, nil, directive0, role, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -1797,7 +1806,7 @@ func (ec *executionContext) _Mutation_changeUserApprovalStatus(ctx context.Conte
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
+			return ec.directives.HasRole(ctx, nil, directive0, role, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -2344,7 +2353,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
+			return ec.directives.HasRole(ctx, nil, directive0, role, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -2429,7 +2438,7 @@ func (ec *executionContext) _Query_userApprovals(ctx context.Context, field grap
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, role)
+			return ec.directives.HasRole(ctx, nil, directive0, role, nil)
 		}
 
 		tmp, err := directive1(rctx)

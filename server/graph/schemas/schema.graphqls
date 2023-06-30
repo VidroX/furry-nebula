@@ -1,7 +1,7 @@
 directive @isAuthenticated on FIELD_DEFINITION
 directive @noUserOnly on FIELD_DEFINITION
 directive @refreshTokenOnly on FIELD_DEFINITION
-directive @hasRole(role: Role!) on FIELD_DEFINITION|INPUT_FIELD_DEFINITION|ARGUMENT_DEFINITION
+directive @hasRole(role: Role!, approvedOnly: Boolean) on FIELD_DEFINITION|INPUT_FIELD_DEFINITION|ARGUMENT_DEFINITION
 directive @approvedUserOnly on FIELD_DEFINITION
 
 """

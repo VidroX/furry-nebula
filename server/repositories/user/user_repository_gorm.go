@@ -41,7 +41,7 @@ func (repo *UserRepositoryGorm) CreateUser(user *User) error {
 		}
 
 		var defaultApproved = false
-		if user.HasRole(RoleUser) {
+		if user.RoleName == RoleUser.String() {
 			defaultApproved = true
 		}
 

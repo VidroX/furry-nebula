@@ -41,7 +41,7 @@ func refreshTokenOnlyDirective(ctx context.Context, obj interface{}, next graphq
 	return next(ctx)
 }
 
-func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role) (interface{}, error) {
+func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role, approvedOnly *bool) (interface{}, error) {
 	gCtx := graph.GetGinContext(ctx)
 	user, err := getUser(gCtx, model.TokenTypeAccess)
 
@@ -51,6 +51,14 @@ func hasRoleDirective(ctx context.Context, obj interface{}, next graphql.Resolve
 
 	if !user.User.HasRole(role) {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrNotEnoughPermissions)
+	}
+
+	if approvedOnly == nil || *approvedOnly {
+		isApproved, err2 := gCtx.GetRepositories().UserRepository.IsUserApproved(user.User.ID)
+
+		if !isApproved || err2 != nil {
+			return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrNotEnoughPermissions)
+		}
 	}
 
 	return next(ctx)
