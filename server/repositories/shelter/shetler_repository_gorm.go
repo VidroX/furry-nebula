@@ -120,7 +120,7 @@ func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilter
 	err := repo.database.
 		Model(&model.ShelterAnimal{}).
 		Where(filterMap).
-		InnerJoins("Shelter", repo.database.Where(&model.Shelter{Deleted: false})).
+		InnerJoins("Shelter", repo.database.Where(map[string]interface{}{"deleted": false})).
 		InnerJoins("Animal").
 		Preload("Shelter.RepresentativeUser").
 		Scopes(database.PaginationScope(pagination)).
@@ -135,7 +135,7 @@ func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilter
 	repo.database.
 		Model(&model.ShelterAnimal{}).
 		Where(filterMap).
-		InnerJoins("Shelter", repo.database.Where(&model.Shelter{Deleted: false})).
+		InnerJoins("Shelter", repo.database.Where(map[string]interface{}{"deleted": false})).
 		Count(&total)
 
 	return shelterAnimals, total, nil
@@ -152,11 +152,27 @@ func (repo *ShelterRepositoryGorm) AddShelterAnimal(shelterAnimal *model.Shelter
 func (repo *ShelterRepositoryGorm) UpdateShelterPhoto(shelterId string, photo *string) error {
 	return repo.database.Model(&model.Shelter{}).
 		Where("id = ?", shelterId).
-		Update("photo", photo).Error
+		Update("photo", photo).
+		Error
 }
 
 func (repo *ShelterRepositoryGorm) UpdateShelterAnimalPhoto(shelterAnimalId string, photo *string) error {
 	return repo.database.Model(&model.ShelterAnimal{}).
 		Where("id = ?", shelterAnimalId).
-		Update("photo", photo).Error
+		Update("photo", photo).
+		Error
+}
+
+func (repo *ShelterRepositoryGorm) DeleteShelter(shelterId string) error {
+	return repo.database.Model(&model.Shelter{}).
+		Where("id = ?", shelterId).
+		Update("deleted", true).
+		Error
+}
+
+func (repo *ShelterRepositoryGorm) RemoveShelterAnimal(shelterAnimalId string) error {
+	return repo.database.Model(&model.ShelterAnimal{}).
+		Where("id = ?", shelterAnimalId).
+		Update("removed", true).
+		Error
 }

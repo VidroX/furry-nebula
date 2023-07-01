@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/VidroX/furry-nebula/services/translator"
 
 	"github.com/99designs/gqlgen/graphql"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
@@ -88,12 +89,44 @@ func (r *mutationResolver) AddShelterAnimal(ctx context.Context, data model.Shel
 
 // DeleteShelter is the resolver for the deleteShelter field.
 func (r *mutationResolver) DeleteShelter(ctx context.Context, id string) (*model.ResponseMessage, error) {
-	panic(fmt.Errorf("not implemented: DeleteShelter - deleteShelter"))
+	gCtx := graph.GetGinContext(ctx)
+	shelterService := gCtx.GetServices().ShelterService
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	err = shelterService.DeleteShelter(user.ID, id)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return &model.ResponseMessage{
+		Message: translator.WithKey(translator.KeysShelterServiceShelterRemoved).Translate(gCtx.GetLocalizer()),
+	}, nil
 }
 
 // RemoveAnimal is the resolver for the removeAnimal field.
 func (r *mutationResolver) RemoveAnimal(ctx context.Context, id string) (*model.ResponseMessage, error) {
-	panic(fmt.Errorf("not implemented: RemoveAnimal - removeAnimal"))
+	gCtx := graph.GetGinContext(ctx)
+	shelterService := gCtx.GetServices().ShelterService
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	err = shelterService.RemoveShelterAnimal(user.ID, id)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return &model.ResponseMessage{
+		Message: translator.WithKey(translator.KeysShelterServiceShelterAnimalRemoved).Translate(gCtx.GetLocalizer()),
+	}, nil
 }
 
 // UpdateAnimalRating is the resolver for the updateAnimalRating field.

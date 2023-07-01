@@ -25,6 +25,8 @@
     "shelterService": {
         "errors": {
             "alreadyExists": "Shelter with the given name already exists"
-        }
+        },
+        "shelterRemoved": "Shelter has been successfully deleted from the system!",
+        "shelterAnimalRemoved": "Shelter animal has been successfully removed!"
     }
 }

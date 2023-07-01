@@ -16,6 +16,8 @@ type ShelterRepository interface {
 	UpdateShelterPhoto(shelterId string, photo *string) error
 	AddShelterAnimal(shelterAnimal *model.ShelterAnimal) error
 	UpdateShelterAnimalPhoto(shelterAnimalId string, photo *string) error
+	DeleteShelter(shelterId string) error
+	RemoveShelterAnimal(shelterAnimalId string) error
 }
 
 func Get(database *database.NebulaDb) ShelterRepository {

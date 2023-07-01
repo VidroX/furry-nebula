@@ -25,6 +25,8 @@
     "shelterService": {
         "errors": {
             "alreadyExists": "Притулок із такою назвою вже існує"
-        }
+        },
+        "shelterRemoved": "Притулок успішно видалено з системи!",
+        "shelterAnimalRemoved": "Тварину успішно видалено з притулку!"
     }
 }

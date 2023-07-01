@@ -19,6 +19,8 @@ type ShelterService interface {
 	UpdateShelterPhoto(userId string, shelterId string, photo *string) *nebulaErrors.APIError
 	AddShelterAnimal(userId string, shelterAnimalInfo model.ShelterAnimalInput) (*model.ShelterAnimal, []*nebulaErrors.APIError)
 	UpdateShelterAnimalPhoto(userId string, shelterAnimalId string, photo *string) *nebulaErrors.APIError
+	DeleteShelter(userId string, shelterId string) *nebulaErrors.APIError
+	RemoveShelterAnimal(userId string, shelterAnimalId string) *nebulaErrors.APIError
 }
 
 type shelterService struct {
@@ -130,6 +132,38 @@ func (service *shelterService) UpdateShelterAnimalPhoto(userId string, shelterAn
 	}
 
 	err = service.shelterRepository.UpdateShelterAnimalPhoto(shelterAnimalId, photo)
+
+	if err != nil {
+		return &generalErrors.ErrInternal
+	}
+
+	return nil
+}
+
+func (service *shelterService) DeleteShelter(userId string, shelterId string) *nebulaErrors.APIError {
+	shelterRep, err := service.shelterRepository.GetShelterOwner(shelterId)
+
+	if err != nil || shelterRep.ID != userId {
+		return &generalErrors.ErrNotEnoughPermissions
+	}
+
+	err = service.shelterRepository.DeleteShelter(shelterId)
+
+	if err != nil {
+		return &generalErrors.ErrInternal
+	}
+
+	return nil
+}
+
+func (service *shelterService) RemoveShelterAnimal(userId string, shelterAnimalId string) *nebulaErrors.APIError {
+	shelterRep, err := service.shelterRepository.GetShelterOwnerByShelterAnimalId(shelterAnimalId)
+
+	if err != nil || shelterRep.ID != userId {
+		return &generalErrors.ErrNotEnoughPermissions
+	}
+
+	err = service.shelterRepository.RemoveShelterAnimal(shelterAnimalId)
 
 	if err != nil {
 		return &generalErrors.ErrInternal
