@@ -18,6 +18,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type Environment struct {
@@ -57,7 +58,8 @@ func main() {
 	r.Any("/gql", env.graphqlHandler())
 	r.GET("/certs", env.certsHandler())
 
-	r.StaticFS("/uploads", gin.Dir(os.Getenv(environment.KeysUploadsLocation), false))
+	uploadsPath, _ := filepath.Abs(filepath.Join(os.Getenv(environment.KeysAppPath), os.Getenv(environment.KeysUploadsLocation)))
+	r.StaticFS("/uploads", gin.Dir(uploadsPath, false))
 
 	if os.Getenv(environment.KeysGinMode) != "release" {
 		r.GET("/", env.playgroundHandler())

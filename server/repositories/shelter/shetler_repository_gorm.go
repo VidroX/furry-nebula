@@ -97,7 +97,7 @@ func (repo *ShelterRepositoryGorm) GetShelters(user *model.User, filters *model.
 	}
 
 	var total int64 = 0
-	repo.database.Model(&model.Shelter{}).Where("deleted = ?", false).Count(&total)
+	repo.database.Model(&model.Shelter{}).Where(shelterFilters).Count(&total)
 
 	return shelters, total, nil
 }
