@@ -1,0 +1,7 @@
+# import '../../fragments/shelter_animal_fragment.graphql'
+
+mutation AddUserShelterAnimal($input: ShelterAnimalInput!, $photo: Upload) {
+    addShelterAnimal(data: $input, photo: $photo){
+        ...ShelterAnimalFragment
+    }
+}

@@ -1,0 +1,12 @@
+# import 'user_fragment.graphql'
+
+fragment ShelterFragment on Shelter {
+    id
+    representativeUser {
+        ...UserFragment
+    }
+    name
+    address
+    info
+    photo
+}

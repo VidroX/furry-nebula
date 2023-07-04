@@ -33,6 +33,7 @@ class Translations {
 
   // Accommodations
   static const String accommodationsTitle = 'home.accommodations.title';
+  static const String accommodationsPets = 'home.accommodations.pets';
 
   // Profile
   static const String profileTitle = 'home.profile.title';

@@ -29,12 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
     create: (_) => injector.get<UserBloc>(),
     child: BlocBuilder<UserBloc, UserState>(
       builder: (context, state) => AutoTabsRouter(
-        routes: state.hasRole(GRole.Admin) ? const [
-          UserApprovalsRoute(),
-          ProfileRoute(),
-        ] : const [
-          AccommodationsRoute(),
-          ProfileRoute(),
+        routes: [
+          const AccommodationsRoute(),
+          if (state.hasRole(GRole.Admin))
+            const UserApprovalsRoute(),
+          const ProfileRoute(),
         ],
         transitionBuilder: (context, child, animation) => FadeTransition(
           opacity: animation,
@@ -56,30 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: context.colors.containerColor,
                 currentIndex: tabsRouter.activeIndex,
                 onTap: (index) => tabsRouter.setActiveIndex(index),
-                items: state.hasRole(GRole.Admin) ? [
+                items: [
                   BottomNavigationBarItem(
-                    label: context.translate(Translations.userApprovalsTitle),
-                    icon: const Padding(
-                      padding: _iconPadding,
-                      child: Icon(
-                        Icons.thumbs_up_down,
-                        size: _iconSize,
-                      ),
-                    ),
-                  ),
-                  BottomNavigationBarItem(
-                    label: context.translate(Translations.profileTitle),
-                    icon: const Padding(
-                      padding: _iconPadding,
-                      child: FaIcon(
-                        FontAwesomeIcons.user,
-                        size: _iconSize,
-                      ),
-                    ),
-                  ),
-                ] : [
-                  BottomNavigationBarItem(
-                    label: context.translate(Translations.accommodationsTitle),
+                    label: context.translate(Translations.accommodationsPets),
                     icon: const Padding(
                       padding: _iconPadding,
                       child: FaIcon(
@@ -88,6 +66,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
+                  if (state.hasRole(GRole.Admin))
+                    BottomNavigationBarItem(
+                      label: context.translate(Translations.userApprovalsTitle),
+                      icon: const Padding(
+                        padding: _iconPadding,
+                        child: Icon(
+                          Icons.thumbs_up_down,
+                          size: _iconSize,
+                        ),
+                      ),
+                    ),
                   BottomNavigationBarItem(
                     label: context.translate(Translations.profileTitle),
                     icon: const Padding(

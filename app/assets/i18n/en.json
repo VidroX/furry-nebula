@@ -37,7 +37,8 @@
   },
   "home": {
     "accommodations": {
-      "title": "Pet accommodations"
+      "title": "Pet accommodations",
+      "pets": "Pets"
     },
     "profile": {
       "title": "Profile",

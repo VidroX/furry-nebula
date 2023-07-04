@@ -10,7 +10,7 @@ class User with _$User {
     required String firstName,
     required String lastName,
     @Default(GRole.User) GRole role,
-    required String about,
+    @Default('') String about,
     required String email,
     @Default(false) bool isApproved,
     required DateTime birthDay,

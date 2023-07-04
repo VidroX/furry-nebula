@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:furry_nebula/repositories/shelter/shelter_repository.dart';
+import 'package:furry_nebula/repositories/shelter/shelter_repository_gql.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 import 'package:furry_nebula/repositories/user/user_repository_gql.dart';
 import 'package:furry_nebula/screens/auth/state/auth_bloc.dart';
@@ -23,8 +25,11 @@ void _initApi() {
 
 void _initRepositories() {
   injector
-    .registerSingleton<UserRepository>(
+    ..registerSingleton<UserRepository>(
       UserRepositoryGraphQL(client: injector.get()),
+    )
+    ..registerSingleton<ShelterRepository>(
+      ShelterRepositoryGraphQL(client: injector.get()),
     );
 }
 

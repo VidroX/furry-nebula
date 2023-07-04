@@ -7,7 +7,7 @@ schema {
 
 directive @approvedUserOnly on FIELD_DEFINITION
 
-directive @hasRole(role: Role!) on FIELD_DEFINITION
+directive @hasRole(approvedOnly: Boolean, role: Role!) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
 directive @isAuthenticated on FIELD_DEFINITION
 
@@ -16,14 +16,24 @@ directive @noUserOnly on FIELD_DEFINITION
 directive @refreshTokenOnly on FIELD_DEFINITION
 
 type Mutation {
+    "Add shelter. User with Shelter role is required."
+    addShelter(data: ShelterInput!, photo: Upload): Shelter!
+    "Add animal to the shelter. User with Shelter role is required."
+    addShelterAnimal(data: ShelterAnimalInput!, photo: Upload): ShelterAnimal!
     "Change approval status of user by id. Admin user is required."
     changeUserApprovalStatus(isApproved: Boolean!, userId: ID!): ResponseMessage!
+    "Delete shelter. All animals inside will be removed automatically. User with Shelter role is required."
+    deleteShelter(id: ID!): ResponseMessage!
     "User login. Unauthenticated user only."
     login(email: String!, password: String!): UserWithToken!
     "Refresh access token though refresh token provided inside Authorization header"
     refreshAccessToken: Token!
     "User registration. Unauthenticated user only."
     register(userInfo: UserRegistrationInput!): UserWithToken!
+    "Remove animal from the shelter list. User with Shelter role is required."
+    removeAnimal(id: ID!): ResponseMessage!
+    "Update animal rating. Authenticated user is required."
+    updateAnimalRating(id: ID!, rating: Float!): ShelterAnimal!
 }
 
 "Page information"
@@ -36,6 +46,10 @@ type PageInfo {
 }
 
 type Query {
+    "Get the list of animals in shelters. Authenticated user is required."
+    shelterAnimals(filters: AnimalFilters, pagination: Pagination): ShelterAnimalConnection!
+    "Get the list of shelters added by shelter representatives. Authenticated user is required."
+    shelters(filters: ShelterFilters, pagination: Pagination): ShelterConnection!
     "Get currently authenticated user info"
     user: User!
     "Get the list of user approvals. Admin user is required."
@@ -47,6 +61,40 @@ type Query {
 "Simple response with message"
 type ResponseMessage {
     message: String!
+}
+
+"User added animal shelter"
+type Shelter {
+    address: String!
+    id: ID!
+    info: String!
+    name: String!
+    photo: String
+    representativeUser: User!
+}
+
+"Shelter animal"
+type ShelterAnimal {
+    animal: Animal!
+    description: String!
+    id: ID!
+    name: String!
+    overallRating: Float!
+    photo: String
+    shelter: Shelter!
+    userRating: Float
+}
+
+"Animal list connection"
+type ShelterAnimalConnection {
+    node: [ShelterAnimal]!
+    pageInfo: PageInfo!
+}
+
+"Shelter list connection"
+type ShelterConnection {
+    node: [Shelter]!
+    pageInfo: PageInfo!
 }
 
 "Auth token"
@@ -123,6 +171,12 @@ scalar Time
 "Upload scalar"
 scalar Upload
 
+"Filters for the shelter animals list"
+input AnimalFilters {
+    animal: Animal
+    shelterId: ID
+}
+
 "Filters for list of user approvals"
 input ApprovalFilters {
     isApproved: Boolean
@@ -133,6 +187,26 @@ input ApprovalFilters {
 input Pagination {
     page: Int
     resultsPerPage: Int
+}
+
+"Shelter animal creation input"
+input ShelterAnimalInput {
+    animal: Animal!
+    description: String
+    name: String!
+    shelterId: ID!
+}
+
+"Shelter list filters"
+input ShelterFilters {
+    showOnlyOwnShelters: Boolean
+}
+
+"Animal shelter creation input"
+input ShelterInput {
+    address: String!
+    info: String
+    name: String!
 }
 
 "Registration input data for User"

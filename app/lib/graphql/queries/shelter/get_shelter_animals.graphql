@@ -1,0 +1,13 @@
+# import '../../fragments/shelter_animal_fragment.graphql'
+# import '../../fragments/page_info_fragment.graphql'
+
+query GetShelterAnimals($filters: AnimalFilters, $pagination: Pagination) {
+    shelterAnimals(filters: $filters, pagination: $pagination) {
+        node {
+            ...ShelterAnimalFragment
+        }
+        pageInfo {
+            ...PageInfoFragment
+        }
+    }
+}

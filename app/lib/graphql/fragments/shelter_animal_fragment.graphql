@@ -1,0 +1,14 @@
+# import 'shelter_fragment.graphql'
+
+fragment ShelterAnimalFragment on ShelterAnimal {
+    id
+    animal
+    name
+    description
+    photo
+    overallRating
+    userRating
+    shelter {
+        ...ShelterFragment
+    }
+}
