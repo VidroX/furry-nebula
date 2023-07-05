@@ -117,6 +117,10 @@ func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilter
 		filterMap["shelter_id"] = *filters.ShelterID
 	}
 
+	if filters.ShelterIds != nil {
+		filterMap["shelter_id"] = filters.ShelterIds
+	}
+
 	err := repo.database.
 		Model(&model.ShelterAnimal{}).
 		Where(filterMap).

@@ -39,6 +39,7 @@ Filters for the shelter animals list
 """
 input AnimalFilters {
   shelterId: ID
+  shelterIds: [ID!]
   animal: Animal
 }
 
@@ -46,7 +47,7 @@ input AnimalFilters {
 Shelter list filters
 """
 input ShelterFilters {
-  showOnlyOwnShelters: Boolean
+  showOnlyOwnShelters: Boolean @hasRole(role: Shelter)
 }
 
 """
@@ -88,7 +89,7 @@ extend type Query {
   """
   Get the list of shelters added by shelter representatives. Authenticated user is required.
   """
-  shelters(filters: ShelterFilters @hasRole(role: Shelter), pagination: Pagination): ShelterConnection! @isAuthenticated
+  shelters(filters: ShelterFilters, pagination: Pagination): ShelterConnection! @isAuthenticated
 
   """
   Get the list of animals in shelters. Authenticated user is required.

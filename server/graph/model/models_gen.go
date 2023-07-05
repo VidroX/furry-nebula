@@ -11,8 +11,9 @@ import (
 
 // Filters for the shelter animals list
 type AnimalFilters struct {
-	ShelterID *string `json:"shelterId,omitempty"`
-	Animal    *Animal `json:"animal,omitempty"`
+	ShelterID  *string  `json:"shelterId,omitempty"`
+	ShelterIds []string `json:"shelterIds,omitempty"`
+	Animal     *Animal  `json:"animal,omitempty"`
 }
 
 // Filters for list of user approvals

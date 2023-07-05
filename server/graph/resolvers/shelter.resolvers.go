@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/VidroX/furry-nebula/services/translator"
 
 	"github.com/99designs/gqlgen/graphql"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
@@ -15,6 +14,7 @@ import (
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/database"
+	"github.com/VidroX/furry-nebula/services/translator"
 )
 
 // AddShelter is the resolver for the addShelter field.
