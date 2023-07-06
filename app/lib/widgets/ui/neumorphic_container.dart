@@ -9,12 +9,16 @@ class NeumorphicContainer extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxConstraints? constraints;
+  final Clip clipBehaviour;
+
+  static const borderRadius = BorderRadius.all(Radius.circular(8));
 
   const NeumorphicContainer({
     required this.child,
     this.decoration = const BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(8)),
+      borderRadius: borderRadius,
     ),
+    this.clipBehaviour = Clip.antiAlias,
     this.backgroundColor,
     this.padding,
     this.width,
@@ -32,6 +36,7 @@ class NeumorphicContainer extends StatelessWidget {
       color: backgroundColor ?? context.colors.containerColor,
       boxShadow: context.colors.neumorphicShadow,
     ),
+    clipBehavior: clipBehaviour,
     padding: padding,
     child: child,
   );

@@ -2,9 +2,9 @@ import 'package:ferry/ferry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/models/user/user.dart';
+import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 
 part 'user_bloc.freezed.dart';

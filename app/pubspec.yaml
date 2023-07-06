@@ -39,6 +39,9 @@ dependencies:
   jwt_decoder: ^2.0.1
   font_awesome_flutter: ^10.4.0
   http: ^0.13.6
+  fast_cached_network_image: ^1.2.0
+  shimmer: ^3.0.0
+  path_provider: ^2.0.15
 
 dev_dependencies:
   flutter_test:

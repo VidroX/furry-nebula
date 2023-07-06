@@ -31,9 +31,9 @@ class Translations {
   static const String authProvideInfoAboutYourself = 'auth.provideInfoAboutYourself';
   static const String authProvideBirthday = 'auth.provideBirthday';
 
-  // Accommodations
-  static const String accommodationsTitle = 'home.accommodations.title';
-  static const String accommodationsPets = 'home.accommodations.pets';
+  // Pets
+  static const String petsTitle = 'home.pets.title';
+  static const String petsPets = 'home.pets.pets';
 
   // Profile
   static const String profileTitle = 'home.profile.title';
@@ -51,4 +51,9 @@ class Translations {
   static const String userApprovalsUsersPendingApproval = 'home.userApprovals.usersPendingApproval';
   static const String userApprovalsUsersWantsToBe = 'home.userApprovals.wantsToBe';
   static const String userApprovalsUsersNoUsersPendingApproval = 'home.userApprovals.noUsersPendingApproval';
+
+  // Shelters
+  static const String sheltersTitle = 'home.shelters.title';
+  static const String sheltersShelters = 'home.shelters.shelters';
+  static const String sheltersNoSheltersAdded = 'home.shelters.noSheltersAdded';
 }

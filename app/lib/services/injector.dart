@@ -5,6 +5,8 @@ import 'package:furry_nebula/repositories/user/user_repository.dart';
 import 'package:furry_nebula/repositories/user/user_repository_gql.dart';
 import 'package:furry_nebula/screens/auth/state/auth_bloc.dart';
 import 'package:furry_nebula/screens/home/approvals/state/user_approvals_bloc.dart';
+import 'package:furry_nebula/screens/home/shelters/pets/state/pets_bloc.dart';
+import 'package:furry_nebula/screens/home/shelters/state/shelters_bloc.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/services/api_client.dart';
 import 'package:get_it/get_it.dart';
@@ -39,5 +41,11 @@ void _initBlocs() {
       ..registerFactory<UserBloc>(() => UserBloc(userRepository: injector.get()))
       ..registerFactory<UserApprovalsBloc>(() =>
           UserApprovalsBloc(userRepository: injector.get()),
+      )
+      ..registerFactory<SheltersBloc>(() =>
+          SheltersBloc(shelterRepository: injector.get()),
+      )
+      ..registerFactory<PetsBloc>(() =>
+          PetsBloc(shelterRepository: injector.get()),
       );
 }

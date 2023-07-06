@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:furry_nebula/models/pagination/graph_page.dart';
 import 'package:furry_nebula/widgets/layout/expandable_scroll_view.dart';
 
-class NebulaApiList<T> extends StatefulWidget {
+class NebulaApiGrid<T> extends StatefulWidget {
   final List<T>? items;
   final GraphPageInfo? pageInfo;
   final bool itemsLoading;
@@ -16,9 +16,13 @@ class NebulaApiList<T> extends StatefulWidget {
   final VoidCallback? onLoadNextPage;
   final ScrollPhysics physics;
   final EdgeInsetsGeometry? padding;
+  final SliverGridDelegate gridDelegate;
 
-  const NebulaApiList({
+  const NebulaApiGrid({
     required this.itemBuilder,
+    this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+    ),
     this.physics = const BouncingScrollPhysics(),
     this.itemsLoading = false,
     this.noItemsBuilder,
@@ -32,13 +36,13 @@ class NebulaApiList<T> extends StatefulWidget {
   });
 
   @override
-  State<NebulaApiList<T>> createState() => NebulaApiListState();
+  State<NebulaApiGrid<T>> createState() => NebulaApiGridState();
 }
 
-class NebulaApiListState<T> extends State<NebulaApiList<T>> {
+class NebulaApiGridState<T> extends State<NebulaApiGrid<T>> {
   static const _animationDuration = Duration(milliseconds: 200);
 
-  final _listKey = GlobalKey<AnimatedListState>();
+  final _gridKey = GlobalKey<SliverAnimatedGridState>();
 
   late final ScrollController _scrollController;
 
@@ -47,7 +51,7 @@ class NebulaApiListState<T> extends State<NebulaApiList<T>> {
     super.initState();
     _scrollController = ScrollController()..addListener(_loadNextPage);
 
-    _listKey.currentState?.insertAllItems(0, widget.items?.length ?? 0);
+    _gridKey.currentState?.insertAllItems(0, widget.items?.length ?? 0);
   }
 
   @override
@@ -58,7 +62,7 @@ class NebulaApiListState<T> extends State<NebulaApiList<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant NebulaApiList<T> oldWidget) {
+  void didUpdateWidget(covariant NebulaApiGrid<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.items == widget.items) {
@@ -74,7 +78,7 @@ class NebulaApiListState<T> extends State<NebulaApiList<T>> {
     }
 
     for (final item in addedItems) {
-      _listKey.currentState?.insertItem(
+      _gridKey.currentState?.insertItem(
         widget.items?.indexOf(item) ?? 0,
         duration: _animationDuration,
       );
@@ -88,7 +92,7 @@ class NebulaApiListState<T> extends State<NebulaApiList<T>> {
 
     final itemIndex = min(index, widget.items!.length - 1);
 
-    _listKey.currentState?.removeItem(
+    _gridKey.currentState?.removeItem(
       index + 1,
       duration: _animationDuration,
       (context, animation) => FadeTransition(
@@ -144,34 +148,42 @@ class NebulaApiListState<T> extends State<NebulaApiList<T>> {
       );
     }
 
-    return _NebulaListView<T>(
-      listKey: _listKey,
+    return _NebulaGridView<T>(
+      gridKey: _gridKey,
       scrollController: _scrollController,
+      gridDelegate: widget.gridDelegate,
       items: widget.items,
       pageInfo: widget.pageInfo,
       itemBuilder: widget.itemBuilder,
       headerBuilder: widget.headerBuilder,
       physics: widget.physics,
       padding: widget.padding,
+      loading: widget.itemsLoading,
     );
   }
 }
 
-class _NebulaListView<T> extends StatelessWidget {
+class _NebulaGridView<T> extends StatelessWidget {
   final List<T>? items;
   final GraphPageInfo? pageInfo;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
   final Widget Function(BuildContext context)? headerBuilder;
   final ScrollPhysics physics;
   final EdgeInsetsGeometry? padding;
-  final Key listKey;
+  final Key gridKey;
   final ScrollController scrollController;
+  final SliverGridDelegate gridDelegate;
+  final int initialItemCount;
+  final bool loading;
 
-  const _NebulaListView({
-    required this.listKey,
+  const _NebulaGridView({
+    required this.gridKey,
     required this.scrollController,
     required this.itemBuilder,
+    required this.gridDelegate,
+    this.initialItemCount = 0,
     this.physics = const BouncingScrollPhysics(),
+    this.loading = false,
     this.items,
     this.headerBuilder,
     this.pageInfo,
@@ -180,40 +192,52 @@ class _NebulaListView<T> extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => AnimatedList(
-    key: listKey,
-    padding: padding,
-    controller: scrollController,
+  Widget build(BuildContext context) => CustomScrollView(
     physics: physics,
-    initialItemCount: (items?.length ?? 0)
-        + ((pageInfo?.hasNextPage ?? true) ? 1 : 0)
-        + (headerBuilder != null ? 1 : 0),
-    itemBuilder: (context, index, animation) {
-      if (index == 0 && headerBuilder != null) {
-        return headerBuilder!(context);
-      }
-
-      final itemIndex = index - (headerBuilder != null ? 1 : 0);
-
-      if (items?.isEmpty ?? true) {
-        return const SizedBox.shrink();
-      }
-
-      if (itemIndex >= items!.length && (pageInfo?.hasNextPage ?? true)) {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: CircularProgressIndicator(),
+    controller: scrollController,
+    slivers: [
+      if (headerBuilder != null)
+        SliverPadding(
+          padding: EdgeInsetsDirectional.only(
+            start: (padding?.vertical ?? 0) / 2,
+            end: (padding?.horizontal ?? 0) / 2,
+            top: (padding?.horizontal ?? 0) / 2,
           ),
-        );
-      } else if (itemIndex >= items!.length) {
-        return const SizedBox.shrink();
-      }
+          sliver: SliverToBoxAdapter(
+            child: headerBuilder!(context),
+          ),
+        ),
+      SliverPadding(
+        padding: EdgeInsetsDirectional.only(
+          start: (padding?.vertical ?? 0) / 2,
+          end: (padding?.horizontal ?? 0) / 2,
+          bottom: (padding?.horizontal ?? 0) / 2,
+        ),
+        sliver: SliverAnimatedGrid(
+          key: gridKey,
+          gridDelegate: gridDelegate,
+          initialItemCount: items?.length ?? 0,
+          itemBuilder: (context, index, animation) {
+            if (items?.isEmpty ?? true) {
+              return const SizedBox.shrink();
+            }
 
-      return FadeTransition(
-        opacity: animation,
-        child: itemBuilder(context, items![itemIndex], itemIndex),
-      );
-    },
+            return FadeTransition(
+              opacity: animation,
+              child: itemBuilder(context, items![index], index),
+            );
+          },
+        ),
+      ),
+      if (loading)
+        SliverToBoxAdapter(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 100),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+    ],
   );
 }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/extensions/role_extension.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/models/user/user.dart';
 import 'package:furry_nebula/screens/home/approvals/state/user_approvals_bloc.dart';
@@ -93,6 +92,7 @@ class _UserApprovalsScreenState extends State<UserApprovalsScreen> {
                 Translations.userApprovalsUsersNoUsersPendingApproval,
               ),
               maxLines: 3,
+              textAlign: TextAlign.center,
               style: context.typography
                   .withFontWeight(FontWeight.w500)
                   .withFontSize(AppFontSize.extraNormal)

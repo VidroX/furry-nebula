@@ -8,7 +8,7 @@ import 'package:furry_nebula/models/shelter/shelter_animal.dart';
 abstract class ShelterRepository {
   Future<GraphPage<Shelter>> getShelters({
     Pagination pagination = const Pagination(),
-    bool showOnlyOwnShelters = false,
+    bool? showOnlyOwnShelters,
   });
 
   Future<GraphPage<ShelterAnimal>> getShelterAnimals({

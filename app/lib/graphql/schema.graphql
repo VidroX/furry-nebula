@@ -175,6 +175,7 @@ scalar Upload
 input AnimalFilters {
     animal: Animal
     shelterId: ID
+    shelterIds: [ID!]
 }
 
 "Filters for list of user approvals"

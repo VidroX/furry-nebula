@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
+import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/services/injector.dart';
@@ -30,8 +30,10 @@ class _HomeScreenState extends State<HomeScreen> {
     child: BlocBuilder<UserBloc, UserState>(
       builder: (context, state) => AutoTabsRouter(
         routes: [
-          const AccommodationsRoute(),
-          if (state.hasRole(GRole.Admin))
+          const SheltersRoute(children: [PetsRoute()]),
+          if (state.hasRole(UserRole.shelter))
+            const SheltersRoute(children: [ShelterListRoute()]),
+          if (state.hasRole(UserRole.admin))
             const UserApprovalsRoute(),
           const ProfileRoute(),
         ],
@@ -50,44 +52,64 @@ class _HomeScreenState extends State<HomeScreen> {
                 boxShadow: context.colors.shadow,
                 color: context.colors.containerColor,
               ),
-              child: BottomNavigationBar(
-                elevation: 0,
-                backgroundColor: context.colors.containerColor,
-                currentIndex: tabsRouter.activeIndex,
-                onTap: (index) => tabsRouter.setActiveIndex(index),
-                items: [
-                  BottomNavigationBarItem(
-                    label: context.translate(Translations.accommodationsPets),
-                    icon: const Padding(
-                      padding: _iconPadding,
-                      child: FaIcon(
-                        FontAwesomeIcons.tent,
-                        size: _iconSize,
-                      ),
-                    ),
+              child: Theme(
+                data: context.theme.copyWith(
+                  colorScheme: context.theme.colorScheme.copyWith(
+                    surface: context.theme.colorScheme.onBackground,
                   ),
-                  if (state.hasRole(GRole.Admin))
+                ),
+                child: BottomNavigationBar(
+                  selectedItemColor: context.colors.primary,
+                  unselectedItemColor: context.colors.text,
+                  elevation: 0,
+                  backgroundColor: context.colors.containerColor,
+                  currentIndex: tabsRouter.activeIndex,
+                  onTap: (index) => tabsRouter.setActiveIndex(index),
+                  items: [
                     BottomNavigationBarItem(
-                      label: context.translate(Translations.userApprovalsTitle),
+                      label: context.translate(Translations.petsPets),
                       icon: const Padding(
                         padding: _iconPadding,
-                        child: Icon(
-                          Icons.thumbs_up_down,
+                        child: FaIcon(
+                          FontAwesomeIcons.paw,
                           size: _iconSize,
                         ),
                       ),
                     ),
-                  BottomNavigationBarItem(
-                    label: context.translate(Translations.profileTitle),
-                    icon: const Padding(
-                      padding: _iconPadding,
-                      child: FaIcon(
-                        FontAwesomeIcons.user,
-                        size: _iconSize,
+                    if (state.hasRole(UserRole.shelter))
+                      BottomNavigationBarItem(
+                        label: context.translate(Translations.sheltersShelters),
+                        icon: const Padding(
+                          padding: _iconPadding,
+                          child: FaIcon(
+                            FontAwesomeIcons.tents,
+                            size: _iconSize,
+                          ),
+                        ),
+                      ),
+                    if (state.hasRole(UserRole.admin))
+                      BottomNavigationBarItem(
+                        label: context.translate(Translations.userApprovalsTitle),
+                        icon: const Padding(
+                          padding: _iconPadding,
+                          child: Icon(
+                            Icons.thumbs_up_down,
+                            size: _iconSize,
+                          ),
+                        ),
+                      ),
+                    BottomNavigationBarItem(
+                      label: context.translate(Translations.profileTitle),
+                      icon: const Padding(
+                        padding: _iconPadding,
+                        child: FaIcon(
+                          FontAwesomeIcons.user,
+                          size: _iconSize,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             child: child,

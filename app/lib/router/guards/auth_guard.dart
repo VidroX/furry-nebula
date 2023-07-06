@@ -1,13 +1,13 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/models/user/user.dart';
+import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 
 class AuthGuard extends AutoRouteGuard {
   final UserRepository userRepository;
   final bool shouldBeAuthenticated;
-  final GRole? roleRequirement;
+  final UserRole? roleRequirement;
   final PageRouteInfo? redirectRoute;
 
   const AuthGuard({
@@ -35,7 +35,10 @@ class AuthGuard extends AutoRouteGuard {
     }
 
     final canContinueNavigation = isAuthenticated == shouldBeAuthenticated && (
-        roleRequirement == null || currentUser?.role == roleRequirement
+        roleRequirement == null || (
+            currentUser!.role.power >= roleRequirement!.power &&
+            currentUser.isApproved
+        )
     );
 
     if(canContinueNavigation){

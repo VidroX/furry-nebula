@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/extensions/role_extension.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/translations.dart';

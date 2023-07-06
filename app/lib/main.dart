@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:fast_cached_network_image/fast_cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -11,6 +12,7 @@ import 'package:furry_nebula/environment_constants.dart';
 import 'package:furry_nebula/router/router.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +20,11 @@ Future<void> main() async {
   log('Starting app in ${EnvironmentConstants.environmentType} environment');
 
   await dotenv.load(fileName: '${EnvironmentConstants.environmentType}.env');
+
+  await FastCachedImageConfig.init(
+    subDir: (await getApplicationDocumentsDirectory()).path,
+    clearCacheAfter: const Duration(days: 7),
+  );
 
   usePathUrlStrategy();
   initDependencyInjector();

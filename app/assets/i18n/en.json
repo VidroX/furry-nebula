@@ -36,7 +36,7 @@
     "provideBirthday": "Provide your birthday"
   },
   "home": {
-    "accommodations": {
+    "pets": {
       "title": "Pet accommodations",
       "pets": "Pets"
     },
@@ -56,6 +56,11 @@
       "usersPendingApproval": "Users pending approval",
       "wantsToBe": "Wants to be a {userType}",
       "noUsersPendingApproval": "Currently, no users are pending approval"
+    },
+    "shelters": {
+      "title": "Animal shelters",
+      "shelters": "Shelters",
+      "noSheltersAdded": "You have not added any shelters yet.\nAdd one by pressing the plus icon in the header."
     }
   }
 }

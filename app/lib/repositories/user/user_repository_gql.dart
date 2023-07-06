@@ -12,6 +12,7 @@ import 'package:furry_nebula/models/pagination/graph_page.dart';
 import 'package:furry_nebula/models/pagination/pagination.dart';
 import 'package:furry_nebula/models/user/user.dart';
 import 'package:furry_nebula/models/user/user_registration_role.dart';
+import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/models/user/user_token.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 import 'package:furry_nebula/services/api_client.dart';
@@ -30,7 +31,7 @@ class UserRepositoryGraphQL extends UserRepository {
     lastName: user.lastName,
     isApproved: user.isApproved,
     about: user.about,
-    role: user.role,
+    role: UserRole.fromGRole(user.role)!,
     email: user.email,
     birthDay: user.birthday,
   );

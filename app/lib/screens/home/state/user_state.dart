@@ -10,5 +10,7 @@ class UserState with _$UserState {
 
   const UserState._();
 
-  bool hasRole(GRole role) => user != null && user!.role == role;
+  bool hasRole(UserRole role) => user != null
+      && user!.role.power >= role.power
+      && user!.isApproved;
 }

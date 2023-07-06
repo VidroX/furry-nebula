@@ -9,12 +9,14 @@ class NebulaText extends StatelessWidget {
   final NebulaTextStyle? style;
   final int? maxLines;
   final TextOverflow? overflow;
+  final TextAlign? textAlign;
 
   const NebulaText(
     this.text, {
       this.style,
       this.maxLines,
       this.overflow,
+      this.textAlign,
       super.key,
     }
   );
@@ -28,6 +30,7 @@ class NebulaText extends StatelessWidget {
       style: typographyStyle.toTextStyle(),
       maxLines: maxLines,
       overflow: overflow,
+      textAlign: textAlign,
     );
   }
 }

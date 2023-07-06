@@ -16,7 +16,7 @@ class UploadSerializer extends PrimitiveSerializer<MultipartFile> {
   @override
   Object serialize(Serializers serializers, MultipartFile file, {
     FullType specifiedType = FullType.unspecified,
-  }) => file;
+  }) async => await file.finalize().first;
 
   @override
   Iterable<Type> get types => [MultipartFile];
