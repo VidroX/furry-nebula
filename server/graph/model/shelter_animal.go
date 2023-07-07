@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type ShelterAnimal struct {
 	ID          string     `json:"id" gorm:"type:uuid;primarykey;default:gen_random_uuid()"`
 	ShelterID   string     `json:"-"`
@@ -9,5 +11,6 @@ type ShelterAnimal struct {
 	Name        string     `json:"name" gorm:"type:text;not null"`
 	Description string     `json:"description" gorm:"type:text"`
 	Photo       *string    `json:"photo" gorm:"type:text"`
+	AddDatetime time.Time  `json:"addDatetime" gorm:"not null;default:current_timestamp"`
 	Removed     bool       `json:"removed" gorm:"type:boolean;default:false;not null"`
 }

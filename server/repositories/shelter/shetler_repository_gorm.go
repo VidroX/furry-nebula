@@ -88,6 +88,7 @@ func (repo *ShelterRepositoryGorm) GetShelters(user *model.User, filters *model.
 		Model(&model.Shelter{}).
 		Where(shelterFilters).
 		Preload("RepresentativeUser").
+		Order("add_datetime desc").
 		Scopes(database.PaginationScope(pagination)).
 		Find(&shelters).
 		Error
@@ -97,7 +98,11 @@ func (repo *ShelterRepositoryGorm) GetShelters(user *model.User, filters *model.
 	}
 
 	var total int64 = 0
-	repo.database.Model(&model.Shelter{}).Where(shelterFilters).Count(&total)
+	repo.database.
+		Model(&model.Shelter{}).
+		Where(shelterFilters).
+		Order("add_datetime desc").
+		Count(&total)
 
 	return shelters, total, nil
 }
@@ -127,6 +132,7 @@ func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilter
 		InnerJoins("Shelter", repo.database.Where(map[string]interface{}{"deleted": false})).
 		InnerJoins("Animal").
 		Preload("Shelter.RepresentativeUser").
+		Order("add_datetime desc").
 		Scopes(database.PaginationScope(pagination)).
 		Find(&shelterAnimals).
 		Error
@@ -140,6 +146,7 @@ func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilter
 		Model(&model.ShelterAnimal{}).
 		Where(filterMap).
 		InnerJoins("Shelter", repo.database.Where(map[string]interface{}{"deleted": false})).
+		Order("add_datetime desc").
 		Count(&total)
 
 	return shelterAnimals, total, nil

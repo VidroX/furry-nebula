@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type AnimalAdoptionRequest struct {
 	AnimalID       string        `json:"-"`
 	Animal         ShelterAnimal `json:"animal" gorm:"primaryKey;foreignKey:AnimalID;references:ID;OnDelete:SET NULL"`
@@ -9,4 +11,5 @@ type AnimalAdoptionRequest struct {
 	IsReviewed     bool          `json:"isReviewed" gorm:"type:boolean;default:false;not null"`
 	ApprovedBy     string        `json:"-"`
 	ApprovedByUser User          `json:"approvedByUser" gorm:"foreignKey:ApprovedBy;references:ID;OnDelete:SET NULL"`
+	AddDatetime    time.Time     `json:"addDatetime" gorm:"not null;default:current_timestamp"`
 }
