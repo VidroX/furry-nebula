@@ -20,6 +20,8 @@ var (
 	ErrInvalidFileFormat     = nebulaErrors.APIError{Code: mainErrorCode + "6", Error: errors.New(translator.KeysInvalidFileFormat)}
 	ErrCorruptedFile         = nebulaErrors.APIError{Code: mainErrorCode + "7", Error: errors.New(translator.KeysCorruptedFile)}
 	ErrShelterAlreadyExists  = nebulaErrors.APIError{Code: mainErrorCode + "8", Error: errors.New(translator.KeysShelterServiceShelterAlreadyExists)}
+	ErrShelterNotFound       = nebulaErrors.APIError{Code: mainErrorCode + "9", Error: errors.New(translator.KeysShelterServiceShelterNotFound)}
+	ErrShelterAnimalNotFound = nebulaErrors.APIError{Code: mainErrorCode + "10", Error: errors.New(translator.KeysShelterServiceShelterAnimalNotFound)}
 )
 
 func ConstructValidationError(err nebulaErrors.APIError, field string) *nebulaErrors.APIError {

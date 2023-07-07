@@ -24,7 +24,9 @@
     },
     "shelterService": {
         "errors": {
-            "alreadyExists": "Притулок із такою назвою вже існує"
+            "alreadyExists": "Притулок із такою назвою вже існує",
+            "shelterNotFound": "Запитаний притулок не знайдено",
+            "shelterAnimalNotFound": "Домашня тварина не знайдена в притулку або вже усиновлена"
         },
         "shelterRemoved": "Притулок успішно видалено з системи!",
         "shelterAnimalRemoved": "Тварину успішно видалено з притулку!"

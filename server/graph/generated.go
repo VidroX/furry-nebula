@@ -74,6 +74,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Shelter        func(childComplexity int, id string) int
+		ShelterAnimal  func(childComplexity int, id string) int
 		ShelterAnimals func(childComplexity int, filters *model.AnimalFilters, pagination *model.Pagination) int
 		Shelters       func(childComplexity int, filters *model.ShelterFilters, pagination *model.Pagination) int
 		User           func(childComplexity int) int
@@ -163,6 +165,8 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Shelters(ctx context.Context, filters *model.ShelterFilters, pagination *model.Pagination) (*model.ShelterConnection, error)
 	ShelterAnimals(ctx context.Context, filters *model.AnimalFilters, pagination *model.Pagination) (*model.ShelterAnimalConnection, error)
+	Shelter(ctx context.Context, id string) (*model.Shelter, error)
+	ShelterAnimal(ctx context.Context, id string) (*model.ShelterAnimal, error)
 	User(ctx context.Context) (*model.User, error)
 	Users(ctx context.Context, pagination *model.Pagination) (*model.UsersConnection, error)
 	UserApprovals(ctx context.Context, filters *model.ApprovalFilters, pagination *model.Pagination) (*model.UserApprovalsConnection, error)
@@ -331,6 +335,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.TotalResults(childComplexity), true
+
+	case "Query.shelter":
+		if e.complexity.Query.Shelter == nil {
+			break
+		}
+
+		args, err := ec.field_Query_shelter_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Shelter(childComplexity, args["id"].(string)), true
+
+	case "Query.shelterAnimal":
+		if e.complexity.Query.ShelterAnimal == nil {
+			break
+		}
+
+		args, err := ec.field_Query_shelterAnimal_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ShelterAnimal(childComplexity, args["id"].(string)), true
 
 	case "Query.shelterAnimals":
 		if e.complexity.Query.ShelterAnimals == nil {
@@ -946,6 +974,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_shelterAnimal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_shelterAnimals_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -967,6 +1010,21 @@ func (ec *executionContext) field_Query_shelterAnimals_args(ctx context.Context,
 		}
 	}
 	args["pagination"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_shelter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -2219,6 +2277,188 @@ func (ec *executionContext) fieldContext_Query_shelterAnimals(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_shelterAnimals_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_shelter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_shelter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Shelter(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Shelter); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.Shelter`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Shelter)
+	fc.Result = res
+	return ec.marshalNShelter2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelter(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_shelter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Shelter_id(ctx, field)
+			case "representativeUser":
+				return ec.fieldContext_Shelter_representativeUser(ctx, field)
+			case "name":
+				return ec.fieldContext_Shelter_name(ctx, field)
+			case "address":
+				return ec.fieldContext_Shelter_address(ctx, field)
+			case "info":
+				return ec.fieldContext_Shelter_info(ctx, field)
+			case "photo":
+				return ec.fieldContext_Shelter_photo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Shelter", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_shelter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_shelterAnimal(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_shelterAnimal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ShelterAnimal(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ShelterAnimal); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/VidroX/furry-nebula/graph/model.ShelterAnimal`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ShelterAnimal)
+	fc.Result = res
+	return ec.marshalNShelterAnimal2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐShelterAnimal(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_shelterAnimal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ShelterAnimal_id(ctx, field)
+			case "shelter":
+				return ec.fieldContext_ShelterAnimal_shelter(ctx, field)
+			case "animal":
+				return ec.fieldContext_ShelterAnimal_animal(ctx, field)
+			case "name":
+				return ec.fieldContext_ShelterAnimal_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ShelterAnimal_description(ctx, field)
+			case "photo":
+				return ec.fieldContext_ShelterAnimal_photo(ctx, field)
+			case "overallRating":
+				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
+			case "userRating":
+				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_shelterAnimal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -6751,6 +6991,52 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_shelterAnimals(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "shelter":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_shelter(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "shelterAnimal":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_shelterAnimal(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

@@ -28,5 +28,7 @@ const KeysUserServiceStatusChanged = "userService.statusChanged"
 // Shelter Service
 
 const KeysShelterServiceShelterAlreadyExists = "shelterService.errors.alreadyExists"
+const KeysShelterServiceShelterNotFound = "shelterService.errors.shelterNotFound"
+const KeysShelterServiceShelterAnimalNotFound = "shelterService.errors.shelterAnimalNotFound"
 const KeysShelterServiceShelterRemoved = "shelterService.shelterRemoved"
 const KeysShelterServiceShelterAnimalRemoved = "shelterService.shelterAnimalRemoved"

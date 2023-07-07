@@ -24,7 +24,9 @@
     },
     "shelterService": {
         "errors": {
-            "alreadyExists": "Shelter with the given name already exists"
+            "alreadyExists": "Shelter with the given name already exists",
+            "shelterNotFound": "Requested shelter not found",
+            "shelterAnimalNotFound": "Requested shelter animal not found or is already adopted"
         },
         "shelterRemoved": "Shelter has been successfully deleted from the system!",
         "shelterAnimalRemoved": "Shelter animal has been successfully removed!"

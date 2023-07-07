@@ -95,6 +95,16 @@ extend type Query {
   Get the list of animals in shelters. Authenticated user is required.
   """
   shelterAnimals(filters: AnimalFilters, pagination: Pagination): ShelterAnimalConnection! @isAuthenticated
+
+  """
+  Get animal shelter by its id. Authenticated user is required.
+  """
+  shelter(id: ID!): Shelter! @isAuthenticated
+
+  """
+  Get shelter animal by its id. Authenticated user is required.
+  """
+  shelterAnimal(id: ID!): ShelterAnimal! @isAuthenticated
 }
 
 extend type Mutation {

@@ -173,6 +173,54 @@ func (r *queryResolver) ShelterAnimals(ctx context.Context, filters *model.Anima
 	}, nil
 }
 
+// Shelter is the resolver for the shelter field.
+func (r *queryResolver) Shelter(ctx context.Context, id string) (*model.Shelter, error) {
+	gCtx := graph.GetGinContext(ctx)
+	shelterRepo := gCtx.GetRepositories().ShelterRepository
+
+	shelter, err := shelterRepo.GetShelterById(id)
+
+	if err != nil {
+		return nil, graph.FormatError(
+			gCtx.GetLocalizer(),
+			validation.ConstructValidationError(validation.ErrShelterNotFound, "id"),
+		)
+	}
+
+	if shelter == nil || shelter.Deleted {
+		return nil, graph.FormatError(
+			gCtx.GetLocalizer(),
+			validation.ConstructValidationError(validation.ErrShelterNotFound, "id"),
+		)
+	}
+
+	return shelter, nil
+}
+
+// ShelterAnimal is the resolver for the shelterAnimal field.
+func (r *queryResolver) ShelterAnimal(ctx context.Context, id string) (*model.ShelterAnimal, error) {
+	gCtx := graph.GetGinContext(ctx)
+	shelterRepo := gCtx.GetRepositories().ShelterRepository
+
+	shelterAnimal, err := shelterRepo.GetShelterAnimalById(id)
+
+	if err != nil {
+		return nil, graph.FormatError(
+			gCtx.GetLocalizer(),
+			validation.ConstructValidationError(validation.ErrShelterAnimalNotFound, "id"),
+		)
+	}
+
+	if shelterAnimal == nil || shelterAnimal.Removed {
+		return nil, graph.FormatError(
+			gCtx.GetLocalizer(),
+			validation.ConstructValidationError(validation.ErrShelterAnimalNotFound, "id"),
+		)
+	}
+
+	return shelterAnimal, nil
+}
+
 // Animal is the resolver for the animal field.
 func (r *shelterAnimalResolver) Animal(ctx context.Context, obj *model.ShelterAnimal) (model.Animal, error) {
 	gCtx := graph.GetGinContext(ctx)
