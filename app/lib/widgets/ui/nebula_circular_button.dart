@@ -7,17 +7,17 @@ class NebulaCircularButton extends StatelessWidget {
   final bool loading;
   final NebulaCircularButtonStyle? buttonStyle;
   final double size;
+  final EdgeInsetsGeometry padding;
 
   const NebulaCircularButton({
     required this.child,
     this.loading = false,
+    this.padding = const EdgeInsetsDirectional.all(4),
     this.onPress,
     this.buttonStyle,
     this.size = 48,
     super.key,
   });
-
-  static const _padding = EdgeInsetsDirectional.all(4);
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +40,11 @@ class NebulaCircularButton extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: Padding(
-            padding: _padding,
+            padding: padding,
             child: Center(
               child: loading ? SizedBox(
-                width: (size - _padding.vertical) / 2,
-                height: (size - _padding.vertical) / 2,
+                width: (size - padding.vertical) / 2,
+                height: (size - padding.vertical) / 2,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   color: style.indicatorColor,

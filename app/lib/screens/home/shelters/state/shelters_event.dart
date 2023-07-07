@@ -13,4 +13,10 @@ class SheltersEvent with _$SheltersEvent {
     Function(GraphPage<Shelter> page)? onSuccess,
     Function(ServerException? exception)? onError,
   }) = GetSheltersNextPage;
+
+  const factory SheltersEvent.addShelter({
+    required PhotoObject<AddShelterData> shelterData,
+    Function(Shelter shelter)? onSuccess,
+    Function(ServerException? exception)? onError,
+  }) = AddShelter;
 }

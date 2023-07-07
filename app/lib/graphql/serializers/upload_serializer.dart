@@ -8,7 +8,7 @@ class UploadSerializer extends PrimitiveSerializer<MultipartFile> {
   }) {
     assert(
       serialized is List<int>,
-      "UploadSerializer expected 'Uint8List' but got ${serialized.runtimeType}",
+      "UploadSerializer expected 'List<int>' but got ${serialized.runtimeType}",
     );
     return MultipartFile.fromBytes(serialized as List<int>);
   }
@@ -16,7 +16,7 @@ class UploadSerializer extends PrimitiveSerializer<MultipartFile> {
   @override
   Object serialize(Serializers serializers, MultipartFile file, {
     FullType specifiedType = FullType.unspecified,
-  }) async => await file.finalize().first;
+  }) => file;
 
   @override
   Iterable<Type> get types => [MultipartFile];

@@ -9,6 +9,8 @@ class NebulaButton extends StatelessWidget {
   final NebulaButtonStyle? buttonStyle;
   final double? width;
   final double? height;
+  final Widget? prefixChild;
+  final Widget? suffixChild;
 
   const NebulaButton({
     this.text = '',
@@ -17,6 +19,8 @@ class NebulaButton extends StatelessWidget {
     this.buttonStyle,
     this.width,
     this.height,
+    this.prefixChild,
+    this.suffixChild,
     super.key,
   });
 
@@ -71,11 +75,22 @@ class NebulaButton extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (!loading)
+                  if (!loading) ...[
+                    if (prefixChild != null)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 12),
+                        child: prefixChild,
+                      ),
                     NebulaText(
                       text,
                       style: style.textStyle,
-                    )
+                    ),
+                    if (suffixChild != null)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 12),
+                        child: suffixChild,
+                      ),
+                  ]
                   else
                     SizedBox(
                       width: size,

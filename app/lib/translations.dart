@@ -3,6 +3,7 @@ class Translations {
   static const String unknownError = 'general.errors.unknownError';
   static const String validationError = 'general.errors.validationError';
   static const String requestFailedError = 'general.errors.requestFailed';
+  static const String fieldRequiredError = 'general.errors.fieldRequired';
   static const String or = 'general.or';
   static const String error = 'general.error';
   static const String info = 'general.info';
@@ -10,6 +11,7 @@ class Translations {
   static const String shelterRepresentative = 'general.shelterRepresentative';
   static const String user = 'general.user';
   static const String admin = 'general.admin';
+  static const String add = 'general.add';
 
   // Auth
   static const String authSignInError = 'auth.errors.signInError';
@@ -56,4 +58,11 @@ class Translations {
   static const String sheltersTitle = 'home.shelters.title';
   static const String sheltersShelters = 'home.shelters.shelters';
   static const String sheltersNoSheltersAdded = 'home.shelters.noSheltersAdded';
+  static const String sheltersAddShelter = 'home.shelters.addShelter';
+  static const String sheltersAddingNewShelter = 'home.shelters.addingNewShelter';
+  static const String sheltersName = 'home.shelters.name';
+  static const String sheltersAddress = 'home.shelters.address';
+  static const String sheltersDescription = 'home.shelters.description';
+  static const String sheltersUploadPhoto = 'home.shelters.uploadPhoto';
+  static const String sheltersRemovePhoto = 'home.shelters.removePhoto';
 }

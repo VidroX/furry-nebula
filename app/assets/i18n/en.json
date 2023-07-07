@@ -3,7 +3,8 @@
     "errors": {
       "unknownError": "An unknown error has occurred",
       "validationError": "Please check fields for errors",
-      "requestFailed": "There was an error while performing your request"
+      "requestFailed": "There was an error while performing your request",
+      "fieldRequired": "This field is required"
     },
     "or": "or",
     "error": "Error",
@@ -11,7 +12,8 @@
     "continue": "Continue",
     "shelterRepresentative": "Shelter representative",
     "user": "User",
-    "admin": "Administrator"
+    "admin": "Administrator",
+    "add": "Add"
   },
   "auth": {
     "errors": {
@@ -60,7 +62,14 @@
     "shelters": {
       "title": "Animal shelters",
       "shelters": "Shelters",
-      "noSheltersAdded": "You have not added any shelters yet.\nAdd one by pressing the plus icon in the header."
+      "noSheltersAdded": "You have not added any shelters yet.\nAdd one by pressing the plus icon in the header.",
+      "addShelter": "Add new shelter",
+      "addingNewShelter": "Adding new shelter. Please wait...",
+      "name": "Shelter name",
+      "address": "Shelter address",
+      "description": "Description",
+      "uploadPhoto": "Upload shelter photo",
+      "removePhoto": "Remove shelter photo"
     }
   }
 }

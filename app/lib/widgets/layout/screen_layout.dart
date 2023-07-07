@@ -9,6 +9,7 @@ class ScreenLayout extends StatelessWidget {
   final Widget? bottomNavigationBar;
   final bool loading;
   final EdgeInsetsGeometry padding;
+  final Color? backgroundColor;
 
   const ScreenLayout({
     required this.child,
@@ -17,12 +18,13 @@ class ScreenLayout extends StatelessWidget {
     this.bottomNavigationBar,
     this.loading = false,
     this.padding = const EdgeInsetsDirectional.all(16),
+    this.backgroundColor,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: context.colors.backgroundColor,
+    backgroundColor: backgroundColor ?? context.colors.backgroundColor,
     bottomNavigationBar: loading ? null : bottomNavigationBar,
     body: Container(
       width: MediaQuery.of(context).size.width,

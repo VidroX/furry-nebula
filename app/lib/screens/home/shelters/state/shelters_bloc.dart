@@ -4,6 +4,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/models/pagination/graph_page.dart';
 import 'package:furry_nebula/models/pagination/pagination.dart';
+import 'package:furry_nebula/models/photo_object.dart';
+import 'package:furry_nebula/models/shelter/add_shelter_data.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 import 'package:furry_nebula/repositories/shelter/shelter_repository.dart';
 
@@ -21,6 +23,8 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
               _getShelters(getSheltersData, emit),
           nextPage: (nextPageData) =>
               _nextPage(nextPageData, emit),
+          addShelter: (addShelterData) =>
+              _addShelter(addShelterData, emit),
         ),
     );
   }
@@ -69,5 +73,35 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
       onSuccess: nextPageData.onSuccess,
       onError: nextPageData.onError,
     ),);
+  }
+
+  Future<void> _addShelter(
+      AddShelter addShelterData,
+      Emitter<SheltersState> emit,
+  ) async {
+    if (state.isAddingShelter) {
+      return;
+    }
+
+    emit(state.copyWith(isAddingShelter: true));
+
+    try {
+      final shelter = await shelterRepository.addShelter(
+        name: addShelterData.shelterData.object.name,
+        address: addShelterData.shelterData.object.address,
+        info: addShelterData.shelterData.object.info,
+        photo: addShelterData.shelterData.photo,
+      );
+
+      emit(state.copyWith(
+        shelters: [shelter, ...state.shelters],
+      ),);
+
+      addShelterData.onSuccess?.call(shelter);
+    } on RequestFailedException catch(e) {
+      addShelterData.onError?.call(e);
+    } finally {
+      emit(state.copyWith(isAddingShelter: false));
+    }
   }
 }

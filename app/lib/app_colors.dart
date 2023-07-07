@@ -44,6 +44,11 @@ class AppColors extends ThemeExtension<AppColors> {
           other.theme.backgroundColor,
           t,
         ) ?? theme.backgroundColor,
+        inverseBackgroundColor: Color.lerp(
+          theme.inverseBackgroundColor,
+          other.theme.inverseBackgroundColor,
+          t,
+        ) ?? theme.inverseBackgroundColor,
         surfaceColor: Color.lerp(
           theme.surfaceColor,
           other.theme.surfaceColor,
@@ -83,6 +88,7 @@ class AppColorsTheme with _$AppColorsTheme {
     required AppThemeName themeName,
     required bool isLight,
     required Color backgroundColor,
+    required Color inverseBackgroundColor,
     required Color surfaceColor,
     required Color containerColor,
     required Map<AppColorsType, Color> primaryColors,
@@ -115,6 +121,7 @@ class AppColorsTheme with _$AppColorsTheme {
     themeName: AppThemeName.light,
     isLight: true,
     backgroundColor: Color(0xFFF2F2F2),
+    inverseBackgroundColor: Color(0xFF1B1B1E),
     surfaceColor: Color(0xFFFFFFFF),
     containerColor: Color(0xFFFFFFFF),
     primaryColors: {
@@ -161,6 +168,7 @@ class AppColorsTheme with _$AppColorsTheme {
     themeName: AppThemeName.dark,
     isLight: false,
     backgroundColor: Color(0xFF1B1B1E),
+    inverseBackgroundColor: Color(0xFFF2F2F2),
     surfaceColor: Color(0xFFFFFFFF),
     containerColor: Color(0xFF393941),
     primaryColors: {

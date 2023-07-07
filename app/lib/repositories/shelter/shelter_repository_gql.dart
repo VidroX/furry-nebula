@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:ferry/typed_links.dart';
 import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
+import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
-import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/fragments/__generated__/shelter_animal_fragment.data.gql.dart';
 import 'package:furry_nebula/graphql/fragments/__generated__/shelter_fragment.data.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter.req.gql.dart';
@@ -70,12 +71,13 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
     final request = GAddUserShelterReq(
           (b) => b
             ..vars.input = shelterInput
-            ..vars.photo = photo,
+            ..vars.photo = photo
+            ..fetchPolicy = FetchPolicy.NoCache,
     );
 
     final response = await client.ferryClient.request(request).first;
 
-    if (response.linkException is ValidationException) {
+    if (response.linkException is GeneralApiException) {
       throw response.linkException!;
     }
 
@@ -103,12 +105,13 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
     final request = GAddUserShelterAnimalReq(
           (b) => b
             ..vars.input = shelterAnimalInput
-            ..vars.photo = photo,
+            ..vars.photo = photo
+            ..fetchPolicy = FetchPolicy.NoCache,
     );
 
     final response = await client.ferryClient.request(request).first;
 
-    if (response.linkException is ValidationException) {
+    if (response.linkException is GeneralApiException) {
       throw response.linkException!;
     }
 
@@ -148,10 +151,6 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
 
     final response = await client.ferryClient.request(request).first;
 
-    if (response.linkException is ValidationException) {
-      throw response.linkException!;
-    }
-
     if (response.data?.shelterAnimals.node == null) {
       throw const RequestFailedException();
     }
@@ -182,10 +181,6 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
     );
 
     final response = await client.ferryClient.request(request).first;
-
-    if (response.linkException is ValidationException) {
-      throw response.linkException!;
-    }
 
     if (response.data?.shelters.node == null) {
       throw const RequestFailedException();
