@@ -67,10 +67,10 @@ func ProcessGraphPhotoUpload(ctx *ExtendedContext, user *model.User, upload *gra
 }
 
 func getUploadsUrl(ctx *ExtendedContext, user *model.User) string {
-	scheme := "http://"
+	scheme := "https://"
 
-	if ctx.Request.TLS != nil {
-		scheme = "https://"
+	if ctx.Request.TLS == nil && os.Getenv(environment.KeysGinMode) != "release" {
+		scheme = "http://"
 	}
 
 	var userFolder = "/"
