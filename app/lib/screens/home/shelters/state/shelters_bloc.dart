@@ -39,6 +39,14 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
 
     emit(state.copyWith(isLoading: true));
 
+    if (getSheltersData.clearFetch) {
+      emit(state.copyWith(
+        shelters: [],
+        pageInfo: const GraphPageInfo(),
+        pagination: const Pagination(),
+      ),);
+    }
+
     try {
       final shelters = await shelterRepository.getShelters(
         pagination: state.pagination,
@@ -46,7 +54,9 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
       );
 
       emit(state.copyWith(
-        shelters: [...state.shelters, ...shelters.nodes],
+        shelters: getSheltersData.clearFetch
+            ? shelters.nodes
+            : [...state.shelters, ...shelters.nodes],
         pageInfo: shelters.pageInfo,
       ),);
 
@@ -69,6 +79,7 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
     emit(state.copyWith(pagination: state.pagination.nextPage));
 
     add(SheltersEvent.getShelters(
+      clearFetch: false,
       showOnlyOwnShelters: nextPageData.showOnlyOwnShelters,
       onSuccess: nextPageData.onSuccess,
       onError: nextPageData.onError,
@@ -92,10 +103,6 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
         info: addShelterData.shelterData.object.info,
         photo: addShelterData.shelterData.photo,
       );
-
-      emit(state.copyWith(
-        shelters: [shelter, ...state.shelters],
-      ),);
 
       addShelterData.onSuccess?.call(shelter);
     } on RequestFailedException catch(e) {

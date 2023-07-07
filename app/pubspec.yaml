@@ -39,12 +39,13 @@ dependencies:
   jwt_decoder: ^2.0.1
   font_awesome_flutter: ^10.4.0
   http: ^0.13.6
-  fast_cached_network_image: ^1.2.0
   shimmer: ^3.0.0
   path_provider: ^2.0.15
   image_picker: ^1.0.0
   mime: ^1.0.4
   http_parser: ^4.0.2
+  fast_cached_network_image: ^1.2.0
+  transparent_image: ^2.0.1
 
 dev_dependencies:
   flutter_test:

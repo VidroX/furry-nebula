@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,6 +35,8 @@ class ShelterListScreen extends StatefulWidget {
 }
 
 class _ShelterListScreenState extends State<ShelterListScreen> {
+  GlobalKey<NebulaApiGridState> _gridKey = GlobalKey();
+
   final _bloc = injector.get<SheltersBloc>();
 
   late final UserBloc _userBloc;
@@ -45,20 +49,7 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
 
     _userBloc = BlocProvider.of<UserBloc>(context);
 
-    _bloc.add(SheltersEvent.getShelters(
-      showOnlyOwnShelters: !_userBloc.state.hasRole(UserRole.admin),
-      onSuccess: (_) => _firstLoad = false,
-      onError: (e) {
-        if (e is RequestFailedException) {
-          context.showNotification(
-            NebulaNotification.error(
-              title: context.translate(Translations.error),
-              description: context.translate(e.message),
-            ),
-          );
-        }
-      },
-    ),);
+    _fetchShelters();
   }
 
   @override
@@ -68,6 +59,7 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
       loading: state.isAddingShelter,
       title: context.translate(Translations.sheltersAddingNewShelter),
       child: NebulaApiGrid<Shelter>(
+        key: _gridKey,
         padding: const EdgeInsets.all(16),
         items: state.shelters,
         pageInfo: state.pageInfo,
@@ -137,6 +129,34 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
     ),
   );
 
+  void _fetchShelters({ bool rebuildList = false }) {
+    if (rebuildList) {
+      setState(() {
+        _gridKey = GlobalKey();
+        _firstLoad = true;
+      });
+    }
+
+    _bloc.add(SheltersEvent.getShelters(
+      showOnlyOwnShelters: !_userBloc.state.hasRole(UserRole.admin),
+      onSuccess: (_) {
+        setState(() {
+          _firstLoad = false;
+        });
+      },
+      onError: (e) {
+        if (e is RequestFailedException) {
+          context.showNotification(
+            NebulaNotification.error(
+              title: context.translate(Translations.error),
+              description: context.translate(e.message),
+            ),
+          );
+        }
+      },
+    ),);
+  }
+
   void _loadNextPage() {
     _bloc.add(SheltersEvent.nextPage(
       showOnlyOwnShelters: !_userBloc.state.hasRole(UserRole.admin),
@@ -170,6 +190,7 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
 
     _bloc.add(SheltersEvent.addShelter(
       shelterData: shelter,
+      onSuccess: (_) => _fetchShelters(rebuildList: true),
       onError: (e) => e != null && e is GeneralApiException
           ? context.showNotification(
               NebulaNotification.error(

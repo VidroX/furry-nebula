@@ -110,6 +110,42 @@ class NebulaApiGridState<T> extends State<NebulaApiGrid<T>> {
     });
   }
 
+  void resetAll() {
+    _gridKey.currentState?.removeAllItems(
+      (context, animation) => FadeTransition(
+        opacity: animation,
+        child: const SizedBox.shrink(),
+      ),
+      duration: Duration.zero,
+    );
+
+    _gridKey.currentState?.insertAllItems(
+      0,
+      widget.items?.length ?? 0,
+      duration: _animationDuration,
+    );
+  }
+
+  void resetIndex(int index) {
+    if (index < 0 || index >= (widget.items?.length ?? 0)) {
+      return;
+    }
+
+    _gridKey.currentState?.removeItem(
+      index,
+      (context, animation) => FadeTransition(
+        opacity: animation,
+        child: const SizedBox.shrink(),
+      ),
+      duration: Duration.zero,
+    );
+
+    _gridKey.currentState?.insertItem(
+      0,
+      duration: _animationDuration,
+    );
+  }
+
   void _loadNextPage() {
     if ((widget.items?.isEmpty ?? true) ||
         !(widget.pageInfo?.hasNextPage ?? false)) {

@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/widgets/ui/nebula_text.dart';
 import 'package:furry_nebula/widgets/ui/neumorphic_container.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ImageCard extends StatelessWidget {
   final String title;
@@ -37,8 +41,26 @@ class ImageCard extends StatelessWidget {
               if (imageUrl != null)
                 FastCachedImage(
                   url: imageUrl!,
-                  errorBuilder: (_, __, ___) =>
-                      _MissingImage(size: missingImageSize),
+                  errorBuilder: (_, __, ___) => FutureBuilder<Uint8List?>(
+                    future: _fetchRawImage(imageUrl),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return _MissingImage(size: missingImageSize);
+                      }
+
+                      return FadeInImage(
+                        image: MemoryImage(snapshot.data!),
+                        placeholder: MemoryImage(kTransparentImage),
+                        placeholderErrorBuilder: (_, __, ___) =>
+                            _MissingImage(size: missingImageSize),
+                        imageErrorBuilder: (_, __, ___) =>
+                            _MissingImage(size: missingImageSize),
+                        fit: BoxFit.cover,
+                        width: double.maxFinite,
+                        height: double.maxFinite,
+                      );
+                    },
+                  ),
                   loadingBuilder: (_, __) =>
                       _MissingImage(size: missingImageSize),
                   fit: BoxFit.cover,
@@ -72,6 +94,21 @@ class ImageCard extends StatelessWidget {
       ),
     ),
   );
+
+  Future<Uint8List?>? _fetchRawImage(String? url) async {
+    if (url == null || url.trim().isEmpty) {
+      return null;
+    }
+
+    final res = await Dio().get<Uint8List>(
+      url.trim(),
+      options: Options(
+        responseType: ResponseType.bytes,
+      ),
+    );
+
+    return res.data;
+  }
 }
 
 class _MissingImage extends StatelessWidget {

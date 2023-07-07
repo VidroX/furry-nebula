@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
+import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/fragments/__generated__/user_fragment.data.gql.dart';
@@ -81,7 +82,8 @@ class UserRepositoryGraphQL extends UserRepository {
 
     final response = await client.ferryClient.request(request).first;
 
-    if (response.linkException is ValidationException) {
+    if (response.linkException is ValidationException ||
+        response.linkException is GeneralApiException) {
       throw response.linkException!;
     }
 
@@ -128,7 +130,8 @@ class UserRepositoryGraphQL extends UserRepository {
 
     final response = await client.ferryClient.request(request).first;
 
-    if (response.linkException is ValidationException) {
+    if (response.linkException is ValidationException ||
+        response.linkException is GeneralApiException) {
       throw response.linkException!;
     }
 

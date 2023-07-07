@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/extensions/string_extension.dart';
+import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/models/user/user_registration_role.dart';
 import 'package:furry_nebula/router/router.gr.dart';
@@ -219,6 +220,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               NebulaNotification.error(
                 title: context.translate(Translations.error),
                 description: context.translate(e.message),
+              ),
+            );
+          } else if (e is GeneralApiException) {
+            context.showNotification(
+              NebulaNotification.error(
+                title: context.translate(Translations.error),
+                description: context.translate(e.messages[0]),
               ),
             );
           }
