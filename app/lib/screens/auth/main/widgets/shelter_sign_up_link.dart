@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/translations.dart';
-import 'package:furry_nebula/widgets/ui/nebula_link.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_link.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 
 class ShelterSignUpLink extends StatelessWidget {
   final NebulaTextStyle? textStyle;

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/extensions/string_extension.dart';
-import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
-import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/auth/state/auth_bloc.dart';
 import 'package:furry_nebula/screens/auth/widgets/auth_header.dart';
@@ -12,11 +10,11 @@ import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/validators/api_error_validator.dart';
 import 'package:furry_nebula/widgets/layout/screen_layout.dart';
-import 'package:furry_nebula/widgets/ui/nebula_button.dart';
-import 'package:furry_nebula/widgets/ui/nebula_form_field.dart';
-import 'package:furry_nebula/widgets/ui/nebula_logo.dart';
-import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
-import 'package:furry_nebula/widgets/ui/nebula_password_field.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_button.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_form_field.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_logo.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_notification.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_password_field.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -137,21 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
         onError: (e) {
           _formKey.currentState?.validate();
 
-          if (e is RequestFailedException) {
-            context.showNotification(
-              NebulaNotification.error(
-                title: context.translate(Translations.error),
-                description: context.translate(e.message),
-              ),
-            );
-          } else if (e is GeneralApiException) {
-            context.showNotification(
-              NebulaNotification.error(
-                title: context.translate(Translations.error),
-                description: context.translate(e.messages[0]),
-              ),
-            );
-          }
+          context.showApiError(e);
         },
       ),
     );

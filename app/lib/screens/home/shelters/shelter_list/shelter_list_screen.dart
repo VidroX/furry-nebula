@@ -5,12 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
-import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/models/photo_object.dart';
 import 'package:furry_nebula/models/shelter/add_shelter_data.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 import 'package:furry_nebula/models/user/user_role.dart';
+import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/home/shelters/shelter_list/widgets/add_shelter_modal.dart';
 import 'package:furry_nebula/screens/home/shelters/state/shelters_bloc.dart';
 import 'package:furry_nebula/screens/home/shelters/widgets/image_card.dart';
@@ -18,11 +17,11 @@ import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/widgets/layout/modal_layout.dart';
+import 'package:furry_nebula/widgets/not_found.dart';
 import 'package:furry_nebula/widgets/ui/loading_barrier.dart';
-import 'package:furry_nebula/widgets/ui/nebula_api_grid.dart';
-import 'package:furry_nebula/widgets/ui/nebula_circular_button.dart';
-import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_api_grid.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_circular_button.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 
 @RoutePage()
 class ShelterListScreen extends StatefulWidget {
@@ -96,34 +95,17 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
             ],
           ),
         ),
-        noItemsBuilder: (context) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FaIcon(
-                FontAwesomeIcons.tents,
-                size: 128,
-                color: context.colors.hint,
-              ),
-              const SizedBox(height: 32),
-              NebulaText(
-                context.translate(
-                  Translations.sheltersNoSheltersAdded,
-                ),
-                maxLines: 3,
-                textAlign: TextAlign.center,
-                style: context.typography
-                    .withFontWeight(FontWeight.w500)
-                    .withFontSize(AppFontSize.extraNormal)
-                    .withColor(context.colors.hint),
-              ),
-            ],
+        noItemsBuilder: (context) => NotFound(
+          title: context.translate(
+            Translations.sheltersNoSheltersAdded,
           ),
+          icon: FontAwesomeIcons.tents,
         ),
         onLoadNextPage: _loadNextPage,
         itemBuilder: (context, item, index) => ImageCard(
           title: item.name,
           imageUrl: item.photo,
+          onTap: () => _openShelterDetails(item),
         ),
       ),
     ),
@@ -144,32 +126,14 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
           _firstLoad = false;
         });
       },
-      onError: (e) {
-        if (e is RequestFailedException) {
-          context.showNotification(
-            NebulaNotification.error(
-              title: context.translate(Translations.error),
-              description: context.translate(e.message),
-            ),
-          );
-        }
-      },
+      onError: context.showApiError,
     ),);
   }
 
   void _loadNextPage() {
     _bloc.add(SheltersEvent.nextPage(
       showOnlyOwnShelters: !_userBloc.state.hasRole(UserRole.admin),
-      onError: (e) {
-        if (e is RequestFailedException) {
-          context.showNotification(
-            NebulaNotification.error(
-              title: context.translate(Translations.error),
-              description: context.translate(e.message),
-            ),
-          );
-        }
-      },
+      onError: context.showApiError,
     ),);
   }
 
@@ -191,14 +155,23 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
     _bloc.add(SheltersEvent.addShelter(
       shelterData: shelter,
       onSuccess: (_) => _fetchShelters(rebuildList: true),
-      onError: (e) => e != null && e is GeneralApiException
-          ? context.showNotification(
-              NebulaNotification.error(
-                title: context.translate(Translations.error),
-                description: context.translate(e.messages[0]),
-              ),
-            )
-          : null,
+      onError: context.showApiError,
     ),);
+  }
+
+  Future<void> _openShelterDetails(Shelter shelter) async {
+    if (!mounted) {
+      return;
+    }
+
+    final isRefreshNeeded = await context.pushRoute<bool>(
+      ShelterDetailsRoute(shelterId: shelter.id, shelter: shelter),
+    );
+
+    if (!mounted || isRefreshNeeded == null || !isRefreshNeeded) {
+      return;
+    }
+
+    _fetchShelters(rebuildList: true);
   }
 }

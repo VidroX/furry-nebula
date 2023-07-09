@@ -20,4 +20,10 @@ class SheltersEvent with _$SheltersEvent {
     Function(Shelter shelter)? onSuccess,
     Function(ServerException? exception)? onError,
   }) = AddShelter;
+
+  const factory SheltersEvent.deleteShelter({
+    required Shelter shelter,
+    VoidCallback? onSuccess,
+    Function(ServerException? exception)? onError,
+  }) = DeleteShelter;
 }

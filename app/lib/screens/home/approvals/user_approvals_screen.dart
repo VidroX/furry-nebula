@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/models/user/user.dart';
 import 'package:furry_nebula/screens/home/approvals/state/user_approvals_bloc.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
-import 'package:furry_nebula/widgets/ui/nebula_api_list.dart';
-import 'package:furry_nebula/widgets/ui/nebula_circular_button.dart';
-import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/not_found.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_api_list.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_circular_button.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 import 'package:furry_nebula/widgets/ui/neumorphic_container.dart';
 
 @RoutePage()
@@ -36,16 +35,7 @@ class _UserApprovalsScreenState extends State<UserApprovalsScreen> {
 
     _bloc.add(UserApprovalsEvent.getUnapprovedUsers(
       onSuccess: (_) => _firstLoad = false,
-      onError: (e) {
-        if (e is RequestFailedException) {
-          context.showNotification(
-            NebulaNotification.error(
-              title: context.translate(Translations.error),
-              description: context.translate(e.message),
-            ),
-          );
-        }
-      },
+      onError: context.showApiError,
     ),);
   }
 
@@ -77,29 +67,11 @@ class _UserApprovalsScreenState extends State<UserApprovalsScreen> {
               .withFontSize(AppFontSize.extraLarge),
         ),
       ),
-      noItemsBuilder: (context) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FaIcon(
-              FontAwesomeIcons.usersRays,
-              size: 128,
-              color: context.colors.hint,
-            ),
-            const SizedBox(height: 32),
-            NebulaText(
-              context.translate(
-                Translations.userApprovalsUsersNoUsersPendingApproval,
-              ),
-              maxLines: 3,
-              textAlign: TextAlign.center,
-              style: context.typography
-                  .withFontWeight(FontWeight.w500)
-                  .withFontSize(AppFontSize.extraNormal)
-                  .withColor(context.colors.hint),
-            ),
-          ],
+      noItemsBuilder: (context) => NotFound(
+        title: context.translate(
+          Translations.userApprovalsUsersNoUsersPendingApproval,
         ),
+        icon: FontAwesomeIcons.users,
       ),
       onLoadNextPage: _loadNextPage,
       itemBuilder: (context, item, index) => Padding(
@@ -119,16 +91,7 @@ class _UserApprovalsScreenState extends State<UserApprovalsScreen> {
 
   void _loadNextPage() {
     _bloc.add(UserApprovalsEvent.nextPage(
-      onError: (e) {
-        if (e is RequestFailedException) {
-          context.showNotification(
-            NebulaNotification.error(
-              title: context.translate(Translations.error),
-              description: context.translate(e.message),
-            ),
-          );
-        }
-      },
+      onError: context.showApiError,
     ),);
   }
 

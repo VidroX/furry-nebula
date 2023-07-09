@@ -4,9 +4,9 @@ part of 'pets_bloc.dart';
 class PetsState with _$PetsState {
   const factory PetsState({
     @Default(false) bool isLoading,
+    @Default(false) bool isAddingPet,
     @Default(Pagination()) Pagination pagination,
-    AnimalType? selectedAnimalType,
-    List<Shelter>? selectedShelters,
+    @Default(PetsFilter()) PetsFilter filters,
     @Default([]) List<ShelterAnimal> shelterAnimals,
     @Default(GraphPageInfo()) GraphPageInfo pageInfo,
   }) = Initial;

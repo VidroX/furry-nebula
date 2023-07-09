@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 
 class LoadingBarrier extends StatelessWidget {
   final bool loading;

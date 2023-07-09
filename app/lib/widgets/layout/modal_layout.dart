@@ -2,8 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/widgets/ui/nebula_circular_button.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_circular_button.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 
 class ModalLayout extends StatelessWidget {
   final String title;
@@ -13,18 +13,15 @@ class ModalLayout extends StatelessWidget {
   const ModalLayout({
     required this.title,
     required this.child,
-    this.padding = const EdgeInsetsDirectional.symmetric(
-      vertical: 12,
-      horizontal: 16,
-    ),
+    this.padding = const EdgeInsetsDirectional.all(16),
     super.key,
   });
 
   @override
   Widget build(BuildContext context) => DraggableScrollableSheet(
     expand: false,
-    minChildSize: 0.75,
-    initialChildSize: 0.75,
+    minChildSize: 0.9,
+    initialChildSize: 0.9,
     builder: (context, scrollController) => SingleChildScrollView(
       padding: padding,
       controller: scrollController,
@@ -40,7 +37,7 @@ class ModalLayout extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: context.typography
-                      .withFontSize(AppFontSize.extraNormal)
+                      .withFontSize(AppFontSize.large)
                       .withFontWeight(FontWeight.w500),
                 ),
               ),
@@ -66,10 +63,7 @@ class ModalLayout extends StatelessWidget {
 Future<T?> showNebulaBottomModal<T>({
   required BuildContext context,
   required Widget child,
-  EdgeInsetsGeometry padding = const EdgeInsetsDirectional.symmetric(
-    vertical: 12,
-    horizontal: 16,
-  ),
+  EdgeInsetsGeometry padding = const EdgeInsetsDirectional.all(16),
   String title = '',
   bool useRootNavigator = false,
 }) => showModalBottomSheet<T>(

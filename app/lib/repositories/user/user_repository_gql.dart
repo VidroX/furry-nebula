@@ -1,3 +1,4 @@
+import 'package:ferry/ferry.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
@@ -46,13 +47,9 @@ class UserRepositoryGraphQL extends UserRepository {
 
   @override
   Future<User> getCurrentUser() async {
-    final request = GGetCurrentUserReq();
-
-    final cachedUser = client.ferryClient.cache.readQuery(request);
-
-    if (cachedUser != null) {
-      return _buildUser(cachedUser.user);
-    }
+    final request = GGetCurrentUserReq(
+          (b) => b..fetchPolicy = FetchPolicy.CacheFirst,
+    );
 
     final response = await client.ferryClient.request(request).first;
     final user = response.data?.user;

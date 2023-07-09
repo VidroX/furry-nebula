@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
@@ -9,8 +8,9 @@ import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/widgets/layout/expandable_scroll_view.dart';
-import 'package:furry_nebula/widgets/ui/nebula_button.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/details_list.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_button.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 import 'package:furry_nebula/widgets/ui/neumorphic_container.dart';
 import 'package:intl/intl.dart';
 
@@ -57,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _ProfileContainer(
             title: context.translate(Translations.profilePrimaryInfo),
             children: [
-              _PrimaryInfoContainer(
+              DetailsList(
                 titles: [
                   context.translate(Translations.profileFirstName),
                   context.translate(Translations.profileLastName),
@@ -98,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _logout() {
     _bloc.add(
       UserEvent.logout(
-        onFinish: () => context.replaceRoute(const AuthMainRoute()),
+        onFinish: () => context.router.root.replace(const AuthMainRoute()),
       ),
     );
   }
@@ -132,53 +132,5 @@ class _ProfileContainer extends StatelessWidget {
         ...children,
       ],
     ),
-  );
-}
-
-class _PrimaryInfoContainer extends StatelessWidget {
-  final List<String> titles;
-  final List<String> details;
-
-  const _PrimaryInfoContainer({
-    this.titles = const [],
-    this.details = const [],
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: titles.mapIndexed((index, title) => Padding(
-          padding: index == titles.length
-              ? EdgeInsets.zero
-              : const EdgeInsetsDirectional.only(end: 24, bottom: 6),
-          child: NebulaText(
-            '$title:',
-          ),
-        ),).toList(),
-      ),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: details.mapIndexed((index, detail) => Padding(
-            padding: index == titles.length
-                ? EdgeInsets.zero
-                : const EdgeInsetsDirectional.only(bottom: 6),
-            child: NebulaText(
-              detail,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),).toList(),
-        ),
-      ),
-    ],
   );
 }

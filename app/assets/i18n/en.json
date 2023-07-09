@@ -13,7 +13,12 @@
     "shelterRepresentative": "Shelter representative",
     "user": "User",
     "admin": "Administrator",
-    "add": "Add"
+    "add": "Add",
+    "deleteConfirmation": "Delete Confirmation",
+    "removeConfirmation": "Remove Confirmation",
+    "delete": "Delete",
+    "remove": "Remove",
+    "cancel": "Cancel"
   },
   "auth": {
     "errors": {
@@ -71,5 +76,35 @@
       "uploadPhoto": "Upload shelter photo",
       "removePhoto": "Remove shelter photo"
     }
+  },
+  "shelterDetails": {
+    "errors": {
+      "notFound": "Requested shelter not found"
+    },
+    "deletePrompt": "Are you sure that you want to delete {shelter} shelter?",
+    "deleteProgress": "Deleting {shelter} shelter. Please wait...",
+    "deletedSuccessfully": "Shelter {shelter} has been successfully deleted!",
+    "viewShelterAnimals": "View animals from this shelter",
+    "addAnimal": {
+      "title": "Add new animal to this shelter",
+      "name": "Animal name",
+      "description": "Animal description",
+      "animalType": "Animal type",
+      "uploadAnimalPhoto": "Upload animal photo",
+      "removeAnimalPhoto": "Remove animal photo",
+      "success": "New pet has been successfully added to this shelter!",
+      "addProgress": "Adding new animal to the shelter. Please wait..."
+    }
+  },
+  "petDetails": {
+    "errors": {
+      "notFound": "Requested pet was not found in the requested shelter or it was already adopted"
+    }
+  },
+  "animalTypes": {
+    "dog": "Dog",
+    "cat": "Cat",
+    "bird": "Bird",
+    "rabbit": "Rabbit"
   }
 }

@@ -3,13 +3,16 @@ import 'package:ferry/typed_links.dart';
 import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
+import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/fragments/__generated__/shelter_animal_fragment.data.gql.dart';
 import 'package:furry_nebula/graphql/fragments/__generated__/shelter_fragment.data.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter_animal.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/delete_shelter.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/remove_animal.req.gql.dart';
+import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_animal_by_id.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_animals.req.gql.dart';
+import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_by_id.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelters.req.gql.dart';
 import 'package:furry_nebula/models/pagination/graph_page.dart';
 import 'package:furry_nebula/models/pagination/pagination.dart';
@@ -19,6 +22,7 @@ import 'package:furry_nebula/models/shelter/shelter_animal.dart';
 import 'package:furry_nebula/models/user/user.dart';
 import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/repositories/shelter/shelter_repository.dart';
+import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
 import 'package:furry_nebula/services/api_client.dart';
 
 class ShelterRepositoryGraphQL extends ShelterRepository {
@@ -77,7 +81,8 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
 
     final response = await client.ferryClient.request(request).first;
 
-    if (response.linkException is GeneralApiException) {
+    if (response.linkException is GeneralApiException ||
+        response.linkException is ValidationException) {
       throw response.linkException!;
     }
 
@@ -111,7 +116,8 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
 
     final response = await client.ferryClient.request(request).first;
 
-    if (response.linkException is GeneralApiException) {
+    if (response.linkException is GeneralApiException ||
+        response.linkException is ValidationException) {
       throw response.linkException!;
     }
 
@@ -136,17 +142,16 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
   @override
   Future<GraphPage<ShelterAnimal>> getShelterAnimals({
     Pagination pagination = const Pagination(),
-    String? shelterId,
-    AnimalType? animalType,
+    bool shouldGetFromCacheFirst = true,
+    PetsFilter filters = const PetsFilter(),
   }) async {
-    final animalFilters = GAnimalFiltersBuilder()
-      ..shelterId = shelterId
-      ..animal = animalType?.toGAnimal;
-
     final request = GGetShelterAnimalsReq(
           (b) => b
-            ..vars.filters = animalFilters
-            ..vars.pagination = pagination.toGPaginationBuilder,
+            ..vars.filters = filters.toGAnimalFiltersBuilder
+            ..vars.pagination = pagination.toGPaginationBuilder
+            ..fetchPolicy = shouldGetFromCacheFirst
+                ? FetchPolicy.CacheFirst
+                : FetchPolicy.NetworkOnly,
     );
 
     final response = await client.ferryClient.request(request).first;
@@ -169,6 +174,7 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
   @override
   Future<GraphPage<Shelter>> getShelters({
     Pagination pagination = const Pagination(),
+    bool shouldGetFromCacheFirst = true,
     bool? showOnlyOwnShelters,
   }) async {
     final shelterFilters = GShelterFiltersBuilder()
@@ -177,7 +183,10 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
     final request = GGetSheltersReq(
           (b) => b
             ..vars.filters = shelterFilters
-            ..vars.pagination = pagination.toGPaginationBuilder,
+            ..vars.pagination = pagination.toGPaginationBuilder
+            ..fetchPolicy = shouldGetFromCacheFirst
+                ? FetchPolicy.CacheFirst
+                : FetchPolicy.NetworkOnly,
     );
 
     final response = await client.ferryClient.request(request).first;
@@ -206,5 +215,31 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
     if (response.linkException != null) {
       throw const RequestFailedException();
     }
+  }
+
+  @override
+  Future<ShelterAnimal> getShelterAnimalById(String id) async {
+    final request = GGetShelterAnimalByIdReq((b) => b..vars.id = id);
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.data?.shelterAnimal == null) {
+      throw const RequestFailedException();
+    }
+
+    return _buildShelterAnimal(response.data!.shelterAnimal);
+  }
+
+  @override
+  Future<Shelter> getShelterById(String id) async {
+    final request = GGetShelterByIdReq((b) => b..vars.id = id);
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.data?.shelter == null) {
+      throw const RequestFailedException();
+    }
+
+    return _buildShelter(response.data!.shelter);
   }
 }

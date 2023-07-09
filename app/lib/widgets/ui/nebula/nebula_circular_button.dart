@@ -105,6 +105,22 @@ class NebulaCircularButtonStyle {
         border: Border.all(color: context.colors.backgroundColor, width: 2),
       );
 
+  factory NebulaCircularButtonStyle.container(BuildContext context) =>
+      NebulaCircularButtonStyle(
+        backgroundColor: context.colors.containerColor,
+        indicatorColor: context.colors.primary,
+        splashColor: context.colors.primary,
+      );
+
+  factory NebulaCircularButtonStyle.outlinedContainer(BuildContext context) =>
+      NebulaCircularButtonStyle(
+        backgroundColor: Colors.transparent,
+        indicatorColor: context.colors.containerColor,
+        highlightColor: context.colors.containerColor.withOpacity(0.15),
+        splashColor: context.colors.containerColor.withOpacity(0.05),
+        border: Border.all(color: context.colors.containerColor, width: 2),
+      );
+
   factory NebulaCircularButtonStyle.clear(BuildContext context) =>
       NebulaCircularButtonStyle(
         backgroundColor: Colors.transparent,

@@ -11,7 +11,7 @@ import 'package:furry_nebula/app_theme.dart';
 import 'package:furry_nebula/environment_constants.dart';
 import 'package:furry_nebula/router/router.dart';
 import 'package:furry_nebula/services/injector.dart';
-import 'package:furry_nebula/widgets/ui/nebula_notification.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_notification.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -119,9 +119,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
             translationLoader: FileTranslationLoader(
               basePath: 'assets/i18n',
             ),
-            missingTranslationHandler: (key, locale) {
-              log("--- Missing Key: $key, languageCode: ${locale?.languageCode}");
-            },
           ),
           ...GlobalMaterialLocalizations.delegates,
           GlobalWidgetsLocalizations.delegate,

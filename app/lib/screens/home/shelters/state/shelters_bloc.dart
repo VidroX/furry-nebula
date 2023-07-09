@@ -1,4 +1,5 @@
 import 'package:ferry/ferry.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
@@ -25,6 +26,8 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
               _nextPage(nextPageData, emit),
           addShelter: (addShelterData) =>
               _addShelter(addShelterData, emit),
+          deleteShelter: (deleteShelterData) =>
+              _deleteShelter(deleteShelterData, emit),
         ),
     );
   }
@@ -51,6 +54,7 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
       final shelters = await shelterRepository.getShelters(
         pagination: state.pagination,
         showOnlyOwnShelters: getSheltersData.showOnlyOwnShelters,
+        shouldGetFromCacheFirst: !getSheltersData.clearFetch,
       );
 
       emit(state.copyWith(
@@ -105,10 +109,33 @@ class SheltersBloc extends Bloc<SheltersEvent, SheltersState> {
       );
 
       addShelterData.onSuccess?.call(shelter);
-    } on RequestFailedException catch(e) {
+    } on ServerException catch(e) {
       addShelterData.onError?.call(e);
     } finally {
       emit(state.copyWith(isAddingShelter: false));
+    }
+  }
+
+  Future<void> _deleteShelter(
+      DeleteShelter deleteShelterData,
+      Emitter<SheltersState> emit,
+  ) async {
+    if (state.isDeletingShelter) {
+      return;
+    }
+
+    emit(state.copyWith(isDeletingShelter: true));
+
+    try {
+      await shelterRepository.deleteShelter(
+        shelterId: deleteShelterData.shelter.id,
+      );
+
+      deleteShelterData.onSuccess?.call();
+    } on ServerException catch(e) {
+      deleteShelterData.onError?.call(e);
+    } finally {
+      emit(state.copyWith(isDeletingShelter: false));
     }
   }
 }

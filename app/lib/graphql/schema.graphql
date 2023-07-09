@@ -46,6 +46,10 @@ type PageInfo {
 }
 
 type Query {
+    "Get animal shelter by its id. Authenticated user is required."
+    shelter(id: ID!): Shelter!
+    "Get shelter animal by its id. Authenticated user is required."
+    shelterAnimal(id: ID!): ShelterAnimal!
     "Get the list of animals in shelters. Authenticated user is required."
     shelterAnimals(filters: AnimalFilters, pagination: Pagination): ShelterAnimalConnection!
     "Get the list of shelters added by shelter representatives. Authenticated user is required."

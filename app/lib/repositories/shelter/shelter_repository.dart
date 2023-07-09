@@ -4,18 +4,24 @@ import 'package:furry_nebula/models/pagination/pagination.dart';
 import 'package:furry_nebula/models/shelter/animal_type.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 import 'package:furry_nebula/models/shelter/shelter_animal.dart';
+import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
 
 abstract class ShelterRepository {
   Future<GraphPage<Shelter>> getShelters({
     Pagination pagination = const Pagination(),
+    bool shouldGetFromCacheFirst = true,
     bool? showOnlyOwnShelters,
   });
 
+  Future<Shelter> getShelterById(String id);
+
   Future<GraphPage<ShelterAnimal>> getShelterAnimals({
     Pagination pagination = const Pagination(),
-    String? shelterId,
-    AnimalType? animalType,
+    bool shouldGetFromCacheFirst = true,
+    PetsFilter filters = const PetsFilter(),
   });
+
+  Future<ShelterAnimal> getShelterAnimalById(String id);
 
   Future<Shelter> addShelter({
     required String name,

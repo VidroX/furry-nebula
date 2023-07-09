@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 
 class NebulaButton extends StatelessWidget {
   final String text;
@@ -30,6 +30,8 @@ class NebulaButton extends StatelessWidget {
     VoidCallback? onPress,
     NebulaButtonStyle? buttonStyle,
     double? height,
+    Widget? prefixChild,
+    Widget? suffixChild,
   }) => NebulaButton(
     text: text,
     loading: loading,
@@ -37,6 +39,8 @@ class NebulaButton extends StatelessWidget {
     buttonStyle: buttonStyle,
     height: height,
     width: double.maxFinite,
+    prefixChild: prefixChild,
+    suffixChild: suffixChild,
   );
 
   static const _padding = EdgeInsetsDirectional.symmetric(
@@ -172,6 +176,27 @@ class NebulaButtonStyle {
         highlightColor: context.colors.backgroundColor.withOpacity(0.15),
         splashColor: context.colors.backgroundColor.withOpacity(0.05),
         border: Border.all(color: context.colors.backgroundColor),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
+      );
+
+  factory NebulaButtonStyle.container(BuildContext context) =>
+      NebulaButtonStyle(
+        backgroundColor: context.colors.containerColor,
+        textStyle: context.typography.withColor(context.colors.text),
+        indicatorColor: context.colors.primary,
+        splashColor: context.colors.primary,
+        border: Border.all(color: context.colors.containerColor),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
+      );
+
+  factory NebulaButtonStyle.outlinedContainer(BuildContext context) =>
+      NebulaButtonStyle(
+        backgroundColor: Colors.transparent,
+        textStyle: context.typography.withColor(context.colors.containerColor),
+        indicatorColor: context.colors.containerColor,
+        highlightColor: context.colors.containerColor.withOpacity(0.15),
+        splashColor: context.colors.containerColor.withOpacity(0.05),
+        border: Border.all(color: context.colors.containerColor),
         borderRadius: const BorderRadius.all(Radius.circular(6)),
       );
 

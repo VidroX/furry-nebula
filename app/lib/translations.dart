@@ -12,6 +12,11 @@ class Translations {
   static const String user = 'general.user';
   static const String admin = 'general.admin';
   static const String add = 'general.add';
+  static const String deleteConfirmation = 'general.deleteConfirmation';
+  static const String removeConfirmation = 'general.removeConfirmation';
+  static const String delete = 'general.delete';
+  static const String remove = 'general.remove';
+  static const String cancel = 'general.cancel';
 
   // Auth
   static const String authSignInError = 'auth.errors.signInError';
@@ -65,4 +70,28 @@ class Translations {
   static const String sheltersDescription = 'home.shelters.description';
   static const String sheltersUploadPhoto = 'home.shelters.uploadPhoto';
   static const String sheltersRemovePhoto = 'home.shelters.removePhoto';
+
+  // Shelter Details
+  static const String shelterDetailsErrorsNotFound = 'shelterDetails.errors.notFound';
+  static const String shelterDetailsDeletePrompt = 'shelterDetails.deletePrompt';
+  static const String shelterDetailsDeleteProgress = 'shelterDetails.deleteProgress';
+  static const String shelterDetailsDeletedSuccessfully = 'shelterDetails.deletedSuccessfully';
+  static const String shelterDetailsViewShelterAnimals = 'shelterDetails.viewShelterAnimals';
+  static const String shelterDetailsAddAnimalTitle = 'shelterDetails.addAnimal.title';
+  static const String shelterDetailsAddAnimalName = 'shelterDetails.addAnimal.name';
+  static const String shelterDetailsAddAnimalDescription = 'shelterDetails.addAnimal.description';
+  static const String shelterDetailsAddAnimalAnimalType = 'shelterDetails.addAnimal.animalType';
+  static const String shelterDetailsAddAnimalUploadAnimalPhoto = 'shelterDetails.addAnimal.uploadAnimalPhoto';
+  static const String shelterDetailsAddAnimalRemoveAnimalPhoto = 'shelterDetails.addAnimal.removeAnimalPhoto';
+  static const String shelterDetailsAddAnimalSuccess = 'shelterDetails.addAnimal.success';
+  static const String shelterDetailsAddAnimalAddProgress = 'shelterDetails.addAnimal.addProgress';
+
+  // Pet Details
+  static const String petDetailsErrorsNotFound = 'petDetails.errors.notFound';
+
+  // Animal types
+  static const String animalTypesCat = 'animalTypes.cat';
+  static const String animalTypesDog = 'animalTypes.dog';
+  static const String animalTypesBird = 'animalTypes.bird';
+  static const String animalTypesRabbit = 'animalTypes.rabbit';
 }

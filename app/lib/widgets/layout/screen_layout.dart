@@ -11,13 +11,15 @@ class ScreenLayout extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final Color? backgroundColor;
 
+  static const defaultPadding = EdgeInsetsDirectional.all(16);
+
   const ScreenLayout({
     required this.child,
     this.decoration = const BoxDecoration(),
     this.scrollable = false,
     this.bottomNavigationBar,
     this.loading = false,
-    this.padding = const EdgeInsetsDirectional.all(16),
+    this.padding = defaultPadding,
     this.backgroundColor,
     super.key,
   });

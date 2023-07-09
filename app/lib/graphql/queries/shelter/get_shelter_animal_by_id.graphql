@@ -1,0 +1,7 @@
+# import '../../fragments/shelter_animal_fragment.graphql'
+
+query GetShelterAnimalById($id: ID!) {
+    shelterAnimal(id: $id) {
+        ...ShelterAnimalFragment
+    }
+}
