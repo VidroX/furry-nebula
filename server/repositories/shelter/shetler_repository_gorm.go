@@ -3,6 +3,7 @@ package shelter
 import (
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/services/database"
+	"gorm.io/gorm"
 )
 
 type ShelterRepositoryGorm struct {
@@ -153,6 +154,19 @@ func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilter
 }
 
 func (repo *ShelterRepositoryGorm) AddShelter(shelter *model.Shelter) error {
+	var total int64 = 0
+	repo.database.
+		Model(&model.Shelter{}).
+		Where(map[string]interface{}{
+			"name":    shelter.Name,
+			"deleted": false,
+		}).
+		Count(&total)
+
+	if total > 0 {
+		return gorm.ErrDuplicatedKey
+	}
+
 	return repo.database.Create(shelter).Error
 }
 

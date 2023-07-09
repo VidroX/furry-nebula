@@ -79,7 +79,7 @@ func (r *mutationResolver) AddShelterAnimal(ctx context.Context, data model.Shel
 
 	if photo != nil {
 		fPath, _ := graph.ProcessGraphPhotoUpload(gCtx, user, photo)
-		_ = shelterService.UpdateShelterPhoto(user.ID, shelterAnimal.ID, fPath)
+		_ = shelterService.UpdateShelterAnimalPhoto(user.ID, shelterAnimal.ID, fPath)
 
 		shelterAnimal.Photo = fPath
 	}
