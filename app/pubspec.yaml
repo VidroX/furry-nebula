@@ -71,5 +71,3 @@ flutter:
   assets:
     - assets/i18n/
     - assets/svg/
-    - production.env
-    - development.env
