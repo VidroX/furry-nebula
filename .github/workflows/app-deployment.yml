@@ -91,4 +91,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: furry-nebula-prod
-          path: build/app/outputs/apk/release/app-release.apk
+          path: app/build/app/outputs/flutter-apk/app-release.apk
