@@ -23,15 +23,21 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.10.5'
           channel: 'stable'
           cache: true
       
-      - run: flutter pub get
+      - name: Get dependencies
+        run: flutter pub get
 
-      - run: flutter analyze .
+      - name: Generate required files
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze code
+        run: flutter analyze .
 
   buildAndDeploy:
     name: Build and Deploy
@@ -58,22 +64,30 @@ jobs:
           echo "keyPassword=${{ secrets.KEYSTORE_KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEYSTORE_KEY_ALIAS }}" >> android/key.properties
 
-      - uses: actions/setup-java@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
       
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.10.5'
           channel: 'stable'
           cache: true
       
-      - run: flutter pub get
+      - name: Get dependencies
+        run: flutter pub get
 
-      - run: flutter build apk --release --dart-define=API_ENV=production --dart-define=API_ENDPOINT=${{ secrets.API_ENDPOINT }}
+      - name: Generate required files
+        run: dart run build_runner build --delete-conflicting-outputs
 
-      - uses: actions/upload-artifact@v3
+      - name: Build APK
+        run: flutter build apk --release --dart-define=API_ENV=production --dart-define=API_ENDPOINT=${{ secrets.API_ENDPOINT }}
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
         with:
           name: furry-nebula-prod
           path: build/app/outputs/apk/release/app-release.apk
