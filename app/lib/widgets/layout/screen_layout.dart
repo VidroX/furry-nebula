@@ -10,6 +10,7 @@ class ScreenLayout extends StatelessWidget {
   final bool loading;
   final EdgeInsetsGeometry padding;
   final Color? backgroundColor;
+  final bool? resizeToAvoidBottomInset;
 
   static const defaultPadding = EdgeInsetsDirectional.all(16);
 
@@ -21,6 +22,7 @@ class ScreenLayout extends StatelessWidget {
     this.loading = false,
     this.padding = defaultPadding,
     this.backgroundColor,
+    this.resizeToAvoidBottomInset,
     super.key,
   });
 
@@ -28,6 +30,7 @@ class ScreenLayout extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: backgroundColor ?? context.colors.backgroundColor,
     bottomNavigationBar: loading ? null : bottomNavigationBar,
+    resizeToAvoidBottomInset: resizeToAvoidBottomInset,
     body: Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,

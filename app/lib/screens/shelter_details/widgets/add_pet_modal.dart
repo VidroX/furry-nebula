@@ -47,7 +47,7 @@ class _AddPetModalState extends State<AddPetModal> {
       mainAxisSize: MainAxisSize.min,
       children: [
         NebulaDropdown<AnimalType>(
-          label: context.translate(Translations.shelterDetailsAddAnimalAnimalType),
+          label: context.translate(Translations.animalTypesTitle),
           validator: FieldLengthValidator(context).validate,
           options: _animalTypeOptions,
           selectedOption: _animalType,

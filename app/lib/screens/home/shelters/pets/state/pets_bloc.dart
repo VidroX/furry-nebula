@@ -1,4 +1,5 @@
 import 'package:ferry/ferry.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
@@ -28,6 +29,8 @@ class PetsBloc extends Bloc<PetsEvent, PetsState> {
               _setFilters(filtersData, emit),
           addPet: (petData) =>
               _addPet(petData, emit),
+          removePet: (removePetData) =>
+              _removePet(removePetData, emit),
         ),
     );
   }
@@ -126,6 +129,29 @@ class PetsBloc extends Bloc<PetsEvent, PetsState> {
       petData.onError?.call(e);
     } finally {
       emit(state.copyWith(isAddingPet: false));
+    }
+  }
+
+  Future<void> _removePet(
+      RemovePet removePetData,
+      Emitter<PetsState> emit,
+  ) async {
+    if (state.isRemovingPet) {
+      return;
+    }
+
+    emit(state.copyWith(isRemovingPet: true));
+
+    try {
+      await shelterRepository.removeShelterAnimal(
+        shelterAnimalId: removePetData.pet.id,
+      );
+
+      removePetData.onSuccess?.call();
+    } on ServerException catch(e) {
+      removePetData.onError?.call(e);
+    } finally {
+      emit(state.copyWith(isRemovingPet: false));
     }
   }
 }

@@ -5,6 +5,7 @@ class PetsState with _$PetsState {
   const factory PetsState({
     @Default(false) bool isLoading,
     @Default(false) bool isAddingPet,
+    @Default(false) bool isRemovingPet,
     @Default(Pagination()) Pagination pagination,
     @Default(PetsFilter()) PetsFilter filters,
     @Default([]) List<ShelterAnimal> shelterAnimals,

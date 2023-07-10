@@ -107,6 +107,7 @@ class _ShelterDetailsScreenState extends State<ShelterDetailsScreen> {
 
   @override
   Widget build(BuildContext context) => ScreenLayout(
+    resizeToAvoidBottomInset: true,
     padding: EdgeInsets.zero,
     child: BlocBuilder<SheltersBloc, SheltersState>(
       bloc: _sheltersBloc,
@@ -291,7 +292,7 @@ class _ShelterDetailsScreenState extends State<ShelterDetailsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     NebulaText(
-                                      context.translate(Translations.sheltersDescription),
+                                      context.translate(Translations.description),
                                       style: context.typography
                                           .withFontSize(AppFontSize.extraNormal)
                                           .withFontWeight(FontWeight.w500),
@@ -309,13 +310,13 @@ class _ShelterDetailsScreenState extends State<ShelterDetailsScreen> {
                             ),
                             onPress: () =>
                                 context.router.pushAndPopUntil(
-                                  PetsRoute(
-                                    selectedShelter: _filters.selectedShelter,
-                                    selectedShelters: _filters.selectedShelters,
-                                    animalType: _filters.animalType,
+                                  HomeBottomNavRoute(
+                                    petsFilter: _filters,
+                                    children: [
+                                      PetsRoute(),
+                                    ],
                                   ),
-                                  predicate: (route) =>
-                                    route.settings.name == HomeRoute.name,
+                                  predicate: (route) => false,
                                 ),
                             buttonStyle: NebulaButtonStyle.primary(context),
                             prefixChild: FaIcon(

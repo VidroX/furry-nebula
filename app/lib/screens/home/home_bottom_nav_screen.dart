@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/router/router.gr.dart';
+import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
@@ -14,7 +15,12 @@ import 'package:furry_nebula/widgets/layout/screen_layout.dart';
 class HomeBottomNavScreen extends StatefulWidget {
   static const routePath = '';
 
-  const HomeBottomNavScreen({super.key});
+  final PetsFilter? petsFilter;
+
+  const HomeBottomNavScreen({
+    this.petsFilter,
+    super.key,
+  });
 
   @override
   State<HomeBottomNavScreen> createState() => _HomeBottomNavScreenState();
@@ -30,7 +36,11 @@ class _HomeBottomNavScreenState extends State<HomeBottomNavScreen> {
     child: BlocBuilder<UserBloc, UserState>(
       builder: (context, state) => AutoTabsRouter(
         routes: [
-          PetsRoute(),
+          PetsRoute(
+            selectedShelter: widget.petsFilter?.selectedShelter,
+            selectedShelters: widget.petsFilter?.selectedShelters,
+            animalType: widget.petsFilter?.animalType,
+          ),
           if (state.hasRole(UserRole.shelter))
             const ShelterListRoute(),
           if (state.hasRole(UserRole.admin))

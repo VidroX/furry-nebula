@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 typedef NebulaValidator = String? Function(String? value);
 
 class NebulaFormField extends StatelessWidget {
+  final FocusNode? focusNode;
   final String? label;
   final AutovalidateMode autovalidateMode;
   final bool obscureText;
@@ -15,6 +16,7 @@ class NebulaFormField extends StatelessWidget {
   final bool readOnly;
 
   const NebulaFormField({
+    this.focusNode,
     this.validator,
     this.label,
     this.controller,
@@ -30,6 +32,7 @@ class NebulaFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TextFormField(
+    focusNode: focusNode,
     autovalidateMode: autovalidateMode,
     controller: controller,
     obscureText: obscureText,

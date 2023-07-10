@@ -1,18 +1,15 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 
 class NebulaLink<T> extends StatefulWidget {
-  final PageRouteInfo<T> routeInfo;
-  final bool replace;
   final String text;
   final NebulaLinkStyle? style;
+  final VoidCallback? onTap;
 
   const NebulaLink({
-    required this.routeInfo,
     required this.text,
-    this.replace = false,
+    this.onTap,
     this.style,
     super.key,
   });
@@ -33,9 +30,7 @@ class _NebulaLinkState<T> extends State<NebulaLink<T>> {
       onExit: (_) => setState(() => _isHovering = false),
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: widget.replace
-            ? () => context.replaceRoute(widget.routeInfo)
-            : () => context.pushRoute(widget.routeInfo),
+        onTap: widget.onTap,
         onTapDown: (_) => setState(() => _isHovering = true),
         onTapUp: (_) => setState(() => _isHovering = false),
         onHorizontalDragStart: (_) => setState(() => _isHovering = false),

@@ -21,4 +21,8 @@ class PetsFilter with _$PetsFilter {
     ..shelterIds = selectedShelters != null
         ? ListBuilder(selectedShelters!)
         : null;
+
+  bool get isEmpty => animalType == null
+      && selectedShelter == null
+      && selectedShelters == null;
 }

@@ -50,7 +50,7 @@ class _AddShelterModalState extends State<AddShelterModal> {
         ),
         const SizedBox(height: 12),
         NebulaFormField(
-          label: context.translate(Translations.sheltersDescription),
+          label: context.translate(Translations.description),
           maxLines: 4,
           onChanged: (value) => setState(() => _info = value),
         ),

@@ -25,4 +25,10 @@ class PetsEvent with _$PetsEvent {
     Function(ShelterAnimal pet)? onSuccess,
     Function(ServerException? exception)? onError,
   }) = AddPet;
+
+  const factory PetsEvent.removePet({
+    required ShelterAnimal pet,
+    VoidCallback? onSuccess,
+    Function(ServerException? exception)? onError,
+  }) = RemovePet;
 }

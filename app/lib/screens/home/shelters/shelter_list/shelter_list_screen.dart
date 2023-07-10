@@ -69,18 +69,25 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
           crossAxisSpacing: 24,
           mainAxisSpacing: 24,
         ),
+        onRefresh: () {
+          _fetchShelters(rebuildList: true);
+
+          return Future<bool>.value(state.isLoading);
+        },
         headerBuilder: (context) => Padding(
           padding: const EdgeInsets.only(bottom: 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              NebulaText(
-                context.translate(Translations.sheltersTitle),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: context.typography
-                    .withFontWeight(FontWeight.w600)
-                    .withFontSize(AppFontSize.extraLarge),
+              Expanded(
+                child: NebulaText(
+                  context.translate(Translations.sheltersTitle),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.typography
+                      .withFontWeight(FontWeight.w600)
+                      .withFontSize(AppFontSize.extraLarge),
+                ),
               ),
               NebulaCircularButton(
                 buttonStyle: NebulaCircularButtonStyle.clear(context),

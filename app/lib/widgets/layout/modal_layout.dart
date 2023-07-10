@@ -18,43 +18,48 @@ class ModalLayout extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => DraggableScrollableSheet(
-    expand: false,
-    minChildSize: 0.9,
-    initialChildSize: 0.9,
-    builder: (context, scrollController) => SingleChildScrollView(
-      padding: padding,
-      controller: scrollController,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: NebulaText(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.typography
-                      .withFontSize(AppFontSize.large)
-                      .withFontWeight(FontWeight.w500),
+  Widget build(BuildContext context) => AnimatedPadding(
+    duration: const Duration(milliseconds: 150),
+    curve: Curves.easeOut,
+    padding: MediaQuery.of(context).viewInsets,
+    child: DraggableScrollableSheet(
+      expand: false,
+      minChildSize: 0.9,
+      initialChildSize: 0.9,
+      builder: (context, scrollController) => SingleChildScrollView(
+        controller: scrollController,
+        padding: padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: NebulaText(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.typography
+                        .withFontSize(AppFontSize.large)
+                        .withFontWeight(FontWeight.w500),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              NebulaCircularButton(
-                onPress: () => context.popRoute(),
-                buttonStyle: NebulaCircularButtonStyle.clear(context),
-                child: const FaIcon(
-                  FontAwesomeIcons.xmark,
-                  size: 20,
+                const SizedBox(width: 8),
+                NebulaCircularButton(
+                  onPress: () => context.popRoute(),
+                  buttonStyle: NebulaCircularButtonStyle.clear(context),
+                  child: const FaIcon(
+                    FontAwesomeIcons.xmark,
+                    size: 20,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          child,
-        ],
+              ],
+            ),
+            const SizedBox(height: 12),
+            child,
+          ],
+        ),
       ),
     ),
   );

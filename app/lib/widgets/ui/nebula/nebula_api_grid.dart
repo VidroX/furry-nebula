@@ -17,6 +17,7 @@ class NebulaApiGrid<T> extends StatefulWidget {
   final ScrollPhysics physics;
   final EdgeInsetsGeometry? padding;
   final SliverGridDelegate gridDelegate;
+  final RefreshCallback? onRefresh;
 
   const NebulaApiGrid({
     required this.itemBuilder,
@@ -32,6 +33,7 @@ class NebulaApiGrid<T> extends StatefulWidget {
     this.headerBuilder,
     this.pageInfo,
     this.padding,
+    this.onRefresh,
     super.key,
   });
 
@@ -184,6 +186,25 @@ class NebulaApiGridState<T> extends State<NebulaApiGrid<T>> {
       );
     }
 
+    if (widget.onRefresh != null) {
+      return RefreshIndicator(
+        onRefresh: widget.onRefresh!,
+        child: _NebulaGridView<T>(
+          gridKey: _gridKey,
+          scrollController: _scrollController,
+          gridDelegate: widget.gridDelegate,
+          items: widget.items,
+          pageInfo: widget.pageInfo,
+          itemBuilder: widget.itemBuilder,
+          headerBuilder: widget.headerBuilder,
+          physics: widget.physics,
+          padding: widget.padding,
+          loading: widget.itemsLoading,
+          onRefresh: widget.onRefresh,
+        ),
+      );
+    }
+
     return _NebulaGridView<T>(
       gridKey: _gridKey,
       scrollController: _scrollController,
@@ -195,6 +216,7 @@ class NebulaApiGridState<T> extends State<NebulaApiGrid<T>> {
       physics: widget.physics,
       padding: widget.padding,
       loading: widget.itemsLoading,
+      onRefresh: widget.onRefresh,
     );
   }
 }
@@ -211,6 +233,7 @@ class _NebulaGridView<T> extends StatelessWidget {
   final SliverGridDelegate gridDelegate;
   final int initialItemCount;
   final bool loading;
+  final RefreshCallback? onRefresh;
 
   const _NebulaGridView({
     required this.gridKey,
@@ -224,56 +247,61 @@ class _NebulaGridView<T> extends StatelessWidget {
     this.headerBuilder,
     this.pageInfo,
     this.padding,
+    this.onRefresh,
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) => CustomScrollView(
-    physics: physics,
-    controller: scrollController,
-    slivers: [
-      if (headerBuilder != null)
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      physics: onRefresh != null
+          ? AlwaysScrollableScrollPhysics(parent: physics)
+          : physics,
+      controller: scrollController,
+      slivers: [
+        if (headerBuilder != null)
+          SliverPadding(
+            padding: EdgeInsetsDirectional.only(
+              start: (padding?.vertical ?? 0) / 2,
+              end: (padding?.horizontal ?? 0) / 2,
+              top: (padding?.horizontal ?? 0) / 2,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: headerBuilder!(context),
+            ),
+          ),
         SliverPadding(
           padding: EdgeInsetsDirectional.only(
             start: (padding?.vertical ?? 0) / 2,
             end: (padding?.horizontal ?? 0) / 2,
-            top: (padding?.horizontal ?? 0) / 2,
+            bottom: (padding?.horizontal ?? 0) / 2,
           ),
-          sliver: SliverToBoxAdapter(
-            child: headerBuilder!(context),
-          ),
-        ),
-      SliverPadding(
-        padding: EdgeInsetsDirectional.only(
-          start: (padding?.vertical ?? 0) / 2,
-          end: (padding?.horizontal ?? 0) / 2,
-          bottom: (padding?.horizontal ?? 0) / 2,
-        ),
-        sliver: SliverAnimatedGrid(
-          key: gridKey,
-          gridDelegate: gridDelegate,
-          initialItemCount: items?.length ?? 0,
-          itemBuilder: (context, index, animation) {
-            if (items?.isEmpty ?? true) {
-              return const SizedBox.shrink();
-            }
+          sliver: SliverAnimatedGrid(
+            key: gridKey,
+            gridDelegate: gridDelegate,
+            initialItemCount: items?.length ?? 0,
+            itemBuilder: (context, index, animation) {
+              if (items?.isEmpty ?? true) {
+                return const SizedBox.shrink();
+              }
 
-            return FadeTransition(
-              opacity: animation,
-              child: itemBuilder(context, items![index], index),
-            );
-          },
+              return FadeTransition(
+                opacity: animation,
+                child: itemBuilder(context, items![index], index),
+              );
+            },
+          ),
         ),
-      ),
-      if (loading)
-        SliverToBoxAdapter(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 100),
-            child: const Center(
-              child: CircularProgressIndicator(),
+        if (loading)
+          SliverToBoxAdapter(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 100),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
           ),
-        ),
-    ],
-  );
+      ],
+    );
+  }
 }

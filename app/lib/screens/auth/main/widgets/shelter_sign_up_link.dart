@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/router/router.gr.dart';
@@ -26,9 +27,9 @@ class ShelterSignUpLink extends StatelessWidget {
         ),
       ),
       NebulaLink(
-        routeInfo: RegistrationRoute(isShelterRep: true),
         text: context.translate(Translations.authSignUpHere),
         style: linkStyle,
+        onTap: () => context.pushRoute(RegistrationRoute(isShelterRep: true)),
       ),
     ],
   );

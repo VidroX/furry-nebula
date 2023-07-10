@@ -1,6 +1,7 @@
 import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/translations.dart';
 
+
 enum AnimalType {
   cat,
   dog,
@@ -27,4 +28,27 @@ enum AnimalType {
     bird: Translations.animalTypesBird,
     rabbit: Translations.animalTypesRabbit,
   }[this]!;
+}
+
+enum FilterAnimalType {
+  all,
+  cat,
+  dog,
+  bird,
+  rabbit;
+
+  String get translationKey => {
+    all: Translations.all,
+    cat: Translations.animalTypesCat,
+    dog: Translations.animalTypesDog,
+    bird: Translations.animalTypesBird,
+    rabbit: Translations.animalTypesRabbit,
+  }[this]!;
+
+  AnimalType? get toAnimalType => {
+    cat: AnimalType.cat,
+    dog: AnimalType.dog,
+    bird: AnimalType.bird,
+    rabbit: AnimalType.rabbit,
+  }[this];
 }

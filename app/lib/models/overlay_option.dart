@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class OverlayOption<T> {
-  final String title;
-  final Widget? prefixWidget;
-  final Widget? suffixWidget;
-  final T data;
+part 'overlay_option.freezed.dart';
 
-  const OverlayOption({
-    required this.data,
-    required this.title,
-    this.prefixWidget,
-    this.suffixWidget,
-  });
+@freezed
+class OverlayOption<T> with _$OverlayOption<T> {
+  const factory OverlayOption({
+    required T data,
+    required String title,
+    String? uniqueIndex,
+    Widget? prefixWidget,
+    Widget? suffixWidget,
+  }) = _OverlayOption;
 }

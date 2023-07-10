@@ -12,6 +12,8 @@ class NebulaButton extends StatelessWidget {
   final Widget? prefixChild;
   final Widget? suffixChild;
 
+  final bool _shouldExpand;
+
   const NebulaButton({
     this.text = '',
     this.loading = false,
@@ -22,7 +24,7 @@ class NebulaButton extends StatelessWidget {
     this.prefixChild,
     this.suffixChild,
     super.key,
-  });
+  }) : _shouldExpand = width == double.maxFinite;
 
   factory NebulaButton.fill({
     String text = '',
@@ -85,10 +87,24 @@ class NebulaButton extends StatelessWidget {
                         padding: const EdgeInsetsDirectional.only(end: 12),
                         child: prefixChild,
                       ),
-                    NebulaText(
-                      text,
-                      style: style.textStyle,
-                    ),
+                    if (_shouldExpand)
+                      Expanded(
+                        child: Center(
+                          child: NebulaText(
+                            text,
+                            style: style.textStyle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                    else
+                      NebulaText(
+                        text,
+                        style: style.textStyle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     if (suffixChild != null)
                       Padding(
                         padding: const EdgeInsetsDirectional.only(start: 12),

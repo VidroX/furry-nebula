@@ -18,7 +18,12 @@
     "removeConfirmation": "Remove Confirmation",
     "delete": "Delete",
     "remove": "Remove",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "filters": "Filters",
+    "apply": "Apply",
+    "all": "All",
+    "clearFilters": "Clear filters",
+    "description": "Description"
   },
   "auth": {
     "errors": {
@@ -44,8 +49,11 @@
   },
   "home": {
     "pets": {
-      "title": "Pet accommodations",
-      "pets": "Pets"
+      "title": "Pets from the shelters",
+      "pets": "Pets",
+      "noPetsFound": "No pets are currently available in any shelter",
+      "shelter": "Shelter",
+      "noPetsFoundWithFilters": "No pets were found by the applied filters"
     },
     "profile": {
       "title": "Profile",
@@ -72,7 +80,6 @@
       "addingNewShelter": "Adding new shelter. Please wait...",
       "name": "Shelter name",
       "address": "Shelter address",
-      "description": "Description",
       "uploadPhoto": "Upload shelter photo",
       "removePhoto": "Remove shelter photo"
     }
@@ -89,7 +96,6 @@
       "title": "Add new animal to this shelter",
       "name": "Animal name",
       "description": "Animal description",
-      "animalType": "Animal type",
       "uploadAnimalPhoto": "Upload animal photo",
       "removeAnimalPhoto": "Remove animal photo",
       "success": "New pet has been successfully added to this shelter!",
@@ -99,9 +105,14 @@
   "petDetails": {
     "errors": {
       "notFound": "Requested pet was not found in the requested shelter or it was already adopted"
-    }
+    },
+    "removePrompt": "Are you sure that you want to remove {animal} from the shelter?",
+    "removeProgress": "Removing {animal} from the shelter. Please wait...",
+    "removedSuccessfully": "{animal} has been successfully removed!",
+    "viewShelter": "View shelter details"
   },
   "animalTypes": {
+    "title": "Animal type",
     "dog": "Dog",
     "cat": "Cat",
     "bird": "Bird",

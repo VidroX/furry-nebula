@@ -17,6 +17,11 @@ class Translations {
   static const String delete = 'general.delete';
   static const String remove = 'general.remove';
   static const String cancel = 'general.cancel';
+  static const String filters = 'general.filters';
+  static const String apply = 'general.apply';
+  static const String all = 'general.all';
+  static const String clearFilters = 'general.clearFilters';
+  static const String description = 'general.description';
 
   // Auth
   static const String authSignInError = 'auth.errors.signInError';
@@ -41,6 +46,9 @@ class Translations {
   // Pets
   static const String petsTitle = 'home.pets.title';
   static const String petsPets = 'home.pets.pets';
+  static const String petsNoPetsFound = 'home.pets.noPetsFound';
+  static const String petsNoPetsFoundWithFilters = 'home.pets.noPetsFoundWithFilters';
+  static const String petsShelter = 'home.pets.shelter';
 
   // Profile
   static const String profileTitle = 'home.profile.title';
@@ -67,7 +75,6 @@ class Translations {
   static const String sheltersAddingNewShelter = 'home.shelters.addingNewShelter';
   static const String sheltersName = 'home.shelters.name';
   static const String sheltersAddress = 'home.shelters.address';
-  static const String sheltersDescription = 'home.shelters.description';
   static const String sheltersUploadPhoto = 'home.shelters.uploadPhoto';
   static const String sheltersRemovePhoto = 'home.shelters.removePhoto';
 
@@ -80,7 +87,6 @@ class Translations {
   static const String shelterDetailsAddAnimalTitle = 'shelterDetails.addAnimal.title';
   static const String shelterDetailsAddAnimalName = 'shelterDetails.addAnimal.name';
   static const String shelterDetailsAddAnimalDescription = 'shelterDetails.addAnimal.description';
-  static const String shelterDetailsAddAnimalAnimalType = 'shelterDetails.addAnimal.animalType';
   static const String shelterDetailsAddAnimalUploadAnimalPhoto = 'shelterDetails.addAnimal.uploadAnimalPhoto';
   static const String shelterDetailsAddAnimalRemoveAnimalPhoto = 'shelterDetails.addAnimal.removeAnimalPhoto';
   static const String shelterDetailsAddAnimalSuccess = 'shelterDetails.addAnimal.success';
@@ -88,8 +94,13 @@ class Translations {
 
   // Pet Details
   static const String petDetailsErrorsNotFound = 'petDetails.errors.notFound';
+  static const String petDetailsRemovePrompt = 'petDetails.removePrompt';
+  static const String petDetailsRemoveProgress = 'petDetails.removeProgress';
+  static const String petDetailsRemovedSuccessfully = 'petDetails.removedSuccessfully';
+  static const String petDetailsViewShelter = 'petDetails.viewShelter';
 
   // Animal types
+  static const String animalTypesTitle = 'animalTypes.title';
   static const String animalTypesCat = 'animalTypes.cat';
   static const String animalTypesDog = 'animalTypes.dog';
   static const String animalTypesBird = 'animalTypes.bird';

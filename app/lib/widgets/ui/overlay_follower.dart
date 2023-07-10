@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-typedef OverlayBuilder = Widget Function(BuildContext context, OverlayFollowerActions controller);
+typedef OverlayBuilder = Widget Function(BuildContext context, OverlayFollowerController controller);
 
 class OverlayFollower extends StatefulWidget {
   final OverlayBuilder targetBuilder;
@@ -24,7 +24,7 @@ class OverlayFollower extends StatefulWidget {
   State<OverlayFollower> createState() => _OverlayFollowerState();
 }
 
-class _OverlayFollowerState extends State<OverlayFollower> with OverlayFollowerActions {
+class _OverlayFollowerState extends State<OverlayFollower> with OverlayFollowerController {
   @override
   void initState() {
     super.initState();
@@ -38,7 +38,7 @@ class _OverlayFollowerState extends State<OverlayFollower> with OverlayFollowerA
   );
 }
 
-mixin OverlayFollowerActions on State<OverlayFollower> {
+mixin OverlayFollowerController on State<OverlayFollower> {
   static const _overlayOffset = 8.0;
 
   final _target = GlobalKey();
@@ -50,13 +50,21 @@ mixin OverlayFollowerActions on State<OverlayFollower> {
   void toggleOverlay() {
     setState(() => isShown = !isShown);
 
-    _updateOverlay();
+    if (!isShown) {
+      _hideOverlay();
+    } else {
+      updateOverlay();
+    }
   }
 
   void setVisibility({ bool visible = false }) {
     setState(() => isShown = visible);
 
-    _updateOverlay();
+    if (visible) {
+      updateOverlay();
+    } else {
+      _hideOverlay();
+    }
   }
 
   void _buildOverlay() {
@@ -96,25 +104,20 @@ mixin OverlayFollowerActions on State<OverlayFollower> {
     );
   }
 
-  void _updateOverlay() {
-    if (!isShown) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
+  void _hideOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
 
-      return;
-    }
-
-    if (_overlayEntry == null) {
-      _buildOverlay();
-    }
-
+  void updateOverlay() {
+    _overlayEntry?.remove();
+    _buildOverlay();
     Overlay.of(context).insert(_overlayEntry!);
   }
 
   @override
   void dispose() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+    _hideOverlay();
 
     super.dispose();
   }
