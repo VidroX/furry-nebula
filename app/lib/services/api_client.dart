@@ -4,7 +4,6 @@ import "dart:io";
 import "package:dio/dio.dart";
 import "package:ferry/ferry.dart";
 import "package:flutter/foundation.dart";
-import "package:flutter_dotenv/flutter_dotenv.dart";
 import "package:flutter_secure_storage/flutter_secure_storage.dart";
 import "package:furry_nebula/environment_constants.dart";
 import "package:furry_nebula/graphql/exceptions/auth/invalid_token_exception.dart";
@@ -61,10 +60,7 @@ class ApiClient {
     final link = Link.from([
       ...links,
       DioLink(
-        String.fromEnvironment(
-          EnvironmentConstants.apiEndpoint,
-          defaultValue: dotenv.env[EnvironmentConstants.apiEndpoint] ?? '',
-        ),
+        EnvironmentConstants.apiEndpoint,
         client: dioClient,
       ),
     ]);

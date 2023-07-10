@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -19,7 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   log('Starting app in ${EnvironmentConstants.environmentType} environment');
 
-  await dotenv.load(fileName: '${EnvironmentConstants.environmentType}.env');
+  WidgetsFlutterBinding.ensureInitialized();
 
   await FastCachedImageConfig.init(
     subDir: (await getApplicationDocumentsDirectory()).path,
