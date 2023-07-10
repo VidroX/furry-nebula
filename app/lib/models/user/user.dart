@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
+import 'package:furry_nebula/models/user/user_role.dart';
 
 part 'user.freezed.dart';
 
@@ -9,10 +9,11 @@ class User with _$User {
     required String id,
     required String firstName,
     required String lastName,
-    @Default(GRole.User) GRole role,
-    required String about,
+    @Default(UserRole.user) UserRole role,
+    @Default('') String about,
     required String email,
     @Default(false) bool isApproved,
+    required DateTime birthDay,
   }) = _User;
 
   const User._();

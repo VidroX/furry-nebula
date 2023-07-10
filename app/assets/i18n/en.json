@@ -2,9 +2,28 @@
   "general": {
     "errors": {
       "unknownError": "An unknown error has occurred",
-      "validationError": "Please check fields for errors"
+      "validationError": "Please check fields for errors",
+      "requestFailed": "There was an error while performing your request",
+      "fieldRequired": "This field is required"
     },
-    "or": "or"
+    "or": "or",
+    "error": "Error",
+    "info": "Information",
+    "continue": "Continue",
+    "shelterRepresentative": "Shelter representative",
+    "user": "User",
+    "admin": "Administrator",
+    "add": "Add",
+    "deleteConfirmation": "Delete Confirmation",
+    "removeConfirmation": "Remove Confirmation",
+    "delete": "Delete",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "filters": "Filters",
+    "apply": "Apply",
+    "all": "All",
+    "clearFilters": "Clear filters",
+    "description": "Description"
   },
   "auth": {
     "errors": {
@@ -14,9 +33,89 @@
     },
     "signIn": "Sign in",
     "signUp": "Sign up",
+    "shelterRepresentativeSignUp": "Sign up as a shelter representative",
     "enterEmail": "Enter your E-Mail",
     "enterPassword": "Enter your password",
     "isShelterRepresentative": "Are you an animal shelter representative?",
-    "signUpHere": "Sign up here"
+    "signUpHere": "Sign up here",
+    "signOut": "Sign out",
+    "successfulLogin": "You have successfully signed in!",
+    "successfulRegistration": "You have successfully signed up!",
+    "successfulShelterRepRegistration": "You have successfully signed up!\nPlease wait for the confirmation from the administration.",
+    "enterFirstName": "Enter your name",
+    "enterLastName": "Enter your last name",
+    "provideInfoAboutYourself": "Provide some information about yourself",
+    "provideBirthday": "Provide your birthday"
+  },
+  "home": {
+    "pets": {
+      "title": "Pets from the shelters",
+      "pets": "Pets",
+      "noPetsFound": "No pets are currently available in any shelter",
+      "shelter": "Shelter",
+      "noPetsFoundWithFilters": "No pets were found by the applied filters"
+    },
+    "profile": {
+      "title": "Profile",
+      "primaryInfo": "Primary information",
+      "details": "Details",
+      "email": "E-Mail",
+      "firstName": "Name",
+      "lastName": "Last name",
+      "birthDay": "Birthday",
+      "status": "Status",
+      "hiWithName": "Hi, {fullName}!"
+    },
+    "userApprovals": {
+      "title": "Pending users",
+      "usersPendingApproval": "Users pending approval",
+      "wantsToBe": "Wants to be a {userType}",
+      "noUsersPendingApproval": "Currently, no users are pending approval"
+    },
+    "shelters": {
+      "title": "Animal shelters",
+      "shelters": "Shelters",
+      "noSheltersAdded": "You have not added any shelters yet.\nAdd one by pressing the plus icon in the header.",
+      "addShelter": "Add new shelter",
+      "addingNewShelter": "Adding new shelter. Please wait...",
+      "name": "Shelter name",
+      "address": "Shelter address",
+      "uploadPhoto": "Upload shelter photo",
+      "removePhoto": "Remove shelter photo"
+    }
+  },
+  "shelterDetails": {
+    "errors": {
+      "notFound": "Requested shelter not found"
+    },
+    "deletePrompt": "Are you sure that you want to delete {shelter} shelter?",
+    "deleteProgress": "Deleting {shelter} shelter. Please wait...",
+    "deletedSuccessfully": "Shelter {shelter} has been successfully deleted!",
+    "viewShelterAnimals": "View animals from this shelter",
+    "addAnimal": {
+      "title": "Add new animal to this shelter",
+      "name": "Animal name",
+      "description": "Animal description",
+      "uploadAnimalPhoto": "Upload animal photo",
+      "removeAnimalPhoto": "Remove animal photo",
+      "success": "New pet has been successfully added to this shelter!",
+      "addProgress": "Adding new animal to the shelter. Please wait..."
+    }
+  },
+  "petDetails": {
+    "errors": {
+      "notFound": "Requested pet was not found in the requested shelter or it was already adopted"
+    },
+    "removePrompt": "Are you sure that you want to remove {animal} from the shelter?",
+    "removeProgress": "Removing {animal} from the shelter. Please wait...",
+    "removedSuccessfully": "{animal} has been successfully removed!",
+    "viewShelter": "View shelter details"
+  },
+  "animalTypes": {
+    "title": "Animal type",
+    "dog": "Dog",
+    "cat": "Cat",
+    "bird": "Bird",
+    "rabbit": "Rabbit"
   }
 }

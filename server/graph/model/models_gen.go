@@ -9,18 +9,26 @@ import (
 	"time"
 )
 
+// Filters for the shelter animals list
+type AnimalFilters struct {
+	ShelterID  *string  `json:"shelterId,omitempty"`
+	ShelterIds []string `json:"shelterIds,omitempty"`
+	Animal     *Animal  `json:"animal,omitempty"`
+}
+
 // Filters for list of user approvals
 type ApprovalFilters struct {
 	IsApproved *bool `json:"isApproved,omitempty"`
+	IsReviewed *bool `json:"isReviewed,omitempty"`
 }
 
 // Page information
 type PageInfo struct {
-	Page            *int   `json:"page,omitempty"`
-	ResultsPerPage  *int   `json:"resultsPerPage,omitempty"`
-	TotalResults    *int64 `json:"totalResults,omitempty"`
-	HasNextPage     *bool  `json:"hasNextPage,omitempty"`
-	HasPreviousPage *bool  `json:"hasPreviousPage,omitempty"`
+	Page            int   `json:"page"`
+	ResultsPerPage  int   `json:"resultsPerPage"`
+	TotalResults    int64 `json:"totalResults"`
+	HasNextPage     bool  `json:"hasNextPage"`
+	HasPreviousPage bool  `json:"hasPreviousPage"`
 }
 
 // Pagination filters
@@ -32,6 +40,38 @@ type Pagination struct {
 // Simple response with message
 type ResponseMessage struct {
 	Message string `json:"message"`
+}
+
+// Animal list connection
+type ShelterAnimalConnection struct {
+	Node     []*ShelterAnimal `json:"node"`
+	PageInfo *PageInfo        `json:"pageInfo"`
+}
+
+// Shelter animal creation input
+type ShelterAnimalInput struct {
+	ShelterID   string  `json:"shelterId"`
+	Animal      Animal  `json:"animal"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+}
+
+// Shelter list connection
+type ShelterConnection struct {
+	Node     []*Shelter `json:"node"`
+	PageInfo *PageInfo  `json:"pageInfo"`
+}
+
+// Shelter list filters
+type ShelterFilters struct {
+	ShowOnlyOwnShelters *bool `json:"showOnlyOwnShelters,omitempty"`
+}
+
+// Animal shelter creation input
+type ShelterInput struct {
+	Name    string  `json:"name"`
+	Address string  `json:"address"`
+	Info    *string `json:"info,omitempty"`
 }
 
 // Auth token

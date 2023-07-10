@@ -8,7 +8,7 @@ import (
 	"context"
 	"strings"
 
-	general_errors "github.com/VidroX/furry-nebula/errors/general"
+	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/errors/validation"
 	"github.com/VidroX/furry-nebula/graph"
 	"github.com/VidroX/furry-nebula/graph/model"
@@ -93,7 +93,7 @@ func (r *queryResolver) Users(ctx context.Context, pagination *model.Pagination)
 	users, total, err := userRepo.GetUsers(pagination)
 
 	if err != nil {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
 	}
 
 	return &model.UsersConnection{
@@ -112,16 +112,16 @@ func (r *queryResolver) UserApprovals(ctx context.Context, filters *model.Approv
 	var total int64
 
 	if filters != nil {
-		approvals, total, err = userRepo.GetUserApprovals(filters.IsApproved, pagination)
+		approvals, total, err = userRepo.GetUserApprovals(filters.IsApproved, filters.IsReviewed, pagination)
 	} else {
-		approvals, total, err = userRepo.GetUserApprovals(nil, pagination)
+		approvals, total, err = userRepo.GetUserApprovals(nil, nil, pagination)
 	}
 
 	if err != nil {
-		return nil, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
 	}
 
-	users := []*model.User{}
+	var users []*model.User
 	for _, approval := range approvals {
 		users = append(users, &approval.User)
 	}
@@ -139,7 +139,7 @@ func (r *userResolver) Role(ctx context.Context, obj *model.User) (model.Role, e
 
 	var err error
 	if !role.IsValid() {
-		err = graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		err = graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
 	}
 
 	return role, err
@@ -153,7 +153,7 @@ func (r *userResolver) IsApproved(ctx context.Context, obj *model.User) (bool, e
 	isApproved, err := userRepo.IsUserApproved(obj.ID)
 
 	if err != nil {
-		return false, graph.FormatError(gCtx.GetLocalizer(), &general_errors.ErrInternal)
+		return false, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
 	}
 
 	return isApproved, nil

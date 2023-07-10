@@ -35,11 +35,11 @@ func GetPageInfo(total int64, apiPagination *model.Pagination) *model.PageInfo {
 	hasPreviousPage := int64(normalizedPagination.page) <= totalPages && normalizedPagination.page > 1
 
 	return &model.PageInfo{
-		Page:            &normalizedPagination.page,
-		ResultsPerPage:  &normalizedPagination.resultsPerPage,
-		TotalResults:    &total,
-		HasNextPage:     &hasNextPage,
-		HasPreviousPage: &hasPreviousPage,
+		Page:            normalizedPagination.page,
+		ResultsPerPage:  normalizedPagination.resultsPerPage,
+		TotalResults:    total,
+		HasNextPage:     hasNextPage,
+		HasPreviousPage: hasPreviousPage,
 	}
 }
 

@@ -1,20 +1,20 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/extensions/string_extension.dart';
-import 'package:furry_nebula/repositories/user/exceptions/login_failed_exception.dart';
+import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/auth/state/auth_bloc.dart';
+import 'package:furry_nebula/screens/auth/widgets/auth_header.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/validators/api_error_validator.dart';
 import 'package:furry_nebula/widgets/layout/screen_layout.dart';
-import 'package:furry_nebula/widgets/ui/nebula_button.dart';
-import 'package:furry_nebula/widgets/ui/nebula_form_field.dart';
-import 'package:furry_nebula/widgets/ui/nebula_logo.dart';
-import 'package:furry_nebula/widgets/ui/nebula_text.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_button.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_form_field.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_logo.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_notification.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_password_field.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -44,6 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  void dispose() {
+    _bloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => ScreenLayout(
     scrollable: true,
     child: BlocBuilder<AuthBloc, AuthState>(
@@ -60,11 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: NebulaLogo(),
               ),
               const SizedBox(height: 24),
-              NebulaText(
-                context.translate(Translations.authSignIn).tryCapitalize,
-                style: context.typography
-                    .withFontSize(AppFontSize.large)
-                    .withFontWeight(FontWeight.w500),
+              AuthHeader(
+                title: context.translate(Translations.authSignIn).tryCapitalize,
               ),
               const SizedBox(height: 12),
               NebulaFormField(
@@ -82,10 +85,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
               const SizedBox(height: 12),
-              NebulaFormField(
+              NebulaPasswordField(
                 autovalidateMode: AutovalidateMode.always,
                 label: context.translate(Translations.authEnterPassword),
-                obscureText: true,
                 validator: ApiErrorValidator(
                   validationErrors: state.validationErrors,
                   fieldName: _passwordFieldName,
@@ -114,16 +116,26 @@ class _LoginScreenState extends State<LoginScreen> {
   );
 
   void _onLoginPressed(AuthState state) {
+    FocusScope.of(context).unfocus();
+
     _bloc.add(
       AuthEvent.login(
         email: _email ?? '',
         password: _password ?? '',
+        onSuccess: () {
+          context.showNotification(
+            NebulaNotification.primary(
+              title: context.translate(Translations.info),
+              description: context.translate(Translations.authSuccessfulLogin),
+            ),
+          );
+
+          context.replaceRoute(const HomeRoute());
+        },
         onError: (e) {
           _formKey.currentState?.validate();
 
-          if (e is LoginFailedException && !kIsWeb) {
-            Fluttertoast.showToast(msg: context.translate(e.message));
-          }
+          context.showApiError(e);
         },
       ),
     );

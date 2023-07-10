@@ -11,7 +11,7 @@ type UserRepository interface {
 	CreateUser(user *model.User) error
 	IsUserApproved(id string) (bool, error)
 	ChangeUserApprovalStatus(id string, isApproved bool) error
-	GetUserApprovals(isApproved *bool, pagination *model.Pagination) ([]*model.UserApproval, int64, error)
+	GetUserApprovals(isApproved *bool, isReviewed *bool, pagination *model.Pagination) ([]*model.UserApproval, int64, error)
 	GetUsers(pagination *model.Pagination) ([]*model.User, int64, error)
 }
 

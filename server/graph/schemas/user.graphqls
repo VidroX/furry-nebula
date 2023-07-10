@@ -82,6 +82,7 @@ Filters for list of user approvals
 """
 input ApprovalFilters {
   isApproved: Boolean
+  isReviewed: Boolean
 }
 
 """

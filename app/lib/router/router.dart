@@ -1,9 +1,22 @@
+import 'package:animations/animations.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:furry_nebula/models/user/user_role.dart';
+import 'package:furry_nebula/router/guards/auth_guard.dart';
 import 'package:furry_nebula/router/router.gr.dart';
-import 'package:furry_nebula/screens/auth/auth_main/auth_main_screen.dart';
 import 'package:furry_nebula/screens/auth/auth_screen.dart';
 import 'package:furry_nebula/screens/auth/login/login_screen.dart';
+import 'package:furry_nebula/screens/auth/main/auth_main_screen.dart';
 import 'package:furry_nebula/screens/auth/registration/registration_screen.dart';
+import 'package:furry_nebula/screens/home/approvals/user_approvals_screen.dart';
+import 'package:furry_nebula/screens/home/home_bottom_nav_screen.dart';
+import 'package:furry_nebula/screens/home/home_screen.dart';
+import 'package:furry_nebula/screens/home/profile/profile_screen.dart';
+import 'package:furry_nebula/screens/home/shelters/pets/pets_screen.dart';
+import 'package:furry_nebula/screens/home/shelters/shelter_list/shelter_list_screen.dart';
+import 'package:furry_nebula/screens/home/shelters/shelters_screen.dart';
+import 'package:furry_nebula/screens/pet_details/pet_details_screen.dart';
+import 'package:furry_nebula/screens/shelter_details/shelter_details_screen.dart';
+import 'package:furry_nebula/services/injector.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'Screen,Route')
 class AppRouter extends $AppRouter {
@@ -11,6 +24,77 @@ class AppRouter extends $AppRouter {
   List<AutoRoute> get routes => [
     AutoRoute(
       initial: true,
+      path: HomeScreen.routePath,
+      page: HomeRoute.page,
+      children: [
+        AutoRoute(
+          initial: true,
+          path: HomeBottomNavScreen.routePath,
+          page: HomeBottomNavRoute.page,
+          children: [
+            AutoRoute(
+              path: ProfileScreen.routePath,
+              page: ProfileRoute.page,
+            ),
+            AutoRoute(
+              path: SheltersScreen.routePath,
+              page: SheltersRoute.page,
+              children: [
+                AutoRoute(
+                  initial: true,
+                  path: PetsScreen.routePath,
+                  page: PetsRoute.page,
+                ),
+                AutoRoute(
+                  path: ShelterListScreen.routePath,
+                  page: ShelterListRoute.page,
+                  guards: [
+                    AuthGuard(
+                      userRepository: injector.get(),
+                      roleRequirement: UserRole.shelter,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            AutoRoute(
+              path: UserApprovalsScreen.routePath,
+              page: UserApprovalsRoute.page,
+              guards: [
+                AuthGuard(
+                  userRepository: injector.get(),
+                  roleRequirement: UserRole.admin,
+                ),
+              ],
+            ),
+          ],
+        ),
+        CustomRoute(
+          path: ShelterDetailsScreen.routePath,
+          page: ShelterDetailsRoute.page,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeThroughTransition(
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+                child: child,
+              ),
+        ),
+        CustomRoute(
+          path: PetDetailsScreen.routePath,
+          page: PetDetailsRoute.page,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeThroughTransition(
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+                child: child,
+              ),
+        ),
+      ],
+      guards: [
+        AuthGuard(userRepository: injector.get()),
+      ],
+    ),
+    AutoRoute(
       path: AuthScreen.routePath,
       page: AuthRoute.page,
       children: [
@@ -26,6 +110,13 @@ class AppRouter extends $AppRouter {
         AutoRoute(
           path: RegistrationScreen.routePath,
           page: RegistrationRoute.page,
+        ),
+      ],
+      guards: [
+        AuthGuard(
+          userRepository: injector.get(),
+          shouldBeAuthenticated: false,
+          redirectRoute: const HomeRoute(),
         ),
       ],
     ),

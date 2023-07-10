@@ -8,8 +8,8 @@ extension AppTheme on ThemeData {
   ThemeData customTheme({ AppColors? theme }) {
     final colorTheme = theme ?? AppColors.light();
     final appTheme = colorTheme.theme.isLight
-        ? ThemeData.light(useMaterial3: false)
-        : ThemeData.dark(useMaterial3: false);
+        ? ThemeData.light(useMaterial3: true)
+        : ThemeData.dark(useMaterial3: true);
 
     return appTheme.copyWith(
       extensions: [colorTheme],
@@ -38,14 +38,24 @@ extension AppTheme on ThemeData {
 
 class AppThemeProvider extends ChangeNotifier {
   AppColorsTheme theme;
+  AppThemeName currentThemeName;
 
-  AppThemeProvider({ required this.theme });
+  AppThemeProvider({ required this.theme, required this.currentThemeName });
 
-  FutureOr<void> changeTheme(AppColorsTheme? newTheme) async {
+  FutureOr<void> changeTheme(AppColorsTheme? newTheme, {
+    bool changeCurrentThemeName = true,
+  }) async {
     theme = newTheme ?? AppColorsTheme.light();
+
+    if (changeCurrentThemeName) {
+      currentThemeName = theme.themeName;
+    }
+
     notifyListeners();
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(AppColors.themeKey, theme.themeName.name);
+    if (changeCurrentThemeName) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppColors.themeKey, theme.themeName.name);
+    }
   }
 }

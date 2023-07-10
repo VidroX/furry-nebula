@@ -47,6 +47,6 @@ func LoadEnvironment(params *EnvironmentParams) {
 	}
 
 	if err == nil {
-		os.Setenv(KeysAppPath, path)
+		_ = os.Setenv(KeysAppPath, path)
 	}
 }

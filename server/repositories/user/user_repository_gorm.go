@@ -40,14 +40,15 @@ func (repo *UserRepositoryGorm) CreateUser(user *User) error {
 			return err
 		}
 
-		var defaultApproved bool = false
-		if user.HasRole(RoleUser) {
+		var defaultApproved = false
+		if user.RoleName == RoleUser.String() {
 			defaultApproved = true
 		}
 
 		userApproval := UserApproval{
 			User:       *user,
 			IsApproved: defaultApproved,
+			IsReviewed: defaultApproved,
 		}
 
 		if err := tx.Create(&userApproval).Error; err != nil {
@@ -68,31 +69,47 @@ func (repo *UserRepositoryGorm) IsUserApproved(id string) (bool, error) {
 		return false, err
 	}
 
-	return userApproval.IsApproved, nil
+	return userApproval.IsApproved && userApproval.IsReviewed, nil
 }
 
 func (repo *UserRepositoryGorm) ChangeUserApprovalStatus(id string, isApproved bool) error {
-	err := repo.database.Model(&UserApproval{}).Where("user_id = ?", id).Update("is_approved", isApproved).Error
+	err := repo.database.Model(&UserApproval{}).
+		Where("user_id = ?", id).
+		Updates(map[string]interface{}{
+			"is_approved": isApproved,
+			"is_reviewed": true,
+		}).
+		Error
 
 	return err
 }
 
-func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, pagination *Pagination) ([]*UserApproval, int64, error) {
-	model := repo.database.Model(&UserApproval{}).Preload("User")
+func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, isReviewed *bool, pagination *Pagination) ([]*UserApproval, int64, error) {
+	model := repo.database.Model(&UserApproval{})
 
-	results := []*UserApproval{}
+	var normalizedIsReviewed = isReviewed
+	if normalizedIsReviewed == nil {
+		normalizedIsReviewed = boolPointer(true)
+	}
+
+	var results []*UserApproval
 	var total int64 = 0
 
 	if isApproved != nil {
-		model.Where("is_approved = ?", *isApproved).Count(&total)
+		model.Where("is_approved = ? and is_reviewed = ?", *isApproved, *normalizedIsReviewed).Count(&total)
 
-		model = model.Where("is_approved = ?", *isApproved).
+		model = model.InnerJoins("User").
+			Where("is_approved = ? and is_reviewed = ?", *isApproved, *normalizedIsReviewed).
+			Order("registration_date desc").
 			Scopes(database.PaginationScope(pagination)).
 			Find(&results)
 	} else {
 		model.Count(&total)
 
-		model = model.Scopes(database.PaginationScope(pagination)).Find(&results)
+		model = model.InnerJoins("User").
+			Order("registration_date desc").
+			Scopes(database.PaginationScope(pagination)).
+			Find(&results)
 	}
 
 	if err := model.Error; err != nil {
@@ -103,10 +120,11 @@ func (repo *UserRepositoryGorm) GetUserApprovals(isApproved *bool, pagination *P
 }
 
 func (repo *UserRepositoryGorm) GetUsers(pagination *Pagination) ([]*User, int64, error) {
-	users := []*User{}
+	var users []*User
 	err := repo.database.
 		Model(&User{}).
 		Preload("Role").
+		Order("registration_date desc").
 		Scopes(database.PaginationScope(pagination)).
 		Find(&users).
 		Error
@@ -116,7 +134,11 @@ func (repo *UserRepositoryGorm) GetUsers(pagination *Pagination) ([]*User, int64
 	}
 
 	var total int64 = 0
-	repo.database.Model(&User{}).Count(&total)
+	repo.database.Model(&User{}).Order("registration_date desc").Count(&total)
 
 	return users, total, nil
+}
+
+func boolPointer(b bool) *bool {
+	return &b
 }

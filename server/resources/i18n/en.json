@@ -4,7 +4,9 @@
         "validation": {
             "fieldRequired": "This field is required",
             "incorrectEmail": "Please, enter a correct E-Mail address",
-            "unknownValidationError": "Please, check this field for errors"
+            "unknownValidationError": "Please, check this field for errors",
+            "invalidFileFormat": "Uploaded file format is not supported",
+            "corruptedFile": "There was an error while uploading your file. Please try uploading again or try uploading another file."
         },
         "notEnoughPermissions": "You don't have enough permissions to perform this action",
         "internalError": "An internal error has occurred",
@@ -19,5 +21,14 @@
         "successfulLogin": "You have successfully signed in",
         "successfulRegistration": "You have successfully signed up",
         "statusChanged": "User status has been successfully changed"
+    },
+    "shelterService": {
+        "errors": {
+            "alreadyExists": "Shelter with the given name already exists",
+            "shelterNotFound": "Requested shelter not found",
+            "shelterAnimalNotFound": "Requested shelter animal not found or is already adopted"
+        },
+        "shelterRemoved": "Shelter has been successfully deleted from the system!",
+        "shelterAnimalRemoved": "Shelter animal has been successfully removed!"
     }
 }

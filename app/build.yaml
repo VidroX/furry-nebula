@@ -10,7 +10,35 @@ targets:
               name: int
             Time:
               name: DateTime
+            Upload:
+              name: MultipartFile
+              import: 'package:dio/dio.dart'
       ferry_generator|serializer_builder:
         enabled: true
         options:
           schema: furry_nebula|lib/graphql/schema.graphql
+          type_overrides:
+            Int64:
+              name: int
+            Time:
+              name: DateTime
+            Upload:
+              name: MultipartFile
+              import: 'package:dio/dio.dart'
+          custom_serializers:
+            - import: "package:furry_nebula/graphql/serializers/time_serializer.dart"
+              name: TimeSerializer
+            - import: 'package:furry_nebula/graphql/serializers/upload_serializer.dart'
+              name: UploadSerializer
+      ferry_generator|req_builder:
+        enabled: true
+        options:
+          schema: furry_nebula|lib/graphql/schema.graphql
+          type_overrides:
+            Int64:
+              name: int
+            Time:
+              name: DateTime
+            Upload:
+              name: MultipartFile
+              import: 'package:dio/dio.dart'

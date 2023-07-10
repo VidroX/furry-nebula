@@ -1,0 +1,13 @@
+# import '../../fragments/shelter_fragment.graphql'
+# import '../../fragments/page_info_fragment.graphql'
+
+query GetShelters($filters: ShelterFilters, $pagination: Pagination) {
+    shelters(filters: $filters, pagination: $pagination) {
+        node {
+            ...ShelterFragment
+        }
+        pageInfo {
+            ...PageInfoFragment
+        }
+    }
+}

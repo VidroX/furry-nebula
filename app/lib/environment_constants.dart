@@ -4,5 +4,5 @@ class EnvironmentConstants {
     defaultValue: 'production',
   );
 
-  static const String apiEndpoint = 'API_ENDPOINT';
+  static const String apiEndpoint = String.fromEnvironment('API_ENDPOINT');
 }

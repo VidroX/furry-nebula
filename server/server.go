@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"net/http"
-	"os"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -19,6 +16,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/lestrrat-go/jwx/v2/jwk"
+	"net/http"
+	"os"
+	"path/filepath"
 )
 
 type Environment struct {
@@ -39,7 +39,7 @@ func main() {
 	controller := repositories.Init()
 
 	keySet := jwk.NewSet()
-	keySet.AddKey(public)
+	_ = keySet.AddKey(public)
 
 	validate := validator.New()
 
@@ -58,11 +58,14 @@ func main() {
 	r.Any("/gql", env.graphqlHandler())
 	r.GET("/certs", env.certsHandler())
 
+	uploadsPath, _ := filepath.Abs(filepath.Join(os.Getenv(environment.KeysAppPath), os.Getenv(environment.KeysUploadsLocation)))
+	r.StaticFS("/uploads", gin.Dir(uploadsPath, false))
+
 	if os.Getenv(environment.KeysGinMode) != "release" {
 		r.GET("/", env.playgroundHandler())
 	}
 
-	r.Run()
+	_ = r.Run()
 }
 
 func loadDatabase() {

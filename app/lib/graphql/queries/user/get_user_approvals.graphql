@@ -1,0 +1,13 @@
+# import '../../fragments/user_fragment.graphql'
+# import '../../fragments/page_info_fragment.graphql'
+
+query GetUserApprovals($filters: ApprovalFilters, $pagination: Pagination) {
+    userApprovals(filters: $filters, pagination: $pagination) {
+        node {
+            ...UserFragment
+        }
+        pageInfo {
+            ...PageInfoFragment
+        }
+    }
+}

@@ -1,0 +1,5 @@
+mutation RemoveAnimal($id: ID!) {
+    removeAnimal(id: $id){
+        message
+    }
+}

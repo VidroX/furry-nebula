@@ -1,0 +1,7 @@
+# import '../../fragments/shelter_fragment.graphql'
+
+query GetShelterById($id: ID!) {
+    shelter(id: $id) {
+        ...ShelterFragment
+    }
+}

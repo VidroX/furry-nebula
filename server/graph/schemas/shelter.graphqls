@@ -7,3 +7,129 @@ enum Animal {
     Rabbit
     Bird
 }
+
+"""
+User added animal shelter
+"""
+type Shelter {
+  id: ID!
+  representativeUser: User!
+  name: String!
+  address: String!
+  info: String!
+  photo: String
+}
+
+"""
+Shelter animal
+"""
+type ShelterAnimal {
+  id: ID!
+  shelter: Shelter!
+  animal: Animal!
+  name: String!
+  description: String!
+  photo: String
+  overallRating: Float!
+  userRating: Float
+}
+
+"""
+Filters for the shelter animals list
+"""
+input AnimalFilters {
+  shelterId: ID
+  shelterIds: [ID!]
+  animal: Animal
+}
+
+"""
+Shelter list filters
+"""
+input ShelterFilters {
+  showOnlyOwnShelters: Boolean @hasRole(role: Shelter)
+}
+
+"""
+Shelter list connection
+"""
+type ShelterConnection {
+  node: [Shelter]!
+  pageInfo: PageInfo!
+}
+
+"""
+Animal list connection
+"""
+type ShelterAnimalConnection {
+  node: [ShelterAnimal]!
+  pageInfo: PageInfo!
+}
+
+"""
+Animal shelter creation input
+"""
+input ShelterInput {
+  name: String!
+  address: String!
+  info: String
+}
+
+"""
+Shelter animal creation input
+"""
+input ShelterAnimalInput {
+  shelterId: ID!
+  animal: Animal!
+  name: String!
+  description: String
+}
+
+extend type Query {
+  """
+  Get the list of shelters added by shelter representatives. Authenticated user is required.
+  """
+  shelters(filters: ShelterFilters, pagination: Pagination): ShelterConnection! @isAuthenticated
+
+  """
+  Get the list of animals in shelters. Authenticated user is required.
+  """
+  shelterAnimals(filters: AnimalFilters, pagination: Pagination): ShelterAnimalConnection! @isAuthenticated
+
+  """
+  Get animal shelter by its id. Authenticated user is required.
+  """
+  shelter(id: ID!): Shelter! @isAuthenticated
+
+  """
+  Get shelter animal by its id. Authenticated user is required.
+  """
+  shelterAnimal(id: ID!): ShelterAnimal! @isAuthenticated
+}
+
+extend type Mutation {
+  """
+  Add shelter. User with Shelter role is required.
+  """
+  addShelter(data: ShelterInput!, photo: Upload): Shelter! @hasRole(role: Shelter)
+
+  """
+  Add animal to the shelter. User with Shelter role is required.
+  """
+  addShelterAnimal(data: ShelterAnimalInput!, photo: Upload): ShelterAnimal! @hasRole(role: Shelter)
+
+  """
+  Delete shelter. All animals inside will be removed automatically. User with Shelter role is required.
+  """
+  deleteShelter(id: ID!): ResponseMessage! @hasRole(role: Shelter)
+
+  """
+  Remove animal from the shelter list. User with Shelter role is required.
+  """
+  removeAnimal(id: ID!): ResponseMessage! @hasRole(role: Shelter)
+
+  """
+  Update animal rating. Authenticated user is required.
+  """
+  updateAnimalRating(id: ID!, rating: Float!): ShelterAnimal! @isAuthenticated
+}
