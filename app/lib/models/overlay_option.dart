@@ -9,7 +9,5 @@ class OverlayOption<T> with _$OverlayOption<T> {
     required T data,
     required String title,
     String? uniqueIndex,
-    Widget? prefixWidget,
-    Widget? suffixWidget,
   }) = _OverlayOption;
 }

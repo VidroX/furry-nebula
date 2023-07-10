@@ -61,7 +61,10 @@ class ApiClient {
     final link = Link.from([
       ...links,
       DioLink(
-        dotenv.env[EnvironmentConstants.apiEndpoint] ?? '',
+        String.fromEnvironment(
+          EnvironmentConstants.apiEndpoint,
+          defaultValue: dotenv.env[EnvironmentConstants.apiEndpoint] ?? '',
+        ),
         client: dioClient,
       ),
     ]);
