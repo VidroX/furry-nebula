@@ -21,6 +21,7 @@ type ShelterService interface {
 	UpdateShelterAnimalPhoto(userId string, shelterAnimalId string, photo *string) *nebulaErrors.APIError
 	DeleteShelter(userId string, shelterId string) *nebulaErrors.APIError
 	RemoveShelterAnimal(userId string, shelterAnimalId string) *nebulaErrors.APIError
+	CreateUserRequest(userId string, userRequestInput model.UserRequestInput) (*model.UserRequest, []*nebulaErrors.APIError)
 }
 
 type shelterService struct {
@@ -85,8 +86,6 @@ func (service *shelterService) UpdateShelterPhoto(userId string, shelterId strin
 func (service *shelterService) AddShelterAnimal(userId string, shelterAnimalInfo model.ShelterAnimalInput) (*model.ShelterAnimal, []*nebulaErrors.APIError) {
 	shelterRep, err := service.shelterRepository.GetShelterOwner(shelterAnimalInfo.ShelterID)
 
-	println(shelterAnimalInfo.ShelterID)
-	println(shelterRep.FirstName)
 	if err != nil || shelterRep.ID != userId {
 		return nil, []*nebulaErrors.APIError{&generalErrors.ErrNotEnoughPermissions}
 	}
@@ -170,6 +169,72 @@ func (service *shelterService) RemoveShelterAnimal(userId string, shelterAnimalI
 	}
 
 	return nil
+}
+
+func (service *shelterService) CreateUserRequest(userId string, userRequestInput model.UserRequestInput) (*model.UserRequest, []*nebulaErrors.APIError) {
+	userRequestModel := model.UserRequest{
+		UserID:      userId,
+		AnimalID:    userRequestInput.AnimalID,
+		RequestType: userRequestInput.RequestType,
+	}
+
+	if userRequestInput.FromDate != nil {
+		userRequestModel.FromDate = userRequestInput.FromDate
+	}
+
+	if userRequestInput.ToDate != nil {
+		userRequestModel.ToDate = userRequestInput.ToDate
+	}
+
+	err := service.validate.Struct(&userRequestModel)
+
+	if apiErrors := validation.ProcessValidatorErrors(err); apiErrors != nil && len(apiErrors) > 0 {
+		return nil, apiErrors
+	}
+
+	err = service.shelterRepository.CreateUserRequest(&userRequestModel)
+
+	if err != nil {
+		var normalizedErrors []*nebulaErrors.APIError
+
+		switch {
+		case errors.Is(err, shelter.IncorrectDateRange):
+			normalizedErrors = []*nebulaErrors.APIError{
+				validation.ConstructValidationError(validation.ErrIncorrectDateRange, "fromDate"),
+				validation.ConstructValidationError(validation.ErrIncorrectDateRange, "toDate"),
+			}
+		case errors.Is(err, shelter.AnimalAlreadyAdopted):
+			normalizedErrors = []*nebulaErrors.APIError{
+				validation.ConstructValidationError(validation.ErrAnimalAlreadyAdopted, "animalId"),
+			}
+		case errors.Is(err, shelter.AnimalNotAvailable):
+			normalizedErrors = []*nebulaErrors.APIError{
+				validation.ConstructValidationError(validation.ErrAnimalNotAvailable, "fromDate"),
+				validation.ConstructValidationError(validation.ErrAnimalNotAvailable, "toDate"),
+			}
+		case errors.Is(err, shelter.DateRangeEmpty):
+			normalizedErrors = []*nebulaErrors.APIError{
+				validation.ConstructValidationError(validation.ErrDateRangeEmpty, "fromDate"),
+				validation.ConstructValidationError(validation.ErrDateRangeEmpty, "toDate"),
+			}
+		case errors.Is(err, shelter.PastDate):
+			normalizedErrors = []*nebulaErrors.APIError{
+				validation.ConstructValidationError(validation.ErrPastDate, "fromDate"),
+			}
+		default:
+			normalizedErrors = []*nebulaErrors.APIError{&generalErrors.ErrInternal}
+		}
+
+		return nil, normalizedErrors
+	}
+
+	dbUserRequest, err := service.shelterRepository.GetUserRequestById(userRequestModel.ID)
+
+	if err != nil {
+		return nil, []*nebulaErrors.APIError{&generalErrors.ErrInternal}
+	}
+
+	return dbUserRequest, nil
 }
 
 func RegisterShelterService(

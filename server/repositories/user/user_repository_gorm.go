@@ -139,6 +139,27 @@ func (repo *UserRepositoryGorm) GetUsers(pagination *Pagination) ([]*User, int64
 	return users, total, nil
 }
 
+func (repo *UserRepositoryGorm) SetUserFCMToken(userId string, token string) (*User, error) {
+	var user *User
+	err := repo.database.
+		Preload("Role").
+		First(&user, "id = ?", strings.TrimSpace(userId)).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	user.FCMToken = &token
+	err = repo.database.Save(&user).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func boolPointer(b bool) *bool {
 	return &b
 }

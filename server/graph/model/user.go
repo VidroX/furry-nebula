@@ -15,6 +15,7 @@ type User struct {
 	Role             UserRole  `json:"role" gorm:"foreignKey:RoleName;references:Name;OnDelete:SET NULL"`
 	Password         string    `json:"-" validate:"required,gte=6"`
 	RegistrationDate time.Time `json:"registrationDate" gorm:"not null;default:current_timestamp"`
+	FCMToken         *string   `json:"fcmToken" gorm:"default:NULL"`
 }
 
 type TokenizedUser struct {

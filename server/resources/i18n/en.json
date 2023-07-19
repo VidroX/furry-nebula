@@ -26,7 +26,12 @@
         "errors": {
             "alreadyExists": "Shelter with the given name already exists",
             "shelterNotFound": "Requested shelter not found",
-            "shelterAnimalNotFound": "Requested shelter animal not found or is already adopted"
+            "shelterAnimalNotFound": "Requested shelter animal not found or is already adopted",
+            "incorrectDateRange": "Incorrect date range. From date cannot be after to date.",
+            "animalAlreadyAdopted": "Animal has been already adopted by someone else",
+            "animalNotAvailable": "Animal cannot be adopted/accommodated in the given date range",
+            "dateRangeEmpty": "Please, select date range before proceeding",
+            "dateCannotBeInThePast": "Selected date cannot be in the past"
         },
         "shelterRemoved": "Shelter has been successfully deleted from the system!",
         "shelterAnimalRemoved": "Shelter animal has been successfully removed!"

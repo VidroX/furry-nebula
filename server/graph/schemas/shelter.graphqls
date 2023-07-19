@@ -9,6 +9,14 @@ enum Animal {
 }
 
 """
+User request type
+"""
+enum UserRequestType {
+  Accommodation
+  Adoption
+}
+
+"""
 User added animal shelter
 """
 type Shelter {
@@ -35,12 +43,27 @@ type ShelterAnimal {
 }
 
 """
+User request
+"""
+type UserRequest {
+  id: ID!
+  user: User!
+  approvedBy: User
+  animal: ShelterAnimal!
+  isApproved: Boolean!
+  fromDate: Time
+  toDate: Time
+  requestType: UserRequestType!
+}
+
+"""
 Filters for the shelter animals list
 """
 input AnimalFilters {
   shelterId: ID
   shelterIds: [ID!]
   animal: Animal
+  showUnavailable: Boolean
 }
 
 """
@@ -51,18 +74,35 @@ input ShelterFilters {
 }
 
 """
+User request filters
+"""
+input UserRequestFilters {
+  requestType: UserRequestType
+  isApproved: Boolean
+  isReviewed: Boolean
+}
+
+"""
 Shelter list connection
 """
 type ShelterConnection {
-  node: [Shelter]!
+  node: [Shelter!]!
   pageInfo: PageInfo!
 }
 
 """
-Animal list connection
+Accommodation Requests list connection
 """
 type ShelterAnimalConnection {
-  node: [ShelterAnimal]!
+  node: [ShelterAnimal!]!
+  pageInfo: PageInfo!
+}
+
+"""
+User request connection
+"""
+type UserRequestConnection {
+  node: [UserRequest!]!
   pageInfo: PageInfo!
 }
 
@@ -85,6 +125,16 @@ input ShelterAnimalInput {
   description: String
 }
 
+"""
+User request input
+"""
+input UserRequestInput {
+  animalId: ID!
+  requestType: UserRequestType!
+  fromDate: Time
+  toDate: Time
+}
+
 extend type Query {
   """
   Get the list of shelters added by shelter representatives. Authenticated user is required.
@@ -105,6 +155,11 @@ extend type Query {
   Get shelter animal by its id. Authenticated user is required.
   """
   shelterAnimal(id: ID!): ShelterAnimal! @isAuthenticated
+
+  """
+  Get user accommodation/adoption requests. Authenticated user is required.
+  """
+  userRequests(filters: UserRequestFilters, pagination: Pagination): UserRequestConnection! @isAuthenticated
 }
 
 extend type Mutation {
@@ -132,4 +187,19 @@ extend type Mutation {
   Update animal rating. Authenticated user is required.
   """
   updateAnimalRating(id: ID!, rating: Float!): ShelterAnimal! @isAuthenticated
+
+  """
+  Create user accommodation/adoption request. Authenticated user is required.
+  """
+  createUserRequest(data: UserRequestInput!): UserRequest! @isAuthenticated
+
+  """
+  Change user accommodation/adoption request status. User with Shelter role is required.
+  """
+  changeUserRequestStatus(id: ID!, approved: Boolean!): ResponseMessage! @hasRole(role: Shelter)
+
+  """
+  Return animal request. Authenticated user is required.
+  """
+  returnAnimal(id: ID!): ResponseMessage! @isAuthenticated
 }

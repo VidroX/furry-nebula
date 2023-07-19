@@ -24,6 +24,7 @@ type UserService interface {
 	Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebulaErrors.APIError)
 	ChangeUserApprovalStatus(userId string, isApproved bool) *nebulaErrors.APIError
 	CreateAccessToken(user *model.User) (*model.Token, *nebulaErrors.APIError)
+	SetUserFCMToken(userId string, token string) (*model.User, *nebulaErrors.APIError)
 }
 
 type userService struct {
@@ -172,6 +173,16 @@ func (service *userService) ChangeUserApprovalStatus(userId string, isApproved b
 	}
 
 	return nil
+}
+
+func (service *userService) SetUserFCMToken(userId string, token string) (*model.User, *nebulaErrors.APIError) {
+	updatedUser, err := service.userRepository.SetUserFCMToken(userId, token)
+
+	if err != nil {
+		return nil, &generalErrors.ErrInternal
+	}
+
+	return updatedUser, nil
 }
 
 func RegisterUserService(

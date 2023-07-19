@@ -134,6 +134,37 @@ func (r *mutationResolver) UpdateAnimalRating(ctx context.Context, id string, ra
 	panic(fmt.Errorf("not implemented: UpdateAnimalRating - updateAnimalRating"))
 }
 
+// CreateUserRequest is the resolver for the createUserRequest field.
+func (r *mutationResolver) CreateUserRequest(ctx context.Context, data model.UserRequestInput) (*model.UserRequest, error) {
+	gCtx := graph.GetGinContext(ctx)
+	shelterService := gCtx.GetServices().ShelterService
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	userRequest, errors := shelterService.CreateUserRequest(user.ID, data)
+
+	if errors != nil && len(errors) > 0 {
+		graph.ProcessErrorsSlice(&ctx, gCtx.GetLocalizer(), errors)
+
+		return nil, nil
+	}
+
+	return userRequest, nil
+}
+
+// ChangeUserRequestStatus is the resolver for the changeUserRequestStatus field.
+func (r *mutationResolver) ChangeUserRequestStatus(ctx context.Context, id string, approved bool) (*model.ResponseMessage, error) {
+	panic(fmt.Errorf("not implemented: ChangeUserRequestStatus - changeUserRequestStatus"))
+}
+
+// ReturnAnimal is the resolver for the returnAnimal field.
+func (r *mutationResolver) ReturnAnimal(ctx context.Context, id string) (*model.ResponseMessage, error) {
+	panic(fmt.Errorf("not implemented: ReturnAnimal - returnAnimal"))
+}
+
 // Shelters is the resolver for the shelters field.
 func (r *queryResolver) Shelters(ctx context.Context, filters *model.ShelterFilters, pagination *model.Pagination) (*model.ShelterConnection, error) {
 	gCtx := graph.GetGinContext(ctx)
@@ -219,6 +250,37 @@ func (r *queryResolver) ShelterAnimal(ctx context.Context, id string) (*model.Sh
 	}
 
 	return shelterAnimal, nil
+}
+
+// UserRequests is the resolver for the userRequests field.
+func (r *queryResolver) UserRequests(ctx context.Context, filters *model.UserRequestFilters, pagination *model.Pagination) (*model.UserRequestConnection, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterRepo := gCtx.GetRepositories().ShelterRepository
+
+	var userRequests []*model.UserRequest
+	var err2 error
+	var total int64
+
+	if user.HasRole(model.RoleShelter) {
+		userRequests, total, err2 = shelterRepo.GetUserRequestsByShelterRepresentativeId(user.ID, filters, pagination)
+	} else {
+		userRequests, total, err2 = shelterRepo.GetUserRequestsByUserId(user.ID, filters, pagination)
+	}
+
+	if err2 != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
+	}
+
+	return &model.UserRequestConnection{
+		Node:     userRequests,
+		PageInfo: database.GetPageInfo(total, pagination),
+	}, nil
 }
 
 // Animal is the resolver for the animal field.

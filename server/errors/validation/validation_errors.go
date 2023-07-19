@@ -22,6 +22,11 @@ var (
 	ErrShelterAlreadyExists  = nebulaErrors.APIError{Code: mainErrorCode + "8", Error: errors.New(translator.KeysShelterServiceShelterAlreadyExists)}
 	ErrShelterNotFound       = nebulaErrors.APIError{Code: mainErrorCode + "9", Error: errors.New(translator.KeysShelterServiceShelterNotFound)}
 	ErrShelterAnimalNotFound = nebulaErrors.APIError{Code: mainErrorCode + "10", Error: errors.New(translator.KeysShelterServiceShelterAnimalNotFound)}
+	ErrIncorrectDateRange    = nebulaErrors.APIError{Code: mainErrorCode + "11", Error: errors.New(translator.KeysShelterServiceIncorrectDateRange)}
+	ErrAnimalAlreadyAdopted  = nebulaErrors.APIError{Code: mainErrorCode + "12", Error: errors.New(translator.KeysShelterServiceAnimalAlreadyAdopted)}
+	ErrAnimalNotAvailable    = nebulaErrors.APIError{Code: mainErrorCode + "13", Error: errors.New(translator.KeysShelterServiceAnimalNotAvailable)}
+	ErrDateRangeEmpty        = nebulaErrors.APIError{Code: mainErrorCode + "14", Error: errors.New(translator.KeysShelterServiceDateRangeEmpty)}
+	ErrPastDate              = nebulaErrors.APIError{Code: mainErrorCode + "15", Error: errors.New(translator.KeysShelterServiceDateCannotBeInThePast)}
 )
 
 func ConstructValidationError(err nebulaErrors.APIError, field string) *nebulaErrors.APIError {

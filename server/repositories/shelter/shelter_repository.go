@@ -18,6 +18,10 @@ type ShelterRepository interface {
 	UpdateShelterAnimalPhoto(shelterAnimalId string, photo *string) error
 	DeleteShelter(shelterId string) error
 	RemoveShelterAnimal(shelterAnimalId string) error
+	GetUserRequestsByShelterRepresentativeId(shelterRepId string, filters *model.UserRequestFilters, pagination *model.Pagination) ([]*model.UserRequest, int64, error)
+	GetUserRequestsByUserId(userId string, filters *model.UserRequestFilters, pagination *model.Pagination) ([]*model.UserRequest, int64, error)
+	CreateUserRequest(request *model.UserRequest) error
+	GetUserRequestById(id string) (*model.UserRequest, error)
 }
 
 func Get(database *database.NebulaDb) ShelterRepository {

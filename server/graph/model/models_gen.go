@@ -11,9 +11,10 @@ import (
 
 // Filters for the shelter animals list
 type AnimalFilters struct {
-	ShelterID  *string  `json:"shelterId,omitempty"`
-	ShelterIds []string `json:"shelterIds,omitempty"`
-	Animal     *Animal  `json:"animal,omitempty"`
+	ShelterID       *string  `json:"shelterId,omitempty"`
+	ShelterIds      []string `json:"shelterIds,omitempty"`
+	Animal          *Animal  `json:"animal,omitempty"`
+	ShowUnavailable *bool    `json:"showUnavailable,omitempty"`
 }
 
 // Filters for list of user approvals
@@ -42,7 +43,7 @@ type ResponseMessage struct {
 	Message string `json:"message"`
 }
 
-// Animal list connection
+// Accommodation Requests list connection
 type ShelterAnimalConnection struct {
 	Node     []*ShelterAnimal `json:"node"`
 	PageInfo *PageInfo        `json:"pageInfo"`
@@ -95,6 +96,27 @@ type UserRegistrationInput struct {
 	About     *string           `json:"about,omitempty"`
 	Password  string            `json:"password"`
 	Role      *RegistrationRole `json:"role,omitempty"`
+}
+
+// User request connection
+type UserRequestConnection struct {
+	Node     []*UserRequest `json:"node"`
+	PageInfo *PageInfo      `json:"pageInfo"`
+}
+
+// User request filters
+type UserRequestFilters struct {
+	RequestType *UserRequestType `json:"requestType,omitempty"`
+	IsApproved  *bool            `json:"isApproved,omitempty"`
+	IsReviewed  *bool            `json:"isReviewed,omitempty"`
+}
+
+// User request input
+type UserRequestInput struct {
+	AnimalID    string          `json:"animalId"`
+	RequestType UserRequestType `json:"requestType"`
+	FromDate    *time.Time      `json:"fromDate,omitempty"`
+	ToDate      *time.Time      `json:"toDate,omitempty"`
 }
 
 // Messaged response with User and its auth tokens
@@ -282,5 +304,47 @@ func (e *TokenType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TokenType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// User request type
+type UserRequestType string
+
+const (
+	UserRequestTypeAccommodation UserRequestType = "Accommodation"
+	UserRequestTypeAdoption      UserRequestType = "Adoption"
+)
+
+var AllUserRequestType = []UserRequestType{
+	UserRequestTypeAccommodation,
+	UserRequestTypeAdoption,
+}
+
+func (e UserRequestType) IsValid() bool {
+	switch e {
+	case UserRequestTypeAccommodation, UserRequestTypeAdoption:
+		return true
+	}
+	return false
+}
+
+func (e UserRequestType) String() string {
+	return string(e)
+}
+
+func (e *UserRequestType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UserRequestType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UserRequestType", str)
+	}
+	return nil
+}
+
+func (e UserRequestType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
