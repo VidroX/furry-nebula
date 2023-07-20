@@ -31,9 +31,11 @@
             "animalAlreadyAdopted": "Animal has been already adopted by someone else",
             "animalNotAvailable": "Animal cannot be adopted/accommodated in the given date range",
             "dateRangeEmpty": "Please, select date range before proceeding",
-            "dateCannotBeInThePast": "Selected date cannot be in the past"
+            "dateCannotBeInThePast": "Selected date cannot be in the past",
+            "requestNotFound": "Request with the given ID is not found"
         },
         "shelterRemoved": "Shelter has been successfully deleted from the system!",
-        "shelterAnimalRemoved": "Shelter animal has been successfully removed!"
+        "shelterAnimalRemoved": "Shelter animal has been successfully removed!",
+        "statusChanged": "Shelter animal accommodation/adoption status changed successfully!"
     }
 }

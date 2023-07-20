@@ -106,9 +106,11 @@ type UserRequestConnection struct {
 
 // User request filters
 type UserRequestFilters struct {
-	RequestType *UserRequestType `json:"requestType,omitempty"`
-	IsApproved  *bool            `json:"isApproved,omitempty"`
-	IsReviewed  *bool            `json:"isReviewed,omitempty"`
+	RequestType     *UserRequestType `json:"requestType,omitempty"`
+	ShowOwnRequests *bool            `json:"showOwnRequests,omitempty"`
+	IsApproved      *bool            `json:"isApproved,omitempty"`
+	IsReviewed      *bool            `json:"isReviewed,omitempty"`
+	IsFulfilled     *bool            `json:"isFulfilled,omitempty"`
 }
 
 // User request input

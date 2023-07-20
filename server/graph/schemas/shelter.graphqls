@@ -54,6 +54,7 @@ type UserRequest {
   fromDate: Time
   toDate: Time
   requestType: UserRequestType!
+  isFulfilled: Boolean!
 }
 
 """
@@ -78,8 +79,10 @@ User request filters
 """
 input UserRequestFilters {
   requestType: UserRequestType
+  showOwnRequests: Boolean @hasRole(role: Shelter)
   isApproved: Boolean
   isReviewed: Boolean
+  isFulfilled: Boolean
 }
 
 """
@@ -199,7 +202,7 @@ extend type Mutation {
   changeUserRequestStatus(id: ID!, approved: Boolean!): ResponseMessage! @hasRole(role: Shelter)
 
   """
-  Return animal request. Authenticated user is required.
+  Change user request fulfillment status. User with Shelter role is required.
   """
-  returnAnimal(id: ID!): ResponseMessage! @isAuthenticated
+  changeUserRequestFulfillmentStatus(id: ID!, fulfilled: Boolean!): ResponseMessage! @hasRole(role: Shelter)
 }

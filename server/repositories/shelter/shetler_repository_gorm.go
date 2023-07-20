@@ -139,19 +139,18 @@ func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilter
 
 	if filters.ShowUnavailable == nil || !(*filters.ShowUnavailable) {
 		filterQuery := `
-			shelter_animals.id = ANY (
-				SELECT SA.id FROM user_requests AS UR
-				RIGHT JOIN shelter_animals AS SA ON SA.id = UR.animal_id
-				WHERE (
-					(UR.is_reviewed is null OR UR.is_reviewed = ?)
-					OR (UR.is_approved is null OR UR.is_approved = ?)
-					OR (UR.request_type is null OR UR.request_type <> ?)
+			shelter_animals.id NOT IN (
+				SELECT animal_id FROM user_requests
+				WHERE is_reviewed = ?
+				AND is_approved = ?
+				AND (
+					request_type = ?
+					OR (request_type = ? AND is_fulfilled = ?)
 				)
-				AND (UR.to_date is null OR UR.to_date::date >= ?::date)
 			)
 		`
 		results = results.
-			Where(filterQuery, false, false, model.UserRequestTypeAdoption.String(), time.Now())
+			Where(filterQuery, true, true, model.UserRequestTypeAdoption.String(), model.UserRequestTypeAccommodation.String(), false)
 	}
 
 	results = results.
@@ -222,6 +221,10 @@ func (repo *ShelterRepositoryGorm) GetUserRequestsByShelterRepresentativeId(shel
 
 	filterMap := map[string]interface{}{}
 
+	if filters.IsFulfilled != nil {
+		filterMap["is_fulfilled"] = *filters.IsFulfilled
+	}
+
 	if filters.IsApproved != nil {
 		filterMap["is_approved"] = *filters.IsApproved
 	}
@@ -277,6 +280,10 @@ func (repo *ShelterRepositoryGorm) GetUserRequestsByUserId(userId string, filter
 	var total int64 = 0
 
 	filterMap := map[string]interface{}{}
+
+	if filters.IsFulfilled != nil {
+		filterMap["is_fulfilled"] = *filters.IsFulfilled
+	}
 
 	if filters.IsApproved != nil {
 		filterMap["is_approved"] = *filters.IsApproved
@@ -360,11 +367,11 @@ func (repo *ShelterRepositoryGorm) CreateUserRequest(request *model.UserRequest)
 
 	if request.RequestType == model.UserRequestTypeAccommodation {
 		query = query.
-			Where("?::date >= from_date::date AND ?::date <= to_date::date", request.FromDate, request.ToDate)
+			Where("?::date >= from_date::date AND ?::date <= to_date::date AND is_fulfilled = ?", request.FromDate, request.ToDate, false)
 	} else {
 		currentTime := time.Now()
 		query = query.
-			Where("?::date >= from_date::date AND ?::date <= to_date::date", currentTime, currentTime)
+			Where("?::date >= from_date::date AND ?::date <= to_date::date AND is_fulfilled = ?", currentTime, currentTime, false)
 	}
 
 	query = query.Count(&total)
@@ -395,6 +402,35 @@ func (repo *ShelterRepositoryGorm) GetUserRequestById(id string) (*model.UserReq
 	}
 
 	return userRequest, nil
+}
+
+func (repo *ShelterRepositoryGorm) ChangeUserRequestStatus(id string, isApproved bool, userId *string) error {
+	updateMap := map[string]interface{}{
+		"is_approved": isApproved,
+		"is_reviewed": true,
+	}
+
+	if isApproved {
+		updateMap["approved_by_user_id"] = userId
+	}
+
+	err := repo.database.Model(&model.UserRequest{}).
+		Where("id = ?", id).
+		Updates(updateMap).
+		Error
+
+	return err
+}
+
+func (repo *ShelterRepositoryGorm) ChangeUserRequestFulfillmentStatus(id string, isFulfilled bool) error {
+	err := repo.database.Model(&model.UserRequest{}).
+		Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"is_fulfilled": isFulfilled,
+		}).
+		Error
+
+	return err
 }
 
 func truncateToDay(t time.Time) time.Time {

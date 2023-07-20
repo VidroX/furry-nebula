@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"fmt"
-
 	"github.com/99designs/gqlgen/graphql"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/errors/validation"
@@ -157,12 +156,44 @@ func (r *mutationResolver) CreateUserRequest(ctx context.Context, data model.Use
 
 // ChangeUserRequestStatus is the resolver for the changeUserRequestStatus field.
 func (r *mutationResolver) ChangeUserRequestStatus(ctx context.Context, id string, approved bool) (*model.ResponseMessage, error) {
-	panic(fmt.Errorf("not implemented: ChangeUserRequestStatus - changeUserRequestStatus"))
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterService := gCtx.GetServices().ShelterService
+	err = shelterService.ChangeUserRequestStatus(user.ID, id, approved)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return &model.ResponseMessage{
+		Message: translator.WithKey(translator.KeysShelterServiceStatusChanged).Translate(gCtx.GetLocalizer()),
+	}, nil
 }
 
-// ReturnAnimal is the resolver for the returnAnimal field.
-func (r *mutationResolver) ReturnAnimal(ctx context.Context, id string) (*model.ResponseMessage, error) {
-	panic(fmt.Errorf("not implemented: ReturnAnimal - returnAnimal"))
+// ChangeUserRequestFulfillmentStatus is the resolver for the changeUserRequestFulfillmentStatus field.
+func (r *mutationResolver) ChangeUserRequestFulfillmentStatus(ctx context.Context, id string, fulfilled bool) (*model.ResponseMessage, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterService := gCtx.GetServices().ShelterService
+	err = shelterService.ChangeUserRequestFulfillmentStatus(user.ID, id, fulfilled)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return &model.ResponseMessage{
+		Message: translator.WithKey(translator.KeysShelterServiceStatusChanged).Translate(gCtx.GetLocalizer()),
+	}, nil
 }
 
 // Shelters is the resolver for the shelters field.
@@ -267,7 +298,7 @@ func (r *queryResolver) UserRequests(ctx context.Context, filters *model.UserReq
 	var err2 error
 	var total int64
 
-	if user.HasRole(model.RoleShelter) {
+	if user.HasRole(model.RoleShelter) && (filters.ShowOwnRequests == nil || !(*filters.ShowOwnRequests)) {
 		userRequests, total, err2 = shelterRepo.GetUserRequestsByShelterRepresentativeId(user.ID, filters, pagination)
 	} else {
 		userRequests, total, err2 = shelterRepo.GetUserRequestsByUserId(user.ID, filters, pagination)

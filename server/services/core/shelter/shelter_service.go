@@ -8,6 +8,7 @@ import (
 	"github.com/VidroX/furry-nebula/graph/model"
 	"github.com/VidroX/furry-nebula/repositories/shelter"
 	"github.com/VidroX/furry-nebula/services/translator"
+	. "github.com/VidroX/furry-nebula/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -22,6 +23,8 @@ type ShelterService interface {
 	DeleteShelter(userId string, shelterId string) *nebulaErrors.APIError
 	RemoveShelterAnimal(userId string, shelterAnimalId string) *nebulaErrors.APIError
 	CreateUserRequest(userId string, userRequestInput model.UserRequestInput) (*model.UserRequest, []*nebulaErrors.APIError)
+	ChangeUserRequestStatus(userId string, requestId string, isApproved bool) *nebulaErrors.APIError
+	ChangeUserRequestFulfillmentStatus(userId string, requestId string, isFulfilled bool) *nebulaErrors.APIError
 }
 
 type shelterService struct {
@@ -235,6 +238,60 @@ func (service *shelterService) CreateUserRequest(userId string, userRequestInput
 	}
 
 	return dbUserRequest, nil
+}
+
+func (service *shelterService) ChangeUserRequestStatus(userId string, requestId string, isApproved bool) *nebulaErrors.APIError {
+	if UtilString(requestId).IsEmpty() {
+		return validation.ConstructValidationError(validation.ErrValidationRequired, "id")
+	}
+
+	userRequest, err := service.shelterRepository.GetUserRequestById(requestId)
+
+	var pgErr *pgconn.PgError
+	if err != nil && (errors.Is(err, gorm.ErrRecordNotFound) || (errors.As(err, &pgErr) && pgErr.Code == pgerrcode.NoDataFound)) {
+		return validation.ConstructValidationError(validation.ErrRequestNotFound, "id")
+	} else if err != nil {
+		return &generalErrors.ErrInternal
+	}
+
+	if userRequest.Animal.Shelter.RepresentativeID != userId {
+		return &generalErrors.ErrNotEnoughPermissions
+	}
+
+	err = service.shelterRepository.ChangeUserRequestStatus(requestId, isApproved, &userId)
+
+	if err != nil {
+		return &generalErrors.ErrInternal
+	}
+
+	return nil
+}
+
+func (service *shelterService) ChangeUserRequestFulfillmentStatus(userId string, requestId string, isFulfilled bool) *nebulaErrors.APIError {
+	if UtilString(requestId).IsEmpty() {
+		return validation.ConstructValidationError(validation.ErrValidationRequired, "id")
+	}
+
+	userRequest, err := service.shelterRepository.GetUserRequestById(requestId)
+
+	var pgErr *pgconn.PgError
+	if err != nil && (errors.Is(err, gorm.ErrRecordNotFound) || (errors.As(err, &pgErr) && pgErr.Code == pgerrcode.NoDataFound)) {
+		return validation.ConstructValidationError(validation.ErrRequestNotFound, "id")
+	} else if err != nil {
+		return &generalErrors.ErrInternal
+	}
+
+	if userRequest.Animal.Shelter.RepresentativeID != userId {
+		return &generalErrors.ErrNotEnoughPermissions
+	}
+
+	err = service.shelterRepository.ChangeUserRequestFulfillmentStatus(requestId, isFulfilled)
+
+	if err != nil {
+		return &generalErrors.ErrInternal
+	}
+
+	return nil
 }
 
 func RegisterShelterService(

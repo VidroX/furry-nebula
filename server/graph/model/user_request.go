@@ -15,5 +15,6 @@ type UserRequest struct {
 	ToDate           *time.Time      `json:"toDate"`
 	ApprovedByUserID *string         `json:"-"`
 	ApprovedBy       *User           `json:"approvedByUser" validate:"-" gorm:"foreignKey:ApprovedByUserID;references:ID;OnDelete:SET NULL;default:null"`
+	IsFulfilled      bool            `json:"isFulfilled" gorm:"type:boolean;default:false;not null"`
 	AddDatetime      time.Time       `json:"addDatetime" gorm:"not null;default:current_timestamp"`
 }
