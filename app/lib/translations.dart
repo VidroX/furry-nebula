@@ -105,4 +105,9 @@ class Translations {
   static const String animalTypesDog = 'animalTypes.dog';
   static const String animalTypesBird = 'animalTypes.bird';
   static const String animalTypesRabbit = 'animalTypes.rabbit';
+
+  // Request types
+  static const String requestTypeTitle = 'requestType.title';
+  static const String requestTypeAccommodation = 'requestType.accommodation';
+  static const String requestTypeAdoption = 'requestType.adoption';
 }

@@ -1,0 +1,5 @@
+mutation ChangeUserRequestFulfillmentStatus($id: ID!, $fulfilled: Boolean!) {
+    changeUserRequestFulfillmentStatus(id: $id, fulfilled: $fulfilled) {
+        message
+    }
+}

@@ -22,6 +22,12 @@ type Mutation {
     addShelterAnimal(data: ShelterAnimalInput!, photo: Upload): ShelterAnimal!
     "Change approval status of user by id. Admin user is required."
     changeUserApprovalStatus(isApproved: Boolean!, userId: ID!): ResponseMessage!
+    "Change user request fulfillment status. User with Shelter role is required."
+    changeUserRequestFulfillmentStatus(fulfilled: Boolean!, id: ID!): ResponseMessage!
+    "Change user accommodation/adoption request status. User with Shelter role is required."
+    changeUserRequestStatus(approved: Boolean!, id: ID!): ResponseMessage!
+    "Create user accommodation/adoption request. Authenticated user is required."
+    createUserRequest(data: UserRequestInput!): UserRequest!
     "Delete shelter. All animals inside will be removed automatically. User with Shelter role is required."
     deleteShelter(id: ID!): ResponseMessage!
     "User login. Unauthenticated user only."
@@ -34,6 +40,8 @@ type Mutation {
     removeAnimal(id: ID!): ResponseMessage!
     "Update animal rating. Authenticated user is required."
     updateAnimalRating(id: ID!, rating: Float!): ShelterAnimal!
+    "Update current user's FCM token. Authenticated user is required."
+    updateFCMToken(token: String!): User!
 }
 
 "Page information"
@@ -58,6 +66,8 @@ type Query {
     user: User!
     "Get the list of user approvals. Admin user is required."
     userApprovals(filters: ApprovalFilters, pagination: Pagination): UserApprovalsConnection!
+    "Get user accommodation/adoption requests. Authenticated user is required."
+    userRequests(filters: UserRequestFilters, pagination: Pagination): UserRequestConnection!
     "Get the list of all users. Admin user is required."
     users(pagination: Pagination): UsersConnection!
 }
@@ -89,15 +99,15 @@ type ShelterAnimal {
     userRating: Float
 }
 
-"Animal list connection"
+"Accommodation Requests list connection"
 type ShelterAnimalConnection {
-    node: [ShelterAnimal]!
+    node: [ShelterAnimal!]!
     pageInfo: PageInfo!
 }
 
 "Shelter list connection"
 type ShelterConnection {
-    node: [Shelter]!
+    node: [Shelter!]!
     pageInfo: PageInfo!
 }
 
@@ -112,6 +122,7 @@ type User {
     about: String!
     birthday: Time!
     email: String!
+    fcmToken: String
     firstName: String!
     id: ID!
     isApproved: Boolean!
@@ -122,6 +133,25 @@ type User {
 "User approvals connection"
 type UserApprovalsConnection {
     node: [User]!
+    pageInfo: PageInfo!
+}
+
+"User request"
+type UserRequest {
+    animal: ShelterAnimal!
+    approvedBy: User
+    fromDate: Time
+    id: ID!
+    isApproved: Boolean!
+    isFulfilled: Boolean!
+    requestType: UserRequestType!
+    toDate: Time
+    user: User!
+}
+
+"User request connection"
+type UserRequestConnection {
+    node: [UserRequest!]!
     pageInfo: PageInfo!
 }
 
@@ -166,6 +196,12 @@ enum TokenType {
     Refresh
 }
 
+"User request type"
+enum UserRequestType {
+    Accommodation
+    Adoption
+}
+
 "Int64 scalar"
 scalar Int64
 
@@ -180,6 +216,7 @@ input AnimalFilters {
     animal: Animal
     shelterId: ID
     shelterIds: [ID!]
+    showUnavailable: Boolean
 }
 
 "Filters for list of user approvals"
@@ -223,4 +260,21 @@ input UserRegistrationInput {
     lastName: String!
     password: String!
     role: RegistrationRole
+}
+
+"User request filters"
+input UserRequestFilters {
+    isApproved: Boolean
+    isFulfilled: Boolean
+    isReviewed: Boolean
+    requestType: UserRequestType
+    showOwnRequests: Boolean
+}
+
+"User request input"
+input UserRequestInput {
+    animalId: ID!
+    fromDate: Time
+    requestType: UserRequestType!
+    toDate: Time
 }

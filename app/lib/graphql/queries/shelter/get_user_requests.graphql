@@ -1,0 +1,13 @@
+# import '../../fragments/user_request_fragment.graphql'
+# import '../../fragments/page_info_fragment.graphql'
+
+query GetUserRequests($filters: UserRequestFilters, $pagination: Pagination) {
+    userRequests(filters: $filters, pagination: $pagination) {
+        node {
+            ...UserRequestFragment
+        }
+        pageInfo {
+            ...PageInfoFragment
+        }
+    }
+}

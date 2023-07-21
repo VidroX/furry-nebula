@@ -117,5 +117,10 @@
     "cat": "Cat",
     "bird": "Bird",
     "rabbit": "Rabbit"
+  },
+  "requestTypes": {
+    "title": "User request type",
+    "accommodation": "Accommodation",
+    "adoption": "Adoption"
   }
 }

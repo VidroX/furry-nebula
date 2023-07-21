@@ -4,6 +4,8 @@ import 'package:furry_nebula/models/pagination/pagination.dart';
 import 'package:furry_nebula/models/shelter/animal_type.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 import 'package:furry_nebula/models/shelter/shelter_animal.dart';
+import 'package:furry_nebula/models/shelter/user_request.dart';
+import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
 
 abstract class ShelterRepository {
@@ -41,4 +43,30 @@ abstract class ShelterRepository {
   Future<void> deleteShelter({ required String shelterId });
 
   Future<void> removeShelterAnimal({ required String shelterAnimalId });
+
+  Future<GraphPage<UserRequest>> getUserRequests({
+    UserRequestType? requestType,
+    bool? showOwnRequests,
+    bool? isApproved = false,
+    bool? isReviewed = false,
+    bool shouldGetFromCacheFirst = true,
+    Pagination pagination = const Pagination(),
+  });
+
+  Future<UserRequest> createUserRequest({
+    required String animalId,
+    required UserRequestType requestType,
+    DateTime? fromDate,
+    DateTime? toDate,
+  });
+
+  Future<void> changeUserRequestStatus({
+    required String requestId,
+    bool isApproved = false,
+  });
+
+  Future<void> changeUserRequestFulfillmentStatus({
+    required String requestId,
+    bool isFulfilled = false,
+  });
 }

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:furry_nebula/graphql/fragments/__generated__/shelter_animal_fragment.data.gql.dart';
 import 'package:furry_nebula/models/shelter/animal_type.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 
@@ -16,6 +17,18 @@ class ShelterAnimal with _$ShelterAnimal {
     required double overallRating,
     double? userRating,
   }) = _ShelterAnimal;
+
+  factory ShelterAnimal.fromFragment(GShelterAnimalFragment fragment) =>
+      ShelterAnimal(
+        id: fragment.id,
+        name: fragment.name,
+        description: fragment.description,
+        photo: fragment.photo,
+        animalType: AnimalType.fromGAnimal(fragment.animal)!,
+        shelter: Shelter.fromFragment(fragment.shelter),
+        overallRating: fragment.overallRating,
+        userRating: fragment.userRating,
+      );
 
   const ShelterAnimal._();
 }

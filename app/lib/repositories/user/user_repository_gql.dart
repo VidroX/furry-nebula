@@ -4,7 +4,6 @@ import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
-import 'package:furry_nebula/graphql/fragments/__generated__/user_fragment.data.gql.dart';
 import 'package:furry_nebula/graphql/mutations/user/__generated__/change_user_approval_status.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/user/__generated__/login.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/user/__generated__/register.req.gql.dart';
@@ -14,7 +13,6 @@ import 'package:furry_nebula/models/pagination/graph_page.dart';
 import 'package:furry_nebula/models/pagination/pagination.dart';
 import 'package:furry_nebula/models/user/user.dart';
 import 'package:furry_nebula/models/user/user_registration_role.dart';
-import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/models/user/user_token.dart';
 import 'package:furry_nebula/repositories/user/user_repository.dart';
 import 'package:furry_nebula/services/api_client.dart';
@@ -26,17 +24,6 @@ class UserRepositoryGraphQL extends UserRepository {
   FlutterSecureStorage get _storage => const FlutterSecureStorage();
 
   UserRepositoryGraphQL({ required this.client });
-
-  User _buildUser(GUserFragment user) => User(
-    id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    isApproved: user.isApproved,
-    about: user.about,
-    role: UserRole.fromGRole(user.role)!,
-    email: user.email,
-    birthDay: user.birthday,
-  );
 
   @override
   Future<bool> isAuthenticated() async {
@@ -58,7 +45,7 @@ class UserRepositoryGraphQL extends UserRepository {
       throw const RequestFailedException();
     }
 
-    return _buildUser(user);
+    return User.fromFragment(user);
   }
 
   @override
@@ -98,7 +85,7 @@ class UserRepositoryGraphQL extends UserRepository {
     await _storage.write(key: UserToken.accessTokenKey, value: accessToken);
     await _storage.write(key: UserToken.refreshTokenKey, value: refreshToken);
 
-    return _buildUser(response.data!.login.user!);
+    return User.fromFragment(response.data!.login.user!);
   }
 
   @override
@@ -146,7 +133,7 @@ class UserRepositoryGraphQL extends UserRepository {
     await _storage.write(key: UserToken.accessTokenKey, value: accessToken);
     await _storage.write(key: UserToken.refreshTokenKey, value: refreshToken);
 
-    return _buildUser(response.data!.register.user!);
+    return User.fromFragment(response.data!.register.user!);
   }
 
   @override
@@ -174,7 +161,7 @@ class UserRepositoryGraphQL extends UserRepository {
 
     final pageInfo = response.data!.userApprovals.pageInfo;
     final users = response.data!.userApprovals.node
-        .map((user) => _buildUser(user!))
+        .map((user) => User.fromFragment(user!))
         .toList();
 
     return GraphPage.fromFragment(

@@ -1,0 +1,5 @@
+mutation ChangeUserRequestStatus($id: ID!, $approved: Boolean!) {
+    changeUserRequestStatus(id: $id, approved: $approved) {
+        message
+    }
+}
