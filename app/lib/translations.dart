@@ -22,6 +22,8 @@ class Translations {
   static const String all = 'general.all';
   static const String clearFilters = 'general.clearFilters';
   static const String description = 'general.description';
+  static const String create = 'general.create';
+  static const String refresh = 'general.refresh';
 
   // Auth
   static const String authSignInError = 'auth.errors.signInError';
@@ -110,4 +112,29 @@ class Translations {
   static const String requestTypeTitle = 'requestType.title';
   static const String requestTypeAccommodation = 'requestType.accommodation';
   static const String requestTypeAdoption = 'requestType.adoption';
+
+  // User requests
+  static const String userRequestErrorsNoRequests = 'userRequests.errors.noRequests';
+  static const String userRequestErrorsNoRequestsFiltered = 'userRequests.errors.noRequestsFiltered';
+  static const String userRequestErrorsNoUserRequests = 'userRequests.errors.noUserRequests';
+  static const String userRequestTitle = 'userRequests.title';
+  static const String userRequestMyPetRequests = 'userRequests.myPetRequests';
+  static const String userRequestViewRequests = 'userRequests.viewRequests';
+  static const String userRequestViewOwnRequests = 'userRequests.viewOwnRequests';
+  static const String userRequestApprove = 'userRequests.approve';
+  static const String userRequestDeny = 'userRequests.deny';
+  static const String userRequestStatusChangedSuccessfully = 'userRequests.statusChangedSuccessfully';
+  static const String userRequestShowOwnRequests = 'userRequests.showOwnRequests';
+  static const String userRequestShowApproved = 'userRequests.showApproved';
+  static const String userRequestShowReviewed = 'userRequests.showReviewed';
+  static const String userRequestRequestToAccommodate = 'userRequests.requestToAccommodate';
+  static const String userRequestRequestToAdopt = 'userRequests.requestToAdopt';
+  static const String userRequestCreateRequest = 'userRequests.createRequest';
+  static const String userRequestAccommodatePrompt = 'userRequests.accommodatePrompt';
+  static const String userRequestAdoptPrompt = 'userRequests.adoptPrompt';
+  static const String userRequestAdoption = 'userRequests.adoption';
+  static const String userRequestAccommodation = 'userRequests.accommodation';
+  static const String userRequestApproved = 'userRequests.approved';
+  static const String userRequestDenied = 'userRequests.denied';
+  static const String userRequestPending = 'userRequests.pending';
 }

@@ -23,7 +23,9 @@
     "apply": "Apply",
     "all": "All",
     "clearFilters": "Clear filters",
-    "description": "Description"
+    "description": "Description",
+    "create": "Create",
+    "refresh": "Refresh"
   },
   "auth": {
     "errors": {
@@ -122,5 +124,32 @@
     "title": "User request type",
     "accommodation": "Accommodation",
     "adoption": "Adoption"
+  },
+  "userRequests": {
+    "errors": {
+      "noRequests": "Currently, no user has requested to accommodate or adopt a pet",
+      "noRequestsFiltered": "No user requests were found that would match your filters",
+      "noUserRequests": "You have not created any requests yet"
+    },
+    "title": "Pet requests",
+    "myPetRequests": "My pet requests",
+    "viewRequests": "View pet requests",
+    "viewOwnRequests": "View own pet requests",
+    "approve": "Approve",
+    "deny": "Deny",
+    "statusChangedSuccessfully": "User request status has been changed successfully!",
+    "showOwnRequests": "Show only own requests",
+    "showApproved": "Show only approved requests",
+    "showReviewed": "Show only reviewed requests",
+    "requestToAccommodate": "Request to accommodate",
+    "requestToAdopt": "Request to adopt",
+    "createRequest": "Create request",
+    "accommodatePrompt": "Are you sure you want to send a temporary accommodation request for {animal}?",
+    "adoptPrompt": "Are you sure you want to send an adoption request for {animal}?",
+    "adoption": "Adoption",
+    "accommodation": "Accommodation",
+    "approved": "Approved",
+    "denied": "Denied",
+    "pending": "Pending"
   }
 }

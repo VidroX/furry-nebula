@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
+import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/translations.dart';
@@ -85,10 +86,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           const SizedBox(height: 20),
           NebulaButton.fill(
+            text: state.hasRole(UserRole.shelter)
+                ? context.translate(Translations.userRequestViewRequests)
+                : context.translate(Translations.userRequestViewOwnRequests),
+            onPress: () => context.pushRoute(const RequestsRoute()),
+            buttonStyle: NebulaButtonStyle.primary(context),
+          ),
+          const SizedBox(height: 12),
+          NebulaButton.fill(
             loading: state.isLogoutLoading,
             text: context.translate(Translations.authSignOut),
             onPress: _logout,
-            buttonStyle: NebulaButtonStyle.error(context),
+            buttonStyle: NebulaButtonStyle.outlinedError(context),
           ),
         ],
       ),

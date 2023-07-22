@@ -15,6 +15,7 @@ import 'package:furry_nebula/screens/home/shelters/pets/pets_screen.dart';
 import 'package:furry_nebula/screens/home/shelters/shelter_list/shelter_list_screen.dart';
 import 'package:furry_nebula/screens/home/shelters/shelters_screen.dart';
 import 'package:furry_nebula/screens/pet_details/pet_details_screen.dart';
+import 'package:furry_nebula/screens/requests/requests_screen.dart';
 import 'package:furry_nebula/screens/shelter_details/shelter_details_screen.dart';
 import 'package:furry_nebula/services/injector.dart';
 
@@ -82,6 +83,16 @@ class AppRouter extends $AppRouter {
         CustomRoute(
           path: PetDetailsScreen.routePath,
           page: PetDetailsRoute.page,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeThroughTransition(
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+                child: child,
+              ),
+        ),
+        CustomRoute(
+          path: RequestsScreen.routePath,
+          page: RequestsRoute.page,
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               FadeThroughTransition(
                 animation: animation,

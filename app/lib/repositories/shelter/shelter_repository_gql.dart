@@ -25,6 +25,7 @@ import 'package:furry_nebula/models/shelter/user_request.dart';
 import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/repositories/shelter/shelter_repository.dart';
 import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
+import 'package:furry_nebula/screens/requests/state/user_requests_filters.dart';
 import 'package:furry_nebula/services/api_client.dart';
 
 class ShelterRepositoryGraphQL extends ShelterRepository {
@@ -217,22 +218,13 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
 
   @override
   Future<GraphPage<UserRequest>> getUserRequests({
-    UserRequestType? requestType,
-    bool? showOwnRequests,
-    bool? isApproved = false,
-    bool? isReviewed = false,
+    UserRequestsFilters filters = const UserRequestsFilters(),
     bool shouldGetFromCacheFirst = true,
     Pagination pagination = const Pagination(),
   }) async {
-    final userRequestFilters = GUserRequestFiltersBuilder()
-      ..requestType = requestType?.toGUserRequestType
-      ..showOwnRequests = showOwnRequests
-      ..isApproved = isApproved
-      ..isReviewed = isReviewed;
-
     final request = GGetUserRequestsReq(
           (b) => b
-            ..vars.filters = userRequestFilters
+            ..vars.filters = filters.toGUserRequestFiltersBuilder
             ..vars.pagination = pagination.toGPaginationBuilder
             ..fetchPolicy = shouldGetFromCacheFirst
                 ? FetchPolicy.CacheFirst
