@@ -4,8 +4,7 @@
 fragment UserRequestFragment on UserRequest {
     id
     requestType
-    isApproved
-    isFulfilled
+    requestStatus
     fromDate
     toDate
     user {

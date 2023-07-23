@@ -23,6 +23,7 @@ abstract class UserRepository {
   });
 
   Future<GraphPage<User>> getUnapprovedUsers({
+    bool shouldGetFromCacheFirst = true,
     Pagination pagination = const Pagination(),
   });
 

@@ -20,12 +20,12 @@ type Mutation {
     addShelter(data: ShelterInput!, photo: Upload): Shelter!
     "Add animal to the shelter. User with Shelter role is required."
     addShelterAnimal(data: ShelterAnimalInput!, photo: Upload): ShelterAnimal!
+    "Cancel user request. Authenticated user is required."
+    cancelUserRequest(id: ID!): ResponseMessage!
     "Change approval status of user by id. Admin user is required."
     changeUserApprovalStatus(isApproved: Boolean!, userId: ID!): ResponseMessage!
-    "Change user request fulfillment status. User with Shelter role is required."
-    changeUserRequestFulfillmentStatus(fulfilled: Boolean!, id: ID!): ResponseMessage!
-    "Change user accommodation/adoption request status. User with Shelter role is required."
-    changeUserRequestStatus(approved: Boolean!, id: ID!): ResponseMessage!
+    "Change user request status. User with Shelter role is required."
+    changeUserRequestStatus(id: ID!, status: UserRequestStatus!): ResponseMessage!
     "Create user accommodation/adoption request. Authenticated user is required."
     createUserRequest(data: UserRequestInput!): UserRequest!
     "Delete shelter. All animals inside will be removed automatically. User with Shelter role is required."
@@ -142,8 +142,7 @@ type UserRequest {
     approvedBy: User
     fromDate: Time
     id: ID!
-    isApproved: Boolean!
-    isFulfilled: Boolean!
+    requestStatus: UserRequestStatus!
     requestType: UserRequestType!
     toDate: Time
     user: User!
@@ -194,6 +193,15 @@ enum Role {
 enum TokenType {
     Access
     Refresh
+}
+
+"User request status"
+enum UserRequestStatus {
+    Approved
+    Cancelled
+    Denied
+    Fulfilled
+    Pending
 }
 
 "User request type"
@@ -265,8 +273,10 @@ input UserRegistrationInput {
 "User request filters"
 input UserRequestFilters {
     isApproved: Boolean
+    isCancelled: Boolean
+    isDenied: Boolean
     isFulfilled: Boolean
-    isReviewed: Boolean
+    isPending: Boolean
     requestType: UserRequestType
     showOwnRequests: Boolean
 }

@@ -56,7 +56,7 @@ class _PetAccommodationDialogState extends State<PetAccommodationDialog> {
         label: context.translate(Translations.userRequestTo),
         onDateSelected: (date) => setState(() => _toDate = date),
         initialDatePickerMode: DatePickerMode.day,
-        initialDate: _toDate ?? DateTime.now(),
+        initialDate: _toDate ?? _fromDate ?? DateTime.now(),
         firstDate: _fromDate ?? DateTime.now(),
       ),
       const SizedBox(height: 24),

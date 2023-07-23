@@ -5,6 +5,7 @@ import 'package:furry_nebula/models/shelter/animal_type.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 import 'package:furry_nebula/models/shelter/shelter_animal.dart';
 import 'package:furry_nebula/models/shelter/user_request.dart';
+import 'package:furry_nebula/models/shelter/user_request_status.dart';
 import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
 import 'package:furry_nebula/screens/requests/state/user_requests_filters.dart';
@@ -60,11 +61,6 @@ abstract class ShelterRepository {
 
   Future<void> changeUserRequestStatus({
     required String requestId,
-    bool isApproved = false,
-  });
-
-  Future<void> changeUserRequestFulfillmentStatus({
-    required String requestId,
-    bool isFulfilled = false,
+    UserRequestStatus status = UserRequestStatus.cancelled,
   });
 }

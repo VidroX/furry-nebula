@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +9,9 @@ import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/screens/requests/state/user_requests_bloc.dart';
 import 'package:furry_nebula/screens/requests/state/user_requests_filters.dart';
+import 'package:furry_nebula/screens/requests/widgets/request_details.dart';
 import 'package:furry_nebula/screens/requests/widgets/requests_filters_dialog.dart';
+import 'package:furry_nebula/screens/requests/widgets/user_request_status_chip.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/widgets/layout/dialog_layout.dart';
@@ -120,7 +123,36 @@ class _RequestsScreenState extends State<RequestsScreen> {
             padding: index + 1 < state.userRequests.length
                 ? const EdgeInsets.only(bottom: 16)
                 : EdgeInsets.zero,
-            child: NebulaText(item.animal.name),
+            child: OpenContainer(
+              transitionDuration: const Duration(milliseconds: 450),
+              closedColor: context.colors.containerColor,
+              openBuilder: (context, _) => RequestDetails(request: item),
+              closedBuilder: (context, _) => Container(
+                decoration: BoxDecoration(
+                  color: context.colors.containerColor,
+                ),
+                padding: const EdgeInsetsDirectional.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: NebulaText(
+                            item.animal.name,
+                            style: context.typography
+                                .withFontWeight(FontWeight.w500),
+                          ),
+                        ),
+                        UserRequestStatusChip(
+                          requestStatus: item.requestStatus,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

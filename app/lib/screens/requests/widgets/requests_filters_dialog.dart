@@ -66,15 +66,33 @@ class _RequestsFilterDialogState extends State<RequestsFilterDialog> {
               ),
             ),
           NebulaCheckbox(
+            title: context.translate(Translations.userRequestShowPending),
+            value: _filters.isPending,
+            onChanged: _onIsPendingChanged,
+          ),
+          const SizedBox(height: 12),
+          NebulaCheckbox(
             title: context.translate(Translations.userRequestShowApproved),
             value: _filters.isApproved,
             onChanged: _onIsApprovedChanged,
           ),
           const SizedBox(height: 12),
           NebulaCheckbox(
-            title: context.translate(Translations.userRequestShowReviewed),
-            value: _filters.isReviewed,
-            onChanged: _onIsReviewedChanged,
+            title: context.translate(Translations.userRequestShowDenied),
+            value: _filters.isDenied,
+            onChanged: _onIsDeniedChanged,
+          ),
+          const SizedBox(height: 12),
+          NebulaCheckbox(
+            title: context.translate(Translations.userRequestShowCancelled),
+            value: _filters.isCancelled,
+            onChanged: _onIsCancelledChanged,
+          ),
+          const SizedBox(height: 12),
+          NebulaCheckbox(
+            title: context.translate(Translations.userRequestShowFulfilled),
+            value: _filters.isFulfilled,
+            onChanged: _onIsFulfilledChanged,
           ),
           const SizedBox(height: 16),
           NebulaLink(
@@ -98,6 +116,14 @@ class _RequestsFilterDialogState extends State<RequestsFilterDialog> {
     });
   }
 
+  void _onIsPendingChanged(bool? newState) {
+    setState(() {
+      _filters = _filters.copyWith(
+        isPending: newState,
+      );
+    });
+  }
+
   void _onIsApprovedChanged(bool? newState) {
     setState(() {
       _filters = _filters.copyWith(
@@ -106,10 +132,26 @@ class _RequestsFilterDialogState extends State<RequestsFilterDialog> {
     });
   }
 
-  void _onIsReviewedChanged(bool? newState) {
+  void _onIsDeniedChanged(bool? newState) {
     setState(() {
       _filters = _filters.copyWith(
-        isReviewed: newState,
+        isDenied: newState,
+      );
+    });
+  }
+
+  void _onIsCancelledChanged(bool? newState) {
+    setState(() {
+      _filters = _filters.copyWith(
+        isCancelled: newState,
+      );
+    });
+  }
+
+  void _onIsFulfilledChanged(bool? newState) {
+    setState(() {
+      _filters = _filters.copyWith(
+        isFulfilled: newState,
       );
     });
   }

@@ -10,7 +10,10 @@ class UserRequestsFilters with _$UserRequestsFilters {
     UserRequestType? requestType,
     bool? showOwnRequests,
     @Default(false) bool? isApproved,
-    @Default(false) bool? isReviewed,
+    @Default(false) bool? isDenied,
+    @Default(false) bool? isPending,
+    @Default(false) bool? isFulfilled,
+    @Default(false) bool? isCancelled,
   }) = _UserRequestsFilters;
 
   const UserRequestsFilters._();
@@ -19,10 +22,16 @@ class UserRequestsFilters with _$UserRequestsFilters {
     ..requestType = requestType?.toGUserRequestType
     ..showOwnRequests = showOwnRequests
     ..isApproved = isApproved
-    ..isReviewed = isReviewed;
+    ..isDenied = isDenied
+    ..isPending = isPending
+    ..isCancelled = isCancelled
+    ..isFulfilled = isFulfilled;
 
   bool get isEmpty => requestType == null
       && (showOwnRequests == null || !showOwnRequests!)
       && (isApproved == null || !isApproved!)
-      && (isReviewed == null || !isReviewed!);
+      && (isDenied == null || !isDenied!)
+      && (isPending == null || !isPending!)
+      && (isFulfilled == null || !isFulfilled!)
+      && (isCancelled == null || !isCancelled!);
 }

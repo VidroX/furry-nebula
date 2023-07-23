@@ -112,6 +112,8 @@ class _PetsScreenState extends State<PetsScreen> {
           title: state.filters.isEmpty
               ? context.translate(Translations.petsNoPetsFound)
               : context.translate(Translations.petsNoPetsFoundWithFilters),
+          onRefreshPress: () =>
+              _fetchPets(rebuildList: true, filters: state.filters),
         ),
         onLoadNextPage: _loadNextPage,
         itemBuilder: (context, item, index) => ImageCard(

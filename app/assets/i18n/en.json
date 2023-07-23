@@ -139,8 +139,11 @@
     "deny": "Deny",
     "statusChangedSuccessfully": "User request status has been changed successfully!",
     "showOwnRequests": "Show only own requests",
-    "showApproved": "Show only approved requests",
-    "showReviewed": "Show only reviewed requests",
+    "showApproved": "Show approved requests",
+    "showDenied": "Show denied requests",
+    "showPending": "Show pending requests",
+    "showCancelled": "Show cancelled requests",
+    "showFulfilled": "Show fulfilled requests",
     "requestToAccommodate": "Request to accommodate",
     "requestToAdopt": "Request to adopt",
     "createRequest": "Create request",
@@ -148,12 +151,17 @@
     "adoptPrompt": "Are you sure you want to send an adoption request for {animal}?",
     "adoption": "Adoption",
     "accommodation": "Accommodation",
-    "approved": "Approved",
-    "denied": "Denied",
-    "pending": "Pending",
     "adoptionRequestSent": "You have successfully sent adoption request. You can check its status in your profile.",
     "accommodationRequestSent": "You have successfully sent accommodation request. You can check its status in your profile.",
     "from": "From",
     "to": "To"
+  },
+  "userRequestStatuses": {
+    "title": "User request status",
+    "approved": "Approved",
+    "denied": "Denied",
+    "cancelled": "Cancelled",
+    "pending": "Pending",
+    "fulfilled": "Returned"
   }
 }

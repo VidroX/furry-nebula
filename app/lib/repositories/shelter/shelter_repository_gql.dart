@@ -6,7 +6,6 @@ import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter_animal.req.gql.dart';
-import 'package:furry_nebula/graphql/mutations/shelter/__generated__/change_user_request_fulfillment_status.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/change_user_request_status.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/create_user_request.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/delete_shelter.req.gql.dart';
@@ -22,6 +21,7 @@ import 'package:furry_nebula/models/shelter/animal_type.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 import 'package:furry_nebula/models/shelter/shelter_animal.dart';
 import 'package:furry_nebula/models/shelter/user_request.dart';
+import 'package:furry_nebula/models/shelter/user_request_status.dart';
 import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/repositories/shelter/shelter_repository.dart';
 import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
@@ -282,30 +282,12 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
   @override
   Future<void> changeUserRequestStatus({
     required String requestId,
-    bool isApproved = false,
+    UserRequestStatus status = UserRequestStatus.cancelled,
   }) async {
     final request = GChangeUserRequestStatusReq(
           (b) => b
             ..vars.id = requestId
-            ..vars.approved = isApproved,
-    );
-
-    final response = await client.ferryClient.request(request).first;
-
-    if (response.linkException != null) {
-      throw const RequestFailedException();
-    }
-  }
-
-  @override
-  Future<void> changeUserRequestFulfillmentStatus({
-    required String requestId,
-    bool isFulfilled = false,
-  }) async {
-    final request = GChangeUserRequestFulfillmentStatusReq(
-          (b) => b
-            ..vars.id = requestId
-            ..vars.fulfilled = isFulfilled,
+            ..vars.status = status.toGUserRequestStatus,
     );
 
     final response = await client.ferryClient.request(request).first;

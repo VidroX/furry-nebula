@@ -38,15 +38,26 @@ class UserApprovalsBloc extends Bloc<UserApprovalsEvent, UserApprovalsState> {
       return;
     }
 
+    if (unapprovedUsersData.clearFetch) {
+      emit(state.copyWith(
+        userApprovals: [],
+        pageInfo: const GraphPageInfo(),
+        pagination: const Pagination(),
+      ),);
+    }
+
     emit(state.copyWith(isLoading: true));
 
     try {
       final unapprovedUsers = await userRepository.getUnapprovedUsers(
+        shouldGetFromCacheFirst: !unapprovedUsersData.clearFetch,
         pagination: state.pagination,
       );
 
       emit(state.copyWith(
-        userApprovals: [...state.userApprovals, ...unapprovedUsers.nodes],
+        userApprovals: unapprovedUsersData.clearFetch
+            ? unapprovedUsers.nodes
+            : [...state.userApprovals, ...unapprovedUsers.nodes],
         pageInfo: unapprovedUsers.pageInfo,
       ),);
 
@@ -69,6 +80,7 @@ class UserApprovalsBloc extends Bloc<UserApprovalsEvent, UserApprovalsState> {
     emit(state.copyWith(pagination: state.pagination.nextPage));
 
     add(UserApprovalsEvent.getUnapprovedUsers(
+      clearFetch: false,
       onSuccess: nextPageData.onSuccess,
       onError: nextPageData.onError,
     ),);

@@ -6,6 +6,7 @@ import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/models/pagination/graph_page.dart';
 import 'package:furry_nebula/models/pagination/pagination.dart';
 import 'package:furry_nebula/models/shelter/user_request.dart';
+import 'package:furry_nebula/models/shelter/user_request_status.dart';
 import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/repositories/shelter/shelter_repository.dart';
 import 'package:furry_nebula/screens/requests/state/user_requests_filters.dart';
@@ -30,8 +31,6 @@ class UserRequestsBloc extends Bloc<UserRequestsEvent, UserRequestsState> {
               _createRequest(createRequestData, emit),
           changeRequestStatus: (changeRequestStatusData) =>
               _changeRequestStatus(changeRequestStatusData, emit),
-          changeRequestFulfillmentStatus: (changeRequestFulfillmentStatusData) =>
-              _changeRequestFulfillmentStatus(changeRequestFulfillmentStatusData, emit),
         ),
     );
   }
@@ -145,36 +144,12 @@ class UserRequestsBloc extends Bloc<UserRequestsEvent, UserRequestsState> {
     try {
       await shelterRepository.changeUserRequestStatus(
         requestId: changeRequestStatusData.requestId,
-        isApproved: changeRequestStatusData.isApproved,
+        status: changeRequestStatusData.status,
       );
 
       changeRequestStatusData.onSuccess?.call();
     } on ServerException catch(e) {
       changeRequestStatusData.onError?.call(e);
-    } finally {
-      emit(state.copyWith(isChangingStatus: false));
-    }
-  }
-
-  Future<void> _changeRequestFulfillmentStatus(
-      ChangeRequestFulfillmentStatus changeRequestFulfillmentStatusData,
-      Emitter<UserRequestsState> emit,
-  ) async {
-    if (state.isChangingStatus) {
-      return;
-    }
-
-    emit(state.copyWith(isChangingStatus: true));
-
-    try {
-      await shelterRepository.changeUserRequestFulfillmentStatus(
-        requestId: changeRequestFulfillmentStatusData.requestId,
-        isFulfilled: changeRequestFulfillmentStatusData.isFulfilled,
-      );
-
-      changeRequestFulfillmentStatusData.onSuccess?.call();
-    } on ServerException catch(e) {
-      changeRequestFulfillmentStatusData.onError?.call(e);
     } finally {
       emit(state.copyWith(isChangingStatus: false));
     }

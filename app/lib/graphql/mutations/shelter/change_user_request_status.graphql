@@ -1,5 +1,5 @@
-mutation ChangeUserRequestStatus($id: ID!, $approved: Boolean!) {
-    changeUserRequestStatus(id: $id, approved: $approved) {
+mutation ChangeUserRequestStatus($id: ID!, $status: UserRequestStatus!) {
+    changeUserRequestStatus(id: $id, status: $status) {
         message
     }
 }

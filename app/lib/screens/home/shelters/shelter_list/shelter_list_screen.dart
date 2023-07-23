@@ -107,6 +107,7 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
             Translations.sheltersNoSheltersAdded,
           ),
           icon: FontAwesomeIcons.tents,
+          onRefreshPress: () => _fetchShelters(rebuildList: true),
         ),
         onLoadNextPage: _loadNextPage,
         itemBuilder: (context, item, index) => ImageCard(

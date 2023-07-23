@@ -30,15 +30,8 @@ class UserRequestsEvent with _$UserRequestsEvent {
 
   const factory UserRequestsEvent.changeRequestStatus({
     required String requestId,
-    @Default(false) bool isApproved,
+    @Default(UserRequestStatus.cancelled) UserRequestStatus status,
     VoidCallback? onSuccess,
     Function(ServerException? exception)? onError,
   }) = ChangeRequestStatus;
-
-  const factory UserRequestsEvent.changeRequestFulfillmentStatus({
-    required String requestId,
-    @Default(false) bool isFulfilled,
-    VoidCallback? onSuccess,
-    Function(ServerException? exception)? onError,
-  }) = ChangeRequestFulfillmentStatus;
 }

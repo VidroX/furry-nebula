@@ -126,7 +126,10 @@ class Translations {
   static const String userRequestStatusChangedSuccessfully = 'userRequests.statusChangedSuccessfully';
   static const String userRequestShowOwnRequests = 'userRequests.showOwnRequests';
   static const String userRequestShowApproved = 'userRequests.showApproved';
-  static const String userRequestShowReviewed = 'userRequests.showReviewed';
+  static const String userRequestShowDenied = 'userRequests.showDenied';
+  static const String userRequestShowPending = 'userRequests.showPending';
+  static const String userRequestShowCancelled = 'userRequests.showCancelled';
+  static const String userRequestShowFulfilled = 'userRequests.showFulfilled';
   static const String userRequestRequestToAccommodate = 'userRequests.requestToAccommodate';
   static const String userRequestRequestToAdopt = 'userRequests.requestToAdopt';
   static const String userRequestCreateRequest = 'userRequests.createRequest';
@@ -134,11 +137,16 @@ class Translations {
   static const String userRequestAdoptPrompt = 'userRequests.adoptPrompt';
   static const String userRequestAdoption = 'userRequests.adoption';
   static const String userRequestAccommodation = 'userRequests.accommodation';
-  static const String userRequestApproved = 'userRequests.approved';
-  static const String userRequestDenied = 'userRequests.denied';
-  static const String userRequestPending = 'userRequests.pending';
   static const String userRequestAdoptionRequestSent = 'userRequests.adoptionRequestSent';
   static const String userRequestAccommodationRequestSent = 'userRequests.accommodationRequestSent';
   static const String userRequestFrom = 'userRequests.from';
   static const String userRequestTo = 'userRequests.to';
+
+  // User request statuses
+  static const String userRequestStatusesTitle = 'userRequestStatuses.title';
+  static const String userRequestStatusesApproved = 'userRequestStatuses.approved';
+  static const String userRequestStatusesDenied = 'userRequestStatuses.denied';
+  static const String userRequestStatusesCancelled = 'userRequestStatuses.cancelled';
+  static const String userRequestStatusesPending = 'userRequestStatuses.pending';
+  static const String userRequestStatusesFulfilled = 'userRequestStatuses.fulfilled';
 }

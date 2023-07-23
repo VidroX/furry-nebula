@@ -138,6 +138,7 @@ class UserRepositoryGraphQL extends UserRepository {
 
   @override
   Future<GraphPage<User>> getUnapprovedUsers({
+    bool shouldGetFromCacheFirst = true,
     Pagination pagination = const Pagination(),
   }) async {
     final filters = GApprovalFiltersBuilder()
@@ -147,7 +148,10 @@ class UserRepositoryGraphQL extends UserRepository {
     final request = GGetUserApprovalsReq(
           (b) => b
             ..vars.filters = filters
-            ..vars.pagination = pagination.toGPaginationBuilder,
+            ..vars.pagination = pagination.toGPaginationBuilder
+            ..fetchPolicy = shouldGetFromCacheFirst
+                ? FetchPolicy.CacheFirst
+                : FetchPolicy.NetworkOnly,
     );
 
     final response = await client.ferryClient.request(request).first;
