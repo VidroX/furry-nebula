@@ -7,7 +7,6 @@ import 'package:furry_nebula/models/shelter/user_request.dart';
 import 'package:furry_nebula/models/shelter/user_request_status.dart';
 import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/models/user/user.dart';
-import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/screens/requests/widgets/user_request_status_chip.dart';
 import 'package:furry_nebula/screens/requests/widgets/user_request_type_chip.dart';
 import 'package:furry_nebula/translations.dart';
@@ -269,7 +268,7 @@ class RequestDetails extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         if (request.requestStatus == UserRequestStatus.pending
-            && currentUser.role != UserRole.user)
+            && currentUser.id == request.animal.shelter.representativeUser.id)
           Row(
             children: [
               Expanded(
@@ -305,12 +304,13 @@ class RequestDetails extends StatelessWidget {
           )
         else if (request.requestStatus == UserRequestStatus.approved
             && request.requestType != UserRequestType.adoption
-            && currentUser.role != UserRole.user)
+            && currentUser.id == request.animal.shelter.representativeUser.id)
           NebulaButton.fill(
             text: context.translate(Translations.userRequestAnimalReturned),
             onPress: onReturn,
           )
-        else if (request.requestStatus == UserRequestStatus.pending && currentUser.role == UserRole.user)
+        else if (request.requestStatus == UserRequestStatus.pending
+              && currentUser.id == request.user.id)
           NebulaButton.fill(
             text: context.translate(Translations.userRequestCancelRequest),
             onPress: onCancel,
