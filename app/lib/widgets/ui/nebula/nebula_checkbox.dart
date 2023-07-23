@@ -100,11 +100,11 @@ class _CheckboxContainerState extends State<_CheckboxContainer> {
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4)),
         border: Border.all(
-          color: widget.value == null || widget.value!
+          color: (widget.value == null && widget.triMode) || (widget.value ?? false)
               ? context.colors.primary
               : context.colors.text,
         ),
-        color: widget.value == null || widget.value!
+        color: (widget.value == null && widget.triMode) || (widget.value ?? false)
             ? context.colors.primary
             : Colors.transparent,
       ),

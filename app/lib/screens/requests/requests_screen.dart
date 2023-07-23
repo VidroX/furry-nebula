@@ -61,7 +61,13 @@ class _RequestsScreenState extends State<RequestsScreen> {
           padding: const EdgeInsets.all(16),
           items: state.userRequests,
           pageInfo: state.pageInfo,
+          loading: _firstLoad,
           itemsLoading: _firstLoad || state.isLoading,
+          onRefresh: () {
+            _fetchUserRequests(rebuildList: true, filters: state.filters);
+
+            return Future<bool>.value(state.isLoading);
+          },
           headerBuilder: (context) => Padding(
             padding: const EdgeInsets.only(bottom: 24),
             child: Row(
@@ -101,7 +107,9 @@ class _RequestsScreenState extends State<RequestsScreen> {
           ),
           noItemsBuilder: (context) => NotFound(
             title: userState.hasRole(UserRole.shelter)
-                ? context.translate(Translations.userRequestErrorsNoRequests)
+                ? state.filters.isEmpty
+                  ? context.translate(Translations.userRequestErrorsNoRequests)
+                  : context.translate(Translations.userRequestErrorsNoRequestsFiltered)
                 : context.translate(Translations.userRequestErrorsNoUserRequests),
             icon: FontAwesomeIcons.solidFaceSadTear,
             onRefreshPress: () =>

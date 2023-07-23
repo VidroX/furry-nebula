@@ -109,9 +109,9 @@ class Translations {
   static const String animalTypesRabbit = 'animalTypes.rabbit';
 
   // Request types
-  static const String requestTypeTitle = 'requestType.title';
-  static const String requestTypeAccommodation = 'requestType.accommodation';
-  static const String requestTypeAdoption = 'requestType.adoption';
+  static const String requestTypeTitle = 'requestTypes.title';
+  static const String requestTypeAccommodation = 'requestTypes.accommodation';
+  static const String requestTypeAdoption = 'requestTypes.adoption';
 
   // User requests
   static const String userRequestErrorsNoRequests = 'userRequests.errors.noRequests';
@@ -137,4 +137,8 @@ class Translations {
   static const String userRequestApproved = 'userRequests.approved';
   static const String userRequestDenied = 'userRequests.denied';
   static const String userRequestPending = 'userRequests.pending';
+  static const String userRequestAdoptionRequestSent = 'userRequests.adoptionRequestSent';
+  static const String userRequestAccommodationRequestSent = 'userRequests.accommodationRequestSent';
+  static const String userRequestFrom = 'userRequests.from';
+  static const String userRequestTo = 'userRequests.to';
 }

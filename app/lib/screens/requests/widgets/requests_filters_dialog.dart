@@ -2,6 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
+import 'package:furry_nebula/models/overlay_option.dart';
+import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/screens/requests/state/user_requests_filters.dart';
@@ -9,6 +11,7 @@ import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_button.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_checkbox.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_dropdown.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_link.dart';
 
 class RequestsFilterDialog extends StatefulWidget {
@@ -27,6 +30,12 @@ class _RequestsFilterDialogState extends State<RequestsFilterDialog> {
   final _bloc = injector.get<UserBloc>();
   final _formKey = GlobalKey<FormState>();
 
+  late OverlayOption<UserRequestType>? _selectedRequestType =
+    widget.currentFilters.requestType != null ? OverlayOption(
+      data: widget.currentFilters.requestType!,
+      title: widget.currentFilters.requestType!.translationKey,
+    ) : null;
+
   late UserRequestsFilters _filters = widget.currentFilters;
 
   @override
@@ -38,6 +47,15 @@ class _RequestsFilterDialogState extends State<RequestsFilterDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          NebulaDropdown<UserRequestType>(
+            label: context.translate(Translations.requestTypeTitle),
+            options: UserRequestType.values
+                .map((e) => OverlayOption(data: e, title: e.translationKey))
+                .toList(),
+            selectedOption: _selectedRequestType,
+            onOptionSelected: _onUserRequestTypeSelected,
+          ),
+          const SizedBox(height: 12),
           if (state.hasRole(UserRole.shelter))
             Padding(
               padding: const EdgeInsetsDirectional.only(bottom: 12),
@@ -75,6 +93,7 @@ class _RequestsFilterDialogState extends State<RequestsFilterDialog> {
 
   void _clearFilters() {
     setState(() {
+      _selectedRequestType = null;
       _filters = const UserRequestsFilters();
     });
   }
@@ -99,6 +118,15 @@ class _RequestsFilterDialogState extends State<RequestsFilterDialog> {
     setState(() {
       _filters = _filters.copyWith(
         showOwnRequests: newState,
+      );
+    });
+  }
+
+  void _onUserRequestTypeSelected(OverlayOption<UserRequestType> requestType) {
+    setState(() {
+      _selectedRequestType = requestType;
+      _filters = _filters.copyWith(
+        requestType: requestType.data,
       );
     });
   }

@@ -144,12 +144,16 @@
     "requestToAccommodate": "Request to accommodate",
     "requestToAdopt": "Request to adopt",
     "createRequest": "Create request",
-    "accommodatePrompt": "Are you sure you want to send a temporary accommodation request for {animal}?",
+    "accommodatePrompt": "Please, select preferred accommodation dates for {animal}",
     "adoptPrompt": "Are you sure you want to send an adoption request for {animal}?",
     "adoption": "Adoption",
     "accommodation": "Accommodation",
     "approved": "Approved",
     "denied": "Denied",
-    "pending": "Pending"
+    "pending": "Pending",
+    "adoptionRequestSent": "You have successfully sent adoption request. You can check its status in your profile.",
+    "accommodationRequestSent": "You have successfully sent accommodation request. You can check its status in your profile.",
+    "from": "From",
+    "to": "To"
   }
 }

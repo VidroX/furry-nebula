@@ -8,6 +8,7 @@ import 'package:furry_nebula/widgets/layout/expandable_scroll_view.dart';
 class NebulaApiList<T> extends StatefulWidget {
   final List<T>? items;
   final GraphPageInfo? pageInfo;
+  final bool loading;
   final bool itemsLoading;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
   final Widget Function(BuildContext context)? headerBuilder;
@@ -16,11 +17,13 @@ class NebulaApiList<T> extends StatefulWidget {
   final VoidCallback? onLoadNextPage;
   final ScrollPhysics physics;
   final EdgeInsetsGeometry? padding;
+  final RefreshCallback? onRefresh;
 
   const NebulaApiList({
     required this.itemBuilder,
     this.physics = const BouncingScrollPhysics(),
     this.itemsLoading = false,
+    this.loading = false,
     this.noItemsBuilder,
     this.onLoadNextPage,
     this.onItemRemoved,
@@ -28,6 +31,7 @@ class NebulaApiList<T> extends StatefulWidget {
     this.headerBuilder,
     this.pageInfo,
     this.padding,
+    this.onRefresh,
     super.key,
   });
 
@@ -144,6 +148,42 @@ class NebulaApiListState<T> extends State<NebulaApiList<T>> {
       );
     }
 
+    if (widget.loading) {
+      return ExpandableScrollView(
+        padding: widget.padding ?? EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.headerBuilder != null)
+              widget.headerBuilder!(context),
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (widget.onRefresh != null) {
+      return RefreshIndicator(
+        onRefresh: widget.onRefresh!,
+        child: _NebulaListView<T>(
+          listKey: _listKey,
+          scrollController: _scrollController,
+          items: widget.items,
+          pageInfo: widget.pageInfo,
+          itemBuilder: widget.itemBuilder,
+          headerBuilder: widget.headerBuilder,
+          physics: widget.physics,
+          padding: widget.padding,
+          onRefresh: widget.onRefresh,
+        ),
+      );
+    }
+
     return _NebulaListView<T>(
       listKey: _listKey,
       scrollController: _scrollController,
@@ -166,16 +206,20 @@ class _NebulaListView<T> extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final Key listKey;
   final ScrollController scrollController;
+  final RefreshCallback? onRefresh;
+  final bool loading;
 
   const _NebulaListView({
     required this.listKey,
     required this.scrollController,
     required this.itemBuilder,
     this.physics = const BouncingScrollPhysics(),
+    this.loading = false,
     this.items,
     this.headerBuilder,
     this.pageInfo,
     this.padding,
+    this.onRefresh,
     super.key,
   });
 
@@ -184,7 +228,9 @@ class _NebulaListView<T> extends StatelessWidget {
     key: listKey,
     padding: padding,
     controller: scrollController,
-    physics: physics,
+    physics: onRefresh != null
+        ? AlwaysScrollableScrollPhysics(parent: physics)
+        : physics,
     initialItemCount: (items?.length ?? 0)
         + ((pageInfo?.hasNextPage ?? true) ? 1 : 0)
         + (headerBuilder != null ? 1 : 0),

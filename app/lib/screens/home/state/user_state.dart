@@ -10,7 +10,7 @@ class UserState with _$UserState {
 
   const UserState._();
 
-  bool hasRole(UserRole role) => user != null
-      && user!.role.power >= role.power
+  bool hasRole(UserRole role, { bool isStrict = false }) => user != null
+      && (isStrict ? user!.role.power == role.power : user!.role.power >= role.power)
       && user!.isApproved;
 }
