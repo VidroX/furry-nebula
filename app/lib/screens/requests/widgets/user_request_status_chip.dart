@@ -12,10 +12,33 @@ class UserRequestStatusChip extends StatelessWidget {
   });
 
   _FontSet _getFontSet(BuildContext context) {
-    return _FontSet(
-      backgroundColor: context.colors.primary,
-      fontColor: context.colors.text,
-    );
+    switch (requestStatus) {
+      case UserRequestStatus.approved:
+        return _FontSet(
+          backgroundColor: context.colors.primary,
+          fontColor: context.colors.isLight
+              ? context.colors.text
+              : context.colors.alternativeText,
+        );
+      case UserRequestStatus.denied:
+        return _FontSet(
+          backgroundColor: context.colors.error,
+          fontColor: context.colors.alternativeText,
+        );
+      case UserRequestStatus.cancelled:
+      case UserRequestStatus.fulfilled:
+        return _FontSet(
+          backgroundColor: context.colors.hint,
+          fontColor: context.colors.alternativeText,
+        );
+      default:
+        return _FontSet(
+          backgroundColor: context.colors.secondary,
+          fontColor: context.colors.isLight
+              ? context.colors.alternativeText
+              : context.colors.text,
+        );
+    }
   }
 
   @override

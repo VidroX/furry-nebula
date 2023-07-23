@@ -31,6 +31,8 @@ class UserRequestsBloc extends Bloc<UserRequestsEvent, UserRequestsState> {
               _createRequest(createRequestData, emit),
           changeRequestStatus: (changeRequestStatusData) =>
               _changeRequestStatus(changeRequestStatusData, emit),
+          cancelRequest: (cancelRequestData) =>
+              _cancelRequest(cancelRequestData, emit),
         ),
     );
   }
@@ -150,6 +152,29 @@ class UserRequestsBloc extends Bloc<UserRequestsEvent, UserRequestsState> {
       changeRequestStatusData.onSuccess?.call();
     } on ServerException catch(e) {
       changeRequestStatusData.onError?.call(e);
+    } finally {
+      emit(state.copyWith(isChangingStatus: false));
+    }
+  }
+
+  Future<void> _cancelRequest(
+      CancelRequest cancelRequestData,
+      Emitter<UserRequestsState> emit,
+  ) async {
+    if (state.isChangingStatus) {
+      return;
+    }
+
+    emit(state.copyWith(isChangingStatus: true));
+
+    try {
+      await shelterRepository.cancelUserRequest(
+        requestId: cancelRequestData.requestId,
+      );
+
+      cancelRequestData.onSuccess?.call();
+    } on ServerException catch(e) {
+      cancelRequestData.onError?.call(e);
     } finally {
       emit(state.copyWith(isChangingStatus: false));
     }

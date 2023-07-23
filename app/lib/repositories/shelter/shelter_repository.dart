@@ -63,4 +63,8 @@ abstract class ShelterRepository {
     required String requestId,
     UserRequestStatus status = UserRequestStatus.cancelled,
   });
+
+  Future<void> cancelUserRequest({
+    required String requestId,
+  });
 }

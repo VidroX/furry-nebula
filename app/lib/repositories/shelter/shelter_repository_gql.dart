@@ -6,6 +6,7 @@ import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter_animal.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/shelter/__generated__/cancel_user_request.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/change_user_request_status.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/create_user_request.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/delete_shelter.req.gql.dart';
@@ -288,6 +289,19 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
           (b) => b
             ..vars.id = requestId
             ..vars.status = status.toGUserRequestStatus,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException != null) {
+      throw const RequestFailedException();
+    }
+  }
+
+  @override
+  Future<void> cancelUserRequest({required String requestId}) async {
+    final request = GCancelUserRequestReq(
+          (b) => b..vars.id = requestId,
     );
 
     final response = await client.ferryClient.request(request).first;

@@ -400,9 +400,10 @@ func (repo *ShelterRepositoryGorm) CreateUserRequest(request *model.UserRequest)
 
 	if request.RequestType == model.UserRequestTypeAccommodation {
 		repo.database.Model(&model.UserRequest{}).
-			Where("((?::date >= from_date::date AND ?::date <= to_date::date) "+
-				"OR (?::date >= from_date::date AND ?::date <= to_date::date)) "+
+			Where("animal_id = ? "+
+				"AND ((?::date >= from_date::date AND ?::date <= to_date::date) OR (?::date >= from_date::date AND ?::date <= to_date::date)) "+
 				"AND request_status = ?",
+				request.AnimalID,
 				request.FromDate,
 				request.FromDate,
 				request.ToDate,
@@ -413,8 +414,10 @@ func (repo *ShelterRepositoryGorm) CreateUserRequest(request *model.UserRequest)
 	} else {
 		currentTime := time.Now()
 		repo.database.Model(&model.UserRequest{}).
-			Where("?::date >= from_date::date AND ?::date <= to_date::date "+
+			Where("animal_id = ? "+
+				"AND ?::date >= from_date::date AND ?::date <= to_date::date "+
 				"AND request_status = ?",
+				request.AnimalID,
 				currentTime,
 				currentTime,
 				model.UserRequestStatusApproved.String(),

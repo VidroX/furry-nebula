@@ -123,7 +123,6 @@ class Translations {
   static const String userRequestViewOwnRequests = 'userRequests.viewOwnRequests';
   static const String userRequestApprove = 'userRequests.approve';
   static const String userRequestDeny = 'userRequests.deny';
-  static const String userRequestStatusChangedSuccessfully = 'userRequests.statusChangedSuccessfully';
   static const String userRequestShowOwnRequests = 'userRequests.showOwnRequests';
   static const String userRequestShowApproved = 'userRequests.showApproved';
   static const String userRequestShowDenied = 'userRequests.showDenied';
@@ -141,6 +140,15 @@ class Translations {
   static const String userRequestAccommodationRequestSent = 'userRequests.accommodationRequestSent';
   static const String userRequestFrom = 'userRequests.from';
   static const String userRequestTo = 'userRequests.to';
+  static const String userRequestUserDetails = 'userRequests.userDetails';
+  static const String userRequestNoUserDetails = 'userRequests.noUserDetails';
+  static const String userRequestCancelRequest = 'userRequests.cancelRequest';
+  static const String userRequestAnimalReturned = 'userRequests.animalReturned';
+  static const String userRequestRequestApproved = 'userRequests.requestApproved';
+  static const String userRequestRequestDenied = 'userRequests.requestDenied';
+  static const String userRequestRequestCancelled = 'userRequests.requestCancelled';
+  static const String userRequestAnimalReturnedSuccessfully = 'userRequests.animalReturnedSuccessfully';
+  static const String userRequestChangingRequestStatus = 'userRequests.changingRequestStatus';
 
   // User request statuses
   static const String userRequestStatusesTitle = 'userRequestStatuses.title';

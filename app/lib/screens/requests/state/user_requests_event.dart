@@ -34,4 +34,10 @@ class UserRequestsEvent with _$UserRequestsEvent {
     VoidCallback? onSuccess,
     Function(ServerException? exception)? onError,
   }) = ChangeRequestStatus;
+
+  const factory UserRequestsEvent.cancelRequest({
+    required String requestId,
+    VoidCallback? onSuccess,
+    Function(ServerException? exception)? onError,
+  }) = CancelRequest;
 }

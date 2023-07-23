@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
+import 'package:furry_nebula/extensions/datetime_extensions.dart';
 import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
@@ -13,7 +12,6 @@ import 'package:furry_nebula/widgets/ui/details_list.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_button.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 import 'package:furry_nebula/widgets/ui/neumorphic_container.dart';
-import 'package:intl/intl.dart';
 
 @RoutePage()
 class ProfileScreen extends StatefulWidget {
@@ -26,14 +24,12 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late final DateFormat _dateFormat;
   late final UserBloc _bloc;
 
   @override
   void initState() {
     super.initState();
 
-    _dateFormat = DateFormat(DateFormat.YEAR_MONTH_DAY, Platform.localeName);
     _bloc = BlocProvider.of<UserBloc>(context);
   }
 
@@ -68,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 details: [
                   state.user!.firstName,
                   state.user!.lastName,
-                  _dateFormat.format(state.user!.birthDay),
+                  state.user!.birthDay.formatToYearMonthDay,
                   context.translate(state.user!.role.translationKey),
                 ],
               ),

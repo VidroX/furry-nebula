@@ -113,6 +113,9 @@ class _CheckboxContainerState extends State<_CheckboxContainer> {
         child: FaIcon(
           icon,
           size: widget.size.toDouble - 12,
+          color: context.colors.isLight
+              ? context.colors.text
+              : context.colors.alternativeText,
         ),
       ) : const SizedBox.shrink(),
     );

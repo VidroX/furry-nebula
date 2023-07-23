@@ -137,7 +137,6 @@
     "viewOwnRequests": "View own pet requests",
     "approve": "Approve",
     "deny": "Deny",
-    "statusChangedSuccessfully": "User request status has been changed successfully!",
     "showOwnRequests": "Show only own requests",
     "showApproved": "Show approved requests",
     "showDenied": "Show denied requests",
@@ -154,7 +153,17 @@
     "adoptionRequestSent": "You have successfully sent adoption request. You can check its status in your profile.",
     "accommodationRequestSent": "You have successfully sent accommodation request. You can check its status in your profile.",
     "from": "From",
-    "to": "To"
+    "to": "To",
+    "userDetails": "User details",
+    "noUserDetails": "User has not provided any self details",
+    "cancelRequest": "Cancel request",
+    "animalReturned": "Animal was returned",
+    "requestApproved": "Request has been successfully approved!",
+    "requestDenied": "Request has been successfully denied!",
+    "requestCancelled": "Request has been successfully cancelled!",
+    "animalReturnedSuccessfully": "Animal has been returned to the shelter successfully!",
+    "changingRequestStatus": "Changing request status. Please wait..."
+
   },
   "userRequestStatuses": {
     "title": "User request status",

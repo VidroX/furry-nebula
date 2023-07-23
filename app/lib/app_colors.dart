@@ -130,7 +130,7 @@ class AppColorsTheme with _$AppColorsTheme {
       AppColorsType.text: Color(0xFF1B1B1E),
       AppColorsType.indicator: Color(0xFF6B7FD7),
       AppColorsType.error: Color(0xFFFF785A),
-      AppColorsType.hint: Color(0xFF918B76),
+      AppColorsType.hint: Color(0xFF6B717E),
     },
     alternativeColors: {
       AppColorsType.primary: Color(0xFF1B1B1E),
@@ -177,7 +177,7 @@ class AppColorsTheme with _$AppColorsTheme {
       AppColorsType.text: Color(0xFFFFFFFF),
       AppColorsType.indicator: Color(0xFF6B7FD7),
       AppColorsType.error: Color(0xFFFF785A),
-      AppColorsType.hint: Color(0xFF918B76),
+      AppColorsType.hint: Color(0xFFAFBCD0),
     },
     alternativeColors: {
       AppColorsType.primary: Color(0xFFFFFFFF),
