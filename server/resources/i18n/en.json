@@ -36,6 +36,7 @@
         },
         "shelterRemoved": "Shelter has been successfully deleted from the system!",
         "shelterAnimalRemoved": "Shelter animal has been successfully removed!",
-        "statusChanged": "Shelter animal accommodation/adoption status changed successfully!"
+        "statusChanged": "Shelter animal accommodation/adoption status changed successfully!",
+        "canceledSuccessfully": "Request has been cancelled successfully!"
     }
 }

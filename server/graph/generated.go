@@ -54,19 +54,19 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		AddShelter                         func(childComplexity int, data model.ShelterInput, photo *graphql.Upload) int
-		AddShelterAnimal                   func(childComplexity int, data model.ShelterAnimalInput, photo *graphql.Upload) int
-		ChangeUserApprovalStatus           func(childComplexity int, userID string, isApproved bool) int
-		ChangeUserRequestFulfillmentStatus func(childComplexity int, id string, fulfilled bool) int
-		ChangeUserRequestStatus            func(childComplexity int, id string, approved bool) int
-		CreateUserRequest                  func(childComplexity int, data model.UserRequestInput) int
-		DeleteShelter                      func(childComplexity int, id string) int
-		Login                              func(childComplexity int, email string, password string) int
-		RefreshAccessToken                 func(childComplexity int) int
-		Register                           func(childComplexity int, userInfo model.UserRegistrationInput) int
-		RemoveAnimal                       func(childComplexity int, id string) int
-		UpdateAnimalRating                 func(childComplexity int, id string, rating float64) int
-		UpdateFCMToken                     func(childComplexity int, token string) int
+		AddShelter               func(childComplexity int, data model.ShelterInput, photo *graphql.Upload) int
+		AddShelterAnimal         func(childComplexity int, data model.ShelterAnimalInput, photo *graphql.Upload) int
+		CancelUserRequest        func(childComplexity int, id string) int
+		ChangeUserApprovalStatus func(childComplexity int, userID string, isApproved bool) int
+		ChangeUserRequestStatus  func(childComplexity int, id string, status model.UserRequestStatus) int
+		CreateUserRequest        func(childComplexity int, data model.UserRequestInput) int
+		DeleteShelter            func(childComplexity int, id string) int
+		Login                    func(childComplexity int, email string, password string) int
+		RefreshAccessToken       func(childComplexity int) int
+		Register                 func(childComplexity int, userInfo model.UserRegistrationInput) int
+		RemoveAnimal             func(childComplexity int, id string) int
+		UpdateAnimalRating       func(childComplexity int, id string, rating float64) int
+		UpdateFCMToken           func(childComplexity int, token string) int
 	}
 
 	PageInfo struct {
@@ -145,15 +145,14 @@ type ComplexityRoot struct {
 	}
 
 	UserRequest struct {
-		Animal      func(childComplexity int) int
-		ApprovedBy  func(childComplexity int) int
-		FromDate    func(childComplexity int) int
-		ID          func(childComplexity int) int
-		IsApproved  func(childComplexity int) int
-		IsFulfilled func(childComplexity int) int
-		RequestType func(childComplexity int) int
-		ToDate      func(childComplexity int) int
-		User        func(childComplexity int) int
+		Animal        func(childComplexity int) int
+		ApprovedBy    func(childComplexity int) int
+		FromDate      func(childComplexity int) int
+		ID            func(childComplexity int) int
+		RequestStatus func(childComplexity int) int
+		RequestType   func(childComplexity int) int
+		ToDate        func(childComplexity int) int
+		User          func(childComplexity int) int
 	}
 
 	UserRequestConnection struct {
@@ -182,8 +181,8 @@ type MutationResolver interface {
 	RemoveAnimal(ctx context.Context, id string) (*model.ResponseMessage, error)
 	UpdateAnimalRating(ctx context.Context, id string, rating float64) (*model.ShelterAnimal, error)
 	CreateUserRequest(ctx context.Context, data model.UserRequestInput) (*model.UserRequest, error)
-	ChangeUserRequestStatus(ctx context.Context, id string, approved bool) (*model.ResponseMessage, error)
-	ChangeUserRequestFulfillmentStatus(ctx context.Context, id string, fulfilled bool) (*model.ResponseMessage, error)
+	ChangeUserRequestStatus(ctx context.Context, id string, status model.UserRequestStatus) (*model.ResponseMessage, error)
+	CancelUserRequest(ctx context.Context, id string) (*model.ResponseMessage, error)
 	Login(ctx context.Context, email string, password string) (*model.UserWithToken, error)
 	Register(ctx context.Context, userInfo model.UserRegistrationInput) (*model.UserWithToken, error)
 	ChangeUserApprovalStatus(ctx context.Context, userID string, isApproved bool) (*model.ResponseMessage, error)
@@ -250,6 +249,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddShelterAnimal(childComplexity, args["data"].(model.ShelterAnimalInput), args["photo"].(*graphql.Upload)), true
 
+	case "Mutation.cancelUserRequest":
+		if e.complexity.Mutation.CancelUserRequest == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_cancelUserRequest_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CancelUserRequest(childComplexity, args["id"].(string)), true
+
 	case "Mutation.changeUserApprovalStatus":
 		if e.complexity.Mutation.ChangeUserApprovalStatus == nil {
 			break
@@ -262,18 +273,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.ChangeUserApprovalStatus(childComplexity, args["userId"].(string), args["isApproved"].(bool)), true
 
-	case "Mutation.changeUserRequestFulfillmentStatus":
-		if e.complexity.Mutation.ChangeUserRequestFulfillmentStatus == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_changeUserRequestFulfillmentStatus_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.ChangeUserRequestFulfillmentStatus(childComplexity, args["id"].(string), args["fulfilled"].(bool)), true
-
 	case "Mutation.changeUserRequestStatus":
 		if e.complexity.Mutation.ChangeUserRequestStatus == nil {
 			break
@@ -284,7 +283,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ChangeUserRequestStatus(childComplexity, args["id"].(string), args["approved"].(bool)), true
+		return e.complexity.Mutation.ChangeUserRequestStatus(childComplexity, args["id"].(string), args["status"].(model.UserRequestStatus)), true
 
 	case "Mutation.createUserRequest":
 		if e.complexity.Mutation.CreateUserRequest == nil {
@@ -755,19 +754,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserRequest.ID(childComplexity), true
 
-	case "UserRequest.isApproved":
-		if e.complexity.UserRequest.IsApproved == nil {
+	case "UserRequest.requestStatus":
+		if e.complexity.UserRequest.RequestStatus == nil {
 			break
 		}
 
-		return e.complexity.UserRequest.IsApproved(childComplexity), true
-
-	case "UserRequest.isFulfilled":
-		if e.complexity.UserRequest.IsFulfilled == nil {
-			break
-		}
-
-		return e.complexity.UserRequest.IsFulfilled(childComplexity), true
+		return e.complexity.UserRequest.RequestStatus(childComplexity), true
 
 	case "UserRequest.requestType":
 		if e.complexity.UserRequest.RequestType == nil {
@@ -1016,6 +1008,21 @@ func (ec *executionContext) field_Mutation_addShelter_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_cancelUserRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_changeUserApprovalStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1040,30 +1047,6 @@ func (ec *executionContext) field_Mutation_changeUserApprovalStatus_args(ctx con
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_changeUserRequestFulfillmentStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	var arg1 bool
-	if tmp, ok := rawArgs["fulfilled"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fulfilled"))
-		arg1, err = ec.unmarshalNBoolean2bool(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["fulfilled"] = arg1
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_changeUserRequestStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1076,15 +1059,15 @@ func (ec *executionContext) field_Mutation_changeUserRequestStatus_args(ctx cont
 		}
 	}
 	args["id"] = arg0
-	var arg1 bool
-	if tmp, ok := rawArgs["approved"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("approved"))
-		arg1, err = ec.unmarshalNBoolean2bool(ctx, tmp)
+	var arg1 model.UserRequestStatus
+	if tmp, ok := rawArgs["status"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+		arg1, err = ec.unmarshalNUserRequestStatus2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐUserRequestStatus(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["approved"] = arg1
+	args["status"] = arg1
 	return args, nil
 }
 
@@ -1991,16 +1974,14 @@ func (ec *executionContext) fieldContext_Mutation_createUserRequest(ctx context.
 				return ec.fieldContext_UserRequest_approvedBy(ctx, field)
 			case "animal":
 				return ec.fieldContext_UserRequest_animal(ctx, field)
-			case "isApproved":
-				return ec.fieldContext_UserRequest_isApproved(ctx, field)
+			case "requestStatus":
+				return ec.fieldContext_UserRequest_requestStatus(ctx, field)
 			case "fromDate":
 				return ec.fieldContext_UserRequest_fromDate(ctx, field)
 			case "toDate":
 				return ec.fieldContext_UserRequest_toDate(ctx, field)
 			case "requestType":
 				return ec.fieldContext_UserRequest_requestType(ctx, field)
-			case "isFulfilled":
-				return ec.fieldContext_UserRequest_isFulfilled(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserRequest", field.Name)
 		},
@@ -2034,7 +2015,7 @@ func (ec *executionContext) _Mutation_changeUserRequestStatus(ctx context.Contex
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().ChangeUserRequestStatus(rctx, fc.Args["id"].(string), fc.Args["approved"].(bool))
+			return ec.resolvers.Mutation().ChangeUserRequestStatus(rctx, fc.Args["id"].(string), fc.Args["status"].(model.UserRequestStatus))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐRole(ctx, "Shelter")
@@ -2102,8 +2083,8 @@ func (ec *executionContext) fieldContext_Mutation_changeUserRequestStatus(ctx co
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_changeUserRequestFulfillmentStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_changeUserRequestFulfillmentStatus(ctx, field)
+func (ec *executionContext) _Mutation_cancelUserRequest(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_cancelUserRequest(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2117,17 +2098,13 @@ func (ec *executionContext) _Mutation_changeUserRequestFulfillmentStatus(ctx con
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().ChangeUserRequestFulfillmentStatus(rctx, fc.Args["id"].(string), fc.Args["fulfilled"].(bool))
+			return ec.resolvers.Mutation().CancelUserRequest(rctx, fc.Args["id"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			role, err := ec.unmarshalNRole2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐRole(ctx, "Shelter")
-			if err != nil {
-				return nil, err
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			if ec.directives.HasRole == nil {
-				return nil, errors.New("directive hasRole is not implemented")
-			}
-			return ec.directives.HasRole(ctx, nil, directive0, role, nil)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -2157,7 +2134,7 @@ func (ec *executionContext) _Mutation_changeUserRequestFulfillmentStatus(ctx con
 	return ec.marshalNResponseMessage2ᚖgithubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐResponseMessage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_changeUserRequestFulfillmentStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_cancelUserRequest(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2178,7 +2155,7 @@ func (ec *executionContext) fieldContext_Mutation_changeUserRequestFulfillmentSt
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_changeUserRequestFulfillmentStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_cancelUserRequest_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -5310,8 +5287,8 @@ func (ec *executionContext) fieldContext_UserRequest_animal(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _UserRequest_isApproved(ctx context.Context, field graphql.CollectedField, obj *model.UserRequest) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserRequest_isApproved(ctx, field)
+func (ec *executionContext) _UserRequest_requestStatus(ctx context.Context, field graphql.CollectedField, obj *model.UserRequest) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserRequest_requestStatus(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5324,7 +5301,7 @@ func (ec *executionContext) _UserRequest_isApproved(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IsApproved, nil
+		return obj.RequestStatus, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5336,19 +5313,19 @@ func (ec *executionContext) _UserRequest_isApproved(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(model.UserRequestStatus)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNUserRequestStatus2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐUserRequestStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserRequest_isApproved(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserRequest_requestStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserRequest",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type UserRequestStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5480,50 +5457,6 @@ func (ec *executionContext) fieldContext_UserRequest_requestType(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _UserRequest_isFulfilled(ctx context.Context, field graphql.CollectedField, obj *model.UserRequest) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserRequest_isFulfilled(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsFulfilled, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserRequest_isFulfilled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserRequest",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _UserRequestConnection_node(ctx context.Context, field graphql.CollectedField, obj *model.UserRequestConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserRequestConnection_node(ctx, field)
 	if err != nil {
@@ -5571,16 +5504,14 @@ func (ec *executionContext) fieldContext_UserRequestConnection_node(ctx context.
 				return ec.fieldContext_UserRequest_approvedBy(ctx, field)
 			case "animal":
 				return ec.fieldContext_UserRequest_animal(ctx, field)
-			case "isApproved":
-				return ec.fieldContext_UserRequest_isApproved(ctx, field)
+			case "requestStatus":
+				return ec.fieldContext_UserRequest_requestStatus(ctx, field)
 			case "fromDate":
 				return ec.fieldContext_UserRequest_fromDate(ctx, field)
 			case "toDate":
 				return ec.fieldContext_UserRequest_toDate(ctx, field)
 			case "requestType":
 				return ec.fieldContext_UserRequest_requestType(ctx, field)
-			case "isFulfilled":
-				return ec.fieldContext_UserRequest_isFulfilled(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserRequest", field.Name)
 		},
@@ -8109,7 +8040,7 @@ func (ec *executionContext) unmarshalInputUserRequestFilters(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"requestType", "showOwnRequests", "isApproved", "isReviewed", "isFulfilled"}
+	fieldsInOrder := [...]string{"requestType", "showOwnRequests", "isApproved", "isDenied", "isPending", "isFulfilled", "isCancelled"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8162,15 +8093,24 @@ func (ec *executionContext) unmarshalInputUserRequestFilters(ctx context.Context
 				return it, err
 			}
 			it.IsApproved = data
-		case "isReviewed":
+		case "isDenied":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isReviewed"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isDenied"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.IsReviewed = data
+			it.IsDenied = data
+		case "isPending":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isPending"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsPending = data
 		case "isFulfilled":
 			var err error
 
@@ -8180,6 +8120,15 @@ func (ec *executionContext) unmarshalInputUserRequestFilters(ctx context.Context
 				return it, err
 			}
 			it.IsFulfilled = data
+		case "isCancelled":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isCancelled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsCancelled = data
 		}
 	}
 
@@ -8341,10 +8290,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "changeUserRequestFulfillmentStatus":
+		case "cancelUserRequest":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_changeUserRequestFulfillmentStatus(ctx, field)
+				return ec._Mutation_cancelUserRequest(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -9159,9 +9108,9 @@ func (ec *executionContext) _UserRequest(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "isApproved":
+		case "requestStatus":
 
-			out.Values[i] = ec._UserRequest_isApproved(ctx, field, obj)
+			out.Values[i] = ec._UserRequest_requestStatus(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9177,13 +9126,6 @@ func (ec *executionContext) _UserRequest(ctx context.Context, sel ast.SelectionS
 		case "requestType":
 
 			out.Values[i] = ec._UserRequest_requestType(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "isFulfilled":
-
-			out.Values[i] = ec._UserRequest_isFulfilled(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -10100,6 +10042,16 @@ func (ec *executionContext) marshalNUserRequestConnection2ᚖgithubᚗcomᚋVidr
 func (ec *executionContext) unmarshalNUserRequestInput2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐUserRequestInput(ctx context.Context, v interface{}) (model.UserRequestInput, error) {
 	res, err := ec.unmarshalInputUserRequestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUserRequestStatus2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐUserRequestStatus(ctx context.Context, v interface{}) (model.UserRequestStatus, error) {
+	var res model.UserRequestStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUserRequestStatus2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐUserRequestStatus(ctx context.Context, sel ast.SelectionSet, v model.UserRequestStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNUserRequestType2githubᚗcomᚋVidroXᚋfurryᚑnebulaᚋgraphᚋmodelᚐUserRequestType(ctx context.Context, v interface{}) (model.UserRequestType, error) {

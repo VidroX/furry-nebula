@@ -17,6 +17,17 @@ enum UserRequestType {
 }
 
 """
+User request status
+"""
+enum UserRequestStatus {
+  Pending
+  Approved
+  Denied
+  Fulfilled
+  Cancelled
+}
+
+"""
 User added animal shelter
 """
 type Shelter {
@@ -50,11 +61,10 @@ type UserRequest {
   user: User!
   approvedBy: User
   animal: ShelterAnimal!
-  isApproved: Boolean!
+  requestStatus: UserRequestStatus!
   fromDate: Time
   toDate: Time
   requestType: UserRequestType!
-  isFulfilled: Boolean!
 }
 
 """
@@ -81,8 +91,10 @@ input UserRequestFilters {
   requestType: UserRequestType
   showOwnRequests: Boolean @hasRole(role: Shelter)
   isApproved: Boolean
-  isReviewed: Boolean
+  isDenied: Boolean
+  isPending: Boolean
   isFulfilled: Boolean
+  isCancelled: Boolean
 }
 
 """
@@ -197,12 +209,12 @@ extend type Mutation {
   createUserRequest(data: UserRequestInput!): UserRequest! @isAuthenticated
 
   """
-  Change user accommodation/adoption request status. User with Shelter role is required.
+  Change user request status. User with Shelter role is required.
   """
-  changeUserRequestStatus(id: ID!, approved: Boolean!): ResponseMessage! @hasRole(role: Shelter)
+  changeUserRequestStatus(id: ID!, status: UserRequestStatus!): ResponseMessage! @hasRole(role: Shelter)
 
   """
-  Change user request fulfillment status. User with Shelter role is required.
+  Cancel user request. Authenticated user is required.
   """
-  changeUserRequestFulfillmentStatus(id: ID!, fulfilled: Boolean!): ResponseMessage! @hasRole(role: Shelter)
+  cancelUserRequest(id: ID!): ResponseMessage! @isAuthenticated
 }

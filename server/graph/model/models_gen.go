@@ -109,8 +109,10 @@ type UserRequestFilters struct {
 	RequestType     *UserRequestType `json:"requestType,omitempty"`
 	ShowOwnRequests *bool            `json:"showOwnRequests,omitempty"`
 	IsApproved      *bool            `json:"isApproved,omitempty"`
-	IsReviewed      *bool            `json:"isReviewed,omitempty"`
+	IsDenied        *bool            `json:"isDenied,omitempty"`
+	IsPending       *bool            `json:"isPending,omitempty"`
 	IsFulfilled     *bool            `json:"isFulfilled,omitempty"`
+	IsCancelled     *bool            `json:"isCancelled,omitempty"`
 }
 
 // User request input
@@ -306,6 +308,54 @@ func (e *TokenType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TokenType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// User request status
+type UserRequestStatus string
+
+const (
+	UserRequestStatusPending   UserRequestStatus = "Pending"
+	UserRequestStatusApproved  UserRequestStatus = "Approved"
+	UserRequestStatusDenied    UserRequestStatus = "Denied"
+	UserRequestStatusFulfilled UserRequestStatus = "Fulfilled"
+	UserRequestStatusCancelled UserRequestStatus = "Cancelled"
+)
+
+var AllUserRequestStatus = []UserRequestStatus{
+	UserRequestStatusPending,
+	UserRequestStatusApproved,
+	UserRequestStatusDenied,
+	UserRequestStatusFulfilled,
+	UserRequestStatusCancelled,
+}
+
+func (e UserRequestStatus) IsValid() bool {
+	switch e {
+	case UserRequestStatusPending, UserRequestStatusApproved, UserRequestStatusDenied, UserRequestStatusFulfilled, UserRequestStatusCancelled:
+		return true
+	}
+	return false
+}
+
+func (e UserRequestStatus) String() string {
+	return string(e)
+}
+
+func (e *UserRequestStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UserRequestStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UserRequestStatus", str)
+	}
+	return nil
+}
+
+func (e UserRequestStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+
 	"github.com/99designs/gqlgen/graphql"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/errors/validation"
@@ -155,7 +156,7 @@ func (r *mutationResolver) CreateUserRequest(ctx context.Context, data model.Use
 }
 
 // ChangeUserRequestStatus is the resolver for the changeUserRequestStatus field.
-func (r *mutationResolver) ChangeUserRequestStatus(ctx context.Context, id string, approved bool) (*model.ResponseMessage, error) {
+func (r *mutationResolver) ChangeUserRequestStatus(ctx context.Context, id string, status model.UserRequestStatus) (*model.ResponseMessage, error) {
 	gCtx := graph.GetGinContext(ctx)
 	user, err := gCtx.RequireUser(model.TokenTypeAccess)
 
@@ -164,7 +165,7 @@ func (r *mutationResolver) ChangeUserRequestStatus(ctx context.Context, id strin
 	}
 
 	shelterService := gCtx.GetServices().ShelterService
-	err = shelterService.ChangeUserRequestStatus(user.ID, id, approved)
+	err = shelterService.ChangeUserRequestStatus(user.ID, id, status)
 
 	if err != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
@@ -175,8 +176,8 @@ func (r *mutationResolver) ChangeUserRequestStatus(ctx context.Context, id strin
 	}, nil
 }
 
-// ChangeUserRequestFulfillmentStatus is the resolver for the changeUserRequestFulfillmentStatus field.
-func (r *mutationResolver) ChangeUserRequestFulfillmentStatus(ctx context.Context, id string, fulfilled bool) (*model.ResponseMessage, error) {
+// CancelUserRequest is the resolver for the cancelUserRequest field.
+func (r *mutationResolver) CancelUserRequest(ctx context.Context, id string) (*model.ResponseMessage, error) {
 	gCtx := graph.GetGinContext(ctx)
 	user, err := gCtx.RequireUser(model.TokenTypeAccess)
 
@@ -185,14 +186,14 @@ func (r *mutationResolver) ChangeUserRequestFulfillmentStatus(ctx context.Contex
 	}
 
 	shelterService := gCtx.GetServices().ShelterService
-	err = shelterService.ChangeUserRequestFulfillmentStatus(user.ID, id, fulfilled)
+	err = shelterService.ChangeUserRequestStatus(user.ID, id, model.UserRequestStatusCancelled)
 
 	if err != nil {
 		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
 	}
 
 	return &model.ResponseMessage{
-		Message: translator.WithKey(translator.KeysShelterServiceStatusChanged).Translate(gCtx.GetLocalizer()),
+		Message: translator.WithKey(translator.KeysShelterServiceCanceledSuccessfully).Translate(gCtx.GetLocalizer()),
 	}, nil
 }
 

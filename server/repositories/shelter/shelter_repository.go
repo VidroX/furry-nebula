@@ -22,8 +22,7 @@ type ShelterRepository interface {
 	GetUserRequestsByUserId(userId string, filters *model.UserRequestFilters, pagination *model.Pagination) ([]*model.UserRequest, int64, error)
 	CreateUserRequest(request *model.UserRequest) error
 	GetUserRequestById(id string) (*model.UserRequest, error)
-	ChangeUserRequestStatus(id string, isApproved bool, userId *string) error
-	ChangeUserRequestFulfillmentStatus(id string, isFulfilled bool) error
+	ChangeUserRequestStatus(id string, status model.UserRequestStatus, userId *string) error
 }
 
 func Get(database *database.NebulaDb) ShelterRepository {

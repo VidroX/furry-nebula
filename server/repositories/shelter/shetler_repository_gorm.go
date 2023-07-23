@@ -138,19 +138,29 @@ func (repo *ShelterRepositoryGorm) GetShelterAnimals(filters *model.AnimalFilter
 		Preload("Shelter.RepresentativeUser")
 
 	if filters.ShowUnavailable == nil || !(*filters.ShowUnavailable) {
+		currentDate := truncateToDay(time.Now())
+
 		filterQuery := `
 			shelter_animals.id NOT IN (
 				SELECT animal_id FROM user_requests
-				WHERE is_reviewed = ?
-				AND is_approved = ?
+				WHERE request_status = ?
 				AND (
-					request_type = ?
-					OR (request_type = ? AND is_fulfilled = ?)
+					(
+						request_type = ?
+						AND (?::date >= from_date::date OR ?::date >= to_date::date)
+					)
+					OR request_type = ?
 				)
 			)
 		`
-		results = results.
-			Where(filterQuery, true, true, model.UserRequestTypeAdoption.String(), model.UserRequestTypeAccommodation.String(), false)
+		results = results.Where(
+			filterQuery,
+			model.UserRequestStatusApproved.String(),
+			model.UserRequestTypeAccommodation.String(),
+			currentDate,
+			currentDate,
+			model.UserRequestTypeAdoption.String(),
+		)
 	}
 
 	results = results.
@@ -220,21 +230,34 @@ func (repo *ShelterRepositoryGorm) GetUserRequestsByShelterRepresentativeId(shel
 	var total int64 = 0
 
 	filterMap := map[string]interface{}{}
+	var statuses []model.UserRequestStatus
 
-	if filters.IsFulfilled != nil {
-		filterMap["is_fulfilled"] = *filters.IsFulfilled
+	if filters.IsFulfilled != nil && *filters.IsFulfilled {
+		statuses = append(statuses, model.UserRequestStatusFulfilled)
 	}
 
-	if filters.IsApproved != nil {
-		filterMap["is_approved"] = *filters.IsApproved
+	if filters.IsApproved != nil && *filters.IsApproved {
+		statuses = append(statuses, model.UserRequestStatusApproved)
 	}
 
-	if filters.IsReviewed != nil {
-		filterMap["is_reviewed"] = *filters.IsReviewed
+	if filters.IsDenied != nil && *filters.IsDenied {
+		statuses = append(statuses, model.UserRequestStatusDenied)
+	}
+
+	if filters.IsPending != nil && *filters.IsPending {
+		statuses = append(statuses, model.UserRequestStatusPending)
+	}
+
+	if filters.IsCancelled != nil && *filters.IsCancelled {
+		statuses = append(statuses, model.UserRequestStatusCancelled)
 	}
 
 	if filters.RequestType != nil {
 		filterMap["request_type"] = (*filters.RequestType).String()
+	}
+
+	if len(statuses) > 0 {
+		filterMap["request_status"] = statuses
 	}
 
 	shelterJoin := repo.database.Where(
@@ -280,21 +303,34 @@ func (repo *ShelterRepositoryGorm) GetUserRequestsByUserId(userId string, filter
 	var total int64 = 0
 
 	filterMap := map[string]interface{}{}
+	var statuses []model.UserRequestStatus
 
-	if filters.IsFulfilled != nil {
-		filterMap["is_fulfilled"] = *filters.IsFulfilled
+	if filters.IsFulfilled != nil && *filters.IsFulfilled {
+		statuses = append(statuses, model.UserRequestStatusFulfilled)
 	}
 
-	if filters.IsApproved != nil {
-		filterMap["is_approved"] = *filters.IsApproved
+	if filters.IsApproved != nil && *filters.IsApproved {
+		statuses = append(statuses, model.UserRequestStatusApproved)
 	}
 
-	if filters.IsReviewed != nil {
-		filterMap["is_reviewed"] = *filters.IsReviewed
+	if filters.IsDenied != nil && *filters.IsDenied {
+		statuses = append(statuses, model.UserRequestStatusDenied)
+	}
+
+	if filters.IsPending != nil && *filters.IsPending {
+		statuses = append(statuses, model.UserRequestStatusPending)
+	}
+
+	if filters.IsCancelled != nil && *filters.IsCancelled {
+		statuses = append(statuses, model.UserRequestStatusCancelled)
 	}
 
 	if filters.RequestType != nil {
 		filterMap["request_type"] = (*filters.RequestType).String()
+	}
+
+	if len(statuses) > 0 {
+		filterMap["request_status"] = statuses
 	}
 
 	shelterJoin := repo.database.Where(
@@ -352,10 +388,9 @@ func (repo *ShelterRepositoryGorm) CreateUserRequest(request *model.UserRequest)
 	repo.database.
 		Model(&model.UserRequest{}).
 		Where(map[string]interface{}{
-			"animal_id":    request.AnimalID,
-			"request_type": model.UserRequestTypeAdoption.String(),
-			"is_reviewed":  true,
-			"is_approved":  true,
+			"animal_id":      request.AnimalID,
+			"request_type":   model.UserRequestTypeAdoption.String(),
+			"request_status": model.UserRequestStatusApproved.String(),
 		}).
 		Count(&total)
 
@@ -363,18 +398,29 @@ func (repo *ShelterRepositoryGorm) CreateUserRequest(request *model.UserRequest)
 		return AnimalAlreadyAdopted
 	}
 
-	query := repo.database.Model(&model.UserRequest{})
-
 	if request.RequestType == model.UserRequestTypeAccommodation {
-		query = query.
-			Where("?::date >= from_date::date AND ?::date <= to_date::date AND is_fulfilled = ?", request.FromDate, request.ToDate, false)
+		repo.database.Model(&model.UserRequest{}).
+			Where("((?::date >= from_date::date AND ?::date <= to_date::date) "+
+				"OR (?::date >= from_date::date AND ?::date <= to_date::date)) "+
+				"AND request_status = ?",
+				request.FromDate,
+				request.FromDate,
+				request.ToDate,
+				request.ToDate,
+				model.UserRequestStatusApproved.String(),
+			).
+			Count(&total)
 	} else {
 		currentTime := time.Now()
-		query = query.
-			Where("?::date >= from_date::date AND ?::date <= to_date::date AND is_fulfilled = ?", currentTime, currentTime, false)
+		repo.database.Model(&model.UserRequest{}).
+			Where("?::date >= from_date::date AND ?::date <= to_date::date "+
+				"AND request_status = ?",
+				currentTime,
+				currentTime,
+				model.UserRequestStatusApproved.String(),
+			).
+			Count(&total)
 	}
-
-	query = query.Count(&total)
 
 	if total > 0 {
 		return AnimalNotAvailable
@@ -404,30 +450,18 @@ func (repo *ShelterRepositoryGorm) GetUserRequestById(id string) (*model.UserReq
 	return userRequest, nil
 }
 
-func (repo *ShelterRepositoryGorm) ChangeUserRequestStatus(id string, isApproved bool, userId *string) error {
+func (repo *ShelterRepositoryGorm) ChangeUserRequestStatus(id string, status model.UserRequestStatus, userId *string) error {
 	updateMap := map[string]interface{}{
-		"is_approved": isApproved,
-		"is_reviewed": true,
+		"request_status": status,
 	}
 
-	if isApproved {
+	if status == model.UserRequestStatusApproved {
 		updateMap["approved_by_user_id"] = userId
 	}
 
 	err := repo.database.Model(&model.UserRequest{}).
 		Where("id = ?", id).
 		Updates(updateMap).
-		Error
-
-	return err
-}
-
-func (repo *ShelterRepositoryGorm) ChangeUserRequestFulfillmentStatus(id string, isFulfilled bool) error {
-	err := repo.database.Model(&model.UserRequest{}).
-		Where("id = ?", id).
-		Updates(map[string]interface{}{
-			"is_fulfilled": isFulfilled,
-		}).
 		Error
 
 	return err

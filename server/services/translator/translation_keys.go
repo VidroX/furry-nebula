@@ -39,3 +39,4 @@ const KeysShelterServiceDateCannotBeInThePast = "shelterService.errors.dateCanno
 const KeysShelterServiceShelterRemoved = "shelterService.shelterRemoved"
 const KeysShelterServiceShelterAnimalRemoved = "shelterService.shelterAnimalRemoved"
 const KeysShelterServiceStatusChanged = "shelterService.statusChanged"
+const KeysShelterServiceCanceledSuccessfully = "shelterService.canceledSuccessfully"
