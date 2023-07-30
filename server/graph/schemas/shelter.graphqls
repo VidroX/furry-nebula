@@ -51,6 +51,7 @@ type ShelterAnimal {
   photo: String
   overallRating: Float!
   userRating: Float
+  canRate: Boolean!
 }
 
 """
@@ -89,6 +90,7 @@ User request filters
 """
 input UserRequestFilters {
   requestType: UserRequestType
+  animalId: String
   showOwnRequests: Boolean @hasRole(role: Shelter)
   isApproved: Boolean
   isDenied: Boolean

@@ -103,6 +103,7 @@ type ComplexityRoot struct {
 
 	ShelterAnimal struct {
 		Animal        func(childComplexity int) int
+		CanRate       func(childComplexity int) int
 		Description   func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Name          func(childComplexity int) int
@@ -203,6 +204,7 @@ type ShelterAnimalResolver interface {
 
 	OverallRating(ctx context.Context, obj *model.ShelterAnimal) (float64, error)
 	UserRating(ctx context.Context, obj *model.ShelterAnimal) (*float64, error)
+	CanRate(ctx context.Context, obj *model.ShelterAnimal) (bool, error)
 }
 type UserResolver interface {
 	Role(ctx context.Context, obj *model.User) (model.Role, error)
@@ -557,6 +559,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ShelterAnimal.Animal(childComplexity), true
+
+	case "ShelterAnimal.canRate":
+		if e.complexity.ShelterAnimal.CanRate == nil {
+			break
+		}
+
+		return e.complexity.ShelterAnimal.CanRate(childComplexity), true
 
 	case "ShelterAnimal.description":
 		if e.complexity.ShelterAnimal.Description == nil {
@@ -1630,6 +1639,8 @@ func (ec *executionContext) fieldContext_Mutation_addShelterAnimal(ctx context.C
 				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
 			case "userRating":
 				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
+			case "canRate":
+				return ec.fieldContext_ShelterAnimal_canRate(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
 		},
@@ -1889,6 +1900,8 @@ func (ec *executionContext) fieldContext_Mutation_updateAnimalRating(ctx context
 				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
 			case "userRating":
 				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
+			case "canRate":
+				return ec.fieldContext_ShelterAnimal_canRate(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
 		},
@@ -3056,6 +3069,8 @@ func (ec *executionContext) fieldContext_Query_shelterAnimal(ctx context.Context
 				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
 			case "userRating":
 				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
+			case "canRate":
+				return ec.fieldContext_ShelterAnimal_canRate(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
 		},
@@ -4223,6 +4238,50 @@ func (ec *executionContext) fieldContext_ShelterAnimal_userRating(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _ShelterAnimal_canRate(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShelterAnimal_canRate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ShelterAnimal().CanRate(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShelterAnimal_canRate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShelterAnimal",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ShelterAnimalConnection_node(ctx context.Context, field graphql.CollectedField, obj *model.ShelterAnimalConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ShelterAnimalConnection_node(ctx, field)
 	if err != nil {
@@ -4278,6 +4337,8 @@ func (ec *executionContext) fieldContext_ShelterAnimalConnection_node(ctx contex
 				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
 			case "userRating":
 				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
+			case "canRate":
+				return ec.fieldContext_ShelterAnimal_canRate(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
 		},
@@ -5280,6 +5341,8 @@ func (ec *executionContext) fieldContext_UserRequest_animal(ctx context.Context,
 				return ec.fieldContext_ShelterAnimal_overallRating(ctx, field)
 			case "userRating":
 				return ec.fieldContext_ShelterAnimal_userRating(ctx, field)
+			case "canRate":
+				return ec.fieldContext_ShelterAnimal_canRate(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ShelterAnimal", field.Name)
 		},
@@ -8040,7 +8103,7 @@ func (ec *executionContext) unmarshalInputUserRequestFilters(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"requestType", "showOwnRequests", "isApproved", "isDenied", "isPending", "isFulfilled", "isCancelled"}
+	fieldsInOrder := [...]string{"requestType", "animalId", "showOwnRequests", "isApproved", "isDenied", "isPending", "isFulfilled", "isCancelled"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8056,6 +8119,15 @@ func (ec *executionContext) unmarshalInputUserRequestFilters(ctx context.Context
 				return it, err
 			}
 			it.RequestType = data
+		case "animalId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("animalId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AnimalID = data
 		case "showOwnRequests":
 			var err error
 
@@ -8808,6 +8880,26 @@ func (ec *executionContext) _ShelterAnimal(ctx context.Context, sel ast.Selectio
 					}
 				}()
 				res = ec._ShelterAnimal_userRating(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "canRate":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShelterAnimal_canRate(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 

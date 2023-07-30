@@ -28,6 +28,7 @@ var (
 	ErrDateRangeEmpty        = nebulaErrors.APIError{Code: mainErrorCode + "14", Error: errors.New(translator.KeysShelterServiceDateRangeEmpty)}
 	ErrPastDate              = nebulaErrors.APIError{Code: mainErrorCode + "15", Error: errors.New(translator.KeysShelterServiceDateCannotBeInThePast)}
 	ErrRequestNotFound       = nebulaErrors.APIError{Code: mainErrorCode + "16", Error: errors.New(translator.KeysShelterServiceRequestNotFound)}
+	ErrIncorrectRating       = nebulaErrors.APIError{Code: mainErrorCode + "17", Error: errors.New(translator.KeysShelterServiceIncorrectRating)}
 )
 
 func ConstructValidationError(err nebulaErrors.APIError, field string) *nebulaErrors.APIError {

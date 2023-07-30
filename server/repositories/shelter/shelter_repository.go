@@ -23,6 +23,9 @@ type ShelterRepository interface {
 	CreateUserRequest(request *model.UserRequest) error
 	GetUserRequestById(id string) (*model.UserRequest, error)
 	ChangeUserRequestStatus(id string, status model.UserRequestStatus, userId *string) error
+	AddOrUpdateAnimalRating(userId string, id string, rating float64) error
+	GetAnimalRating(animalId string) (float64, error)
+	GetAnimalUserRating(userId string, animalId string) (float64, error)
 }
 
 func Get(database *database.NebulaDb) ShelterRepository {

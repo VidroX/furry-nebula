@@ -24,6 +24,8 @@ type ShelterService interface {
 	RemoveShelterAnimal(userId string, shelterAnimalId string) *nebulaErrors.APIError
 	CreateUserRequest(userId string, userRequestInput model.UserRequestInput) (*model.UserRequest, []*nebulaErrors.APIError)
 	ChangeUserRequestStatus(userId string, requestId string, status model.UserRequestStatus) *nebulaErrors.APIError
+	AddOrUpdateAnimalRating(userId string, animalId string, rating float64) (*model.ShelterAnimal, *nebulaErrors.APIError)
+	IsUserAbleToRateAnimal(userId string, animalId string) bool
 }
 
 type shelterService struct {
@@ -267,6 +269,60 @@ func (service *shelterService) ChangeUserRequestStatus(userId string, requestId 
 	}
 
 	return nil
+}
+
+func (service *shelterService) AddOrUpdateAnimalRating(userId string, animalId string, rating float64) (*model.ShelterAnimal, *nebulaErrors.APIError) {
+	if UtilString(userId).IsEmpty() {
+		return nil, validation.ConstructValidationError(validation.ErrValidationRequired, "userId")
+	}
+
+	if UtilString(animalId).IsEmpty() {
+		return nil, validation.ConstructValidationError(validation.ErrValidationRequired, "animalId")
+	}
+
+	if rating < 1 || rating > 5 {
+		return nil, validation.ConstructValidationError(validation.ErrIncorrectRating, "rating")
+	}
+
+	if !service.IsUserAbleToRateAnimal(userId, animalId) {
+		return nil, &generalErrors.ErrAccommodationNeededFirst
+	}
+
+	err := service.shelterRepository.AddOrUpdateAnimalRating(userId, animalId, rating)
+
+	if err != nil {
+		return nil, &generalErrors.ErrInternal
+	}
+
+	shelterAnimal, err := service.shelterRepository.GetShelterAnimalById(animalId)
+
+	if err != nil {
+		return nil, &generalErrors.ErrInternal
+	}
+
+	return shelterAnimal, nil
+}
+
+func (service *shelterService) IsUserAbleToRateAnimal(userId string, animalId string) bool {
+	if UtilString(userId).IsEmpty() || UtilString(animalId).IsEmpty() {
+		return false
+	}
+
+	userRequests, _, _ := service.shelterRepository.GetUserRequestsByUserId(
+		userId,
+		&model.UserRequestFilters{
+			AnimalID:    &animalId,
+			IsApproved:  boolPointer(true),
+			IsFulfilled: boolPointer(true),
+		},
+		nil,
+	)
+
+	return len(userRequests) > 0
+}
+
+func boolPointer(b bool) *bool {
+	return &b
 }
 
 func RegisterShelterService(

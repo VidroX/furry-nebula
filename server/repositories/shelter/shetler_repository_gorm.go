@@ -256,6 +256,10 @@ func (repo *ShelterRepositoryGorm) GetUserRequestsByShelterRepresentativeId(shel
 		filterMap["request_type"] = (*filters.RequestType).String()
 	}
 
+	if filters.AnimalID != nil {
+		filterMap["animal_id"] = *filters.AnimalID
+	}
+
 	if len(statuses) > 0 {
 		filterMap["request_status"] = statuses
 	}
@@ -327,6 +331,10 @@ func (repo *ShelterRepositoryGorm) GetUserRequestsByUserId(userId string, filter
 
 	if filters.RequestType != nil {
 		filterMap["request_type"] = (*filters.RequestType).String()
+	}
+
+	if filters.AnimalID != nil {
+		filterMap["animal_id"] = *filters.AnimalID
 	}
 
 	if len(statuses) > 0 {
@@ -470,6 +478,63 @@ func (repo *ShelterRepositoryGorm) ChangeUserRequestStatus(id string, status mod
 	return err
 }
 
+func (repo *ShelterRepositoryGorm) AddOrUpdateAnimalRating(userId string, id string, rating float64) error {
+	if rating < 1 || rating > 5 {
+		return IncorrectRating
+	}
+
+	rowsAffected := repo.database.Model(&model.ShelterAnimalRating{}).
+		Where("user_id = ? and shelter_animal_id = ?", userId, id).
+		Update("rating", rating).
+		RowsAffected
+
+	if rowsAffected > 0 {
+		return nil
+	}
+
+	newRating := model.ShelterAnimalRating{
+		ShelterAnimalID: id,
+		UserID:          userId,
+		Rating:          rating,
+	}
+
+	return repo.database.Create(&newRating).Error
+}
+
+func (repo *ShelterRepositoryGorm) GetAnimalRating(animalId string) (float64, error) {
+	var ratings []model.ShelterAnimalRating
+
+	err := repo.database.Find(&ratings, "shelter_animal_id = ?", animalId).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	if len(ratings) < 1 {
+		return 0, nil
+	}
+
+	var ratingSum float64 = 0
+
+	for _, rating := range ratings {
+		ratingSum += rating.Rating
+	}
+
+	return ratingSum / float64(len(ratings)), nil
+}
+
+func (repo *ShelterRepositoryGorm) GetAnimalUserRating(userId string, animalId string) (float64, error) {
+	var rating model.ShelterAnimalRating
+
+	err := repo.database.First(&rating, "user_id = ? and shelter_animal_id = ?", userId, animalId).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	return rating.Rating, nil
+}
+
 func truncateToDay(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 }
@@ -479,3 +544,4 @@ var DateRangeEmpty = errors.New("date range is required")
 var AnimalAlreadyAdopted = errors.New("animal has been already adopted by someone else")
 var AnimalNotAvailable = errors.New("animal cannot be adopted/accommodated in the given date range")
 var PastDate = errors.New("date cannot be in the past")
+var IncorrectRating = errors.New("rating cannot be less than 1 or more than 5")

@@ -107,6 +107,7 @@ type UserRequestConnection struct {
 // User request filters
 type UserRequestFilters struct {
 	RequestType     *UserRequestType `json:"requestType,omitempty"`
+	AnimalID        *string          `json:"animalId,omitempty"`
 	ShowOwnRequests *bool            `json:"showOwnRequests,omitempty"`
 	IsApproved      *bool            `json:"isApproved,omitempty"`
 	IsDenied        *bool            `json:"isDenied,omitempty"`

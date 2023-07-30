@@ -6,8 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/99designs/gqlgen/graphql"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/errors/validation"
@@ -131,7 +129,21 @@ func (r *mutationResolver) RemoveAnimal(ctx context.Context, id string) (*model.
 
 // UpdateAnimalRating is the resolver for the updateAnimalRating field.
 func (r *mutationResolver) UpdateAnimalRating(ctx context.Context, id string, rating float64) (*model.ShelterAnimal, error) {
-	panic(fmt.Errorf("not implemented: UpdateAnimalRating - updateAnimalRating"))
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterService := gCtx.GetServices().ShelterService
+	shelterAnimal, err := shelterService.AddOrUpdateAnimalRating(user.ID, id, rating)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return shelterAnimal, nil
 }
 
 // CreateUserRequest is the resolver for the createUserRequest field.
@@ -330,14 +342,49 @@ func (r *shelterAnimalResolver) Animal(ctx context.Context, obj *model.ShelterAn
 
 // OverallRating is the resolver for the overallRating field.
 func (r *shelterAnimalResolver) OverallRating(ctx context.Context, obj *model.ShelterAnimal) (float64, error) {
-	// TODO: implement rating logic when ready
-	return 0, nil
+	gCtx := graph.GetGinContext(ctx)
+
+	shelterRepo := gCtx.GetRepositories().ShelterRepository
+	rating, err2 := shelterRepo.GetAnimalRating(obj.ID)
+
+	if err2 != nil {
+		return 0, nil
+	}
+
+	return rating, nil
 }
 
 // UserRating is the resolver for the userRating field.
 func (r *shelterAnimalResolver) UserRating(ctx context.Context, obj *model.ShelterAnimal) (*float64, error) {
-	// TODO: implement rating logic when ready
-	return nil, nil
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterRepo := gCtx.GetRepositories().ShelterRepository
+	rating, err2 := shelterRepo.GetAnimalUserRating(user.ID, obj.ID)
+
+	if err2 != nil {
+		return nil, nil
+	}
+
+	return &rating, nil
+}
+
+// CanRate is the resolver for the canRate field.
+func (r *shelterAnimalResolver) CanRate(ctx context.Context, obj *model.ShelterAnimal) (bool, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil || user == nil {
+		return false, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrNotEnoughPermissions)
+	}
+
+	shelterService := gCtx.GetServices().ShelterService
+
+	return shelterService.IsUserAbleToRateAnimal(user.ID, obj.ID), nil
 }
 
 // ShelterAnimal returns graph.ShelterAnimalResolver implementation.
