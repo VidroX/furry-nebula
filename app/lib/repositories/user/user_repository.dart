@@ -31,4 +31,6 @@ abstract class UserRepository {
     required String userId,
     bool isApproved = false,
   });
+
+  Future<User> updateFCMToken({required String token});
 }

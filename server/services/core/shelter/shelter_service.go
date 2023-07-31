@@ -1,7 +1,10 @@
 package shelter
 
 import (
+	"context"
 	"errors"
+	"firebase.google.com/go/v4/messaging"
+	"fmt"
 	nebulaErrors "github.com/VidroX/furry-nebula/errors"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/errors/validation"
@@ -12,6 +15,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+	"google.golang.org/appengine/log"
 	"gorm.io/gorm"
 )
 
@@ -32,6 +36,7 @@ type shelterService struct {
 	validate          *validator.Validate
 	localizer         *translator.NebulaLocalizer
 	shelterRepository shelter.ShelterRepository
+	messagingClient   *messaging.Client
 }
 
 func (service *shelterService) AddShelter(userId string, shelterInfo model.ShelterInput) (*model.Shelter, []*nebulaErrors.APIError) {
@@ -238,6 +243,43 @@ func (service *shelterService) CreateUserRequest(userId string, userRequestInput
 		return nil, []*nebulaErrors.APIError{&generalErrors.ErrInternal}
 	}
 
+	if dbUserRequest.Animal.Shelter.RepresentativeUser.FCMToken != nil {
+		params := map[string]string{
+			"User":   fmt.Sprintf("%s %s", dbUserRequest.User.FirstName, dbUserRequest.User.LastName),
+			"Animal": dbUserRequest.Animal.Name,
+		}
+
+		title := translator.KeysShelterServiceNewRequest
+		body := translator.KeysShelterServiceUserWantsToAdopt
+		if dbUserRequest.RequestType == model.UserRequestTypeAccommodation {
+			body = translator.KeysShelterServiceUserWantsToAccommodate
+		}
+
+		message := &messaging.Message{
+			Notification: &messaging.Notification{
+				Title: translator.WithKey(title).
+					Translate(service.localizer),
+				Body: translator.WithKey(body).
+					WithParams(params).
+					Translate(service.localizer),
+			},
+			Token: *dbUserRequest.Animal.Shelter.RepresentativeUser.FCMToken,
+		}
+
+		_, err = service.messagingClient.Send(context.Background(), message)
+
+		if err != nil {
+			log.Errorf(
+				context.Background(),
+				"Unable to send message to user %s %s (token: %s): %s",
+				dbUserRequest.Animal.Shelter.RepresentativeUser.FirstName,
+				dbUserRequest.Animal.Shelter.RepresentativeUser.LastName,
+				dbUserRequest.Animal.Shelter.RepresentativeUser.FCMToken,
+				err.Error(),
+			)
+		}
+	}
+
 	return dbUserRequest, nil
 }
 
@@ -266,6 +308,50 @@ func (service *shelterService) ChangeUserRequestStatus(userId string, requestId 
 
 	if err != nil {
 		return &generalErrors.ErrInternal
+	}
+
+	if (status == model.UserRequestStatusApproved || status == model.UserRequestStatusDenied) && userRequest.User.FCMToken != nil {
+		params := map[string]string{
+			"Animal": userRequest.Animal.Name,
+		}
+
+		title := translator.KeysShelterServiceNewRequestStatusApproved
+		body := translator.KeysShelterServiceAdoptionApproved
+		if status == model.UserRequestStatusDenied {
+			title = translator.KeysShelterServiceNewRequestStatusDenied
+
+			if userRequest.RequestType == model.UserRequestTypeAccommodation {
+				body = translator.KeysShelterServiceAccommodationDenied
+			} else {
+				body = translator.KeysShelterServiceAdoptionDenied
+			}
+		} else if userRequest.RequestType == model.UserRequestTypeAccommodation {
+			body = translator.KeysShelterServiceAccommodationApproved
+		}
+
+		message := &messaging.Message{
+			Notification: &messaging.Notification{
+				Title: translator.WithKey(title).
+					Translate(service.localizer),
+				Body: translator.WithKey(body).
+					WithParams(params).
+					Translate(service.localizer),
+			},
+			Token: *userRequest.User.FCMToken,
+		}
+
+		_, err = service.messagingClient.Send(context.Background(), message)
+
+		if err != nil {
+			log.Errorf(
+				context.Background(),
+				"Unable to send message to user %s %s (token: %s): %s",
+				userRequest.User.FirstName,
+				userRequest.User.LastName,
+				userRequest.User.FCMToken,
+				err.Error(),
+			)
+		}
 	}
 
 	return nil
@@ -329,10 +415,12 @@ func RegisterShelterService(
 	validate *validator.Validate,
 	localizer *translator.NebulaLocalizer,
 	shelterRepo shelter.ShelterRepository,
+	messagingClient *messaging.Client,
 ) ShelterService {
 	return &shelterService{
 		validate:          validate,
 		localizer:         localizer,
 		shelterRepository: shelterRepo,
+		messagingClient:   messagingClient,
 	}
 }

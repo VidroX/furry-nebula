@@ -40,6 +40,15 @@
         "shelterAnimalRemoved": "Тварину успішно видалено з притулку!",
         "statusChanged": "Статус прилаштування/усиновлення тварини з притулку змінено!",
         "canceledSuccessfully": "Запит успішно скасовано!",
-        "ratingUpdated": "Рейтинг тварини успішно оновлено!"
+        "ratingUpdated": "Рейтинг тварини успішно оновлено!",
+        "newRequest": "Новий запит на тварину",
+        "userWantsToAccommodate": "{{ .User }} хоче прилаштувати {{ .Animal }}",
+        "userWantsToAdopt": "{{ .User }} хоче усиновити {{ .Animal }}",
+        "newRequestStatusApproved": "Запит схвалено",
+        "newRequestStatusDenied": "У Вашому запиті було відмовлено",
+        "accommodationApproved": "Ваш запит на прилаштування {{ .Animal }} було схвалено",
+        "accommodationDenied": "У Вашому запиті на прилаштування {{ .Animal }} було відмовлено",
+        "adoptionApproved": "Ваш запит на усиновлення {{ .Animal }} було схвалено",
+        "adoptionDenied": "У Вашому запиті на усиновлення {{ .Animal }} було відмовлено"
     }
 }

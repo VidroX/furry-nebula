@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "201087922710",
+    "project_id": "furry-nebula",
+    "storage_bucket": "furry-nebula.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201087922710:android:90b5269eb7706ec89efb37",
+        "android_client_info": {
+          "package_name": "me.vidrox.furry_nebula"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "201087922710-qjdkgidnjqtc1p5prq9g08ipll2akd6t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcHN3YiErfVgzZvpS-en1P40T_qHJcfHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "201087922710-qjdkgidnjqtc1p5prq9g08ipll2akd6t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

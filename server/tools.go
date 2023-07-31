@@ -6,6 +6,7 @@ package tools
 import (
 	_ "firebase.google.com/go"
 	_ "firebase.google.com/go/messaging"
+	_ "firebase.google.com/go/v4"
 	_ "github.com/99designs/gqlgen"
 	_ "github.com/DATA-DOG/go-sqlmock"
 	_ "github.com/alexedwards/argon2id"

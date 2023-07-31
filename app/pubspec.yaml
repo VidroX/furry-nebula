@@ -47,6 +47,8 @@ dependencies:
   transparent_image: ^2.0.1
   animations: ^2.0.7
   built_collection: ^5.1.1
+  firebase_messaging: ^14.6.5
+  firebase_core: ^2.15.0
 
 dev_dependencies:
   flutter_test:

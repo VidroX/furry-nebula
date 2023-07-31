@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"firebase.google.com/go/v4/messaging"
 
 	nebulaErrors "github.com/VidroX/furry-nebula/errors"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
@@ -28,10 +29,11 @@ type UserService interface {
 }
 
 type userService struct {
-	validate       *validator.Validate
-	localizer      *translator.NebulaLocalizer
-	userRepository user.UserRepository
-	privateJWK     *jwk.ECDSAPrivateKey
+	validate        *validator.Validate
+	localizer       *translator.NebulaLocalizer
+	userRepository  user.UserRepository
+	privateJWK      *jwk.ECDSAPrivateKey
+	messagingClient *messaging.Client
 }
 
 func (service *userService) Login(email string, password string) (*model.UserWithToken, []*nebulaErrors.APIError) {
@@ -190,11 +192,13 @@ func RegisterUserService(
 	localizer *translator.NebulaLocalizer,
 	privateJWK *jwk.ECDSAPrivateKey,
 	userRepo user.UserRepository,
+	messagingClient *messaging.Client,
 ) UserService {
 	return &userService{
-		validate:       validate,
-		localizer:      localizer,
-		userRepository: userRepo,
-		privateJWK:     privateJWK,
+		validate:        validate,
+		localizer:       localizer,
+		userRepository:  userRepo,
+		privateJWK:      privateJWK,
+		messagingClient: messagingClient,
 	}
 }

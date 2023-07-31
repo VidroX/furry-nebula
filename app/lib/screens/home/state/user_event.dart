@@ -8,4 +8,8 @@ class UserEvent with _$UserEvent {
   }) = GetCurrentUser;
 
   const factory UserEvent.logout({ VoidCallback? onFinish }) = Logout;
+
+  const factory UserEvent.updateFCMToken({
+    required String token,
+  }) = UpdateFCMToken;
 }

@@ -7,6 +7,7 @@ import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
 import 'package:furry_nebula/graphql/mutations/user/__generated__/change_user_approval_status.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/user/__generated__/login.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/user/__generated__/register.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/user/__generated__/update_fcm_token.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/user/__generated__/get_current_user.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/user/__generated__/get_user_approvals.req.gql.dart';
 import 'package:furry_nebula/models/pagination/graph_page.dart';
@@ -190,5 +191,25 @@ class UserRepositoryGraphQL extends UserRepository {
     if (response.linkException != null) {
       throw const RequestFailedException();
     }
+  }
+
+  @override
+  Future<User> updateFCMToken({ required String token }) async {
+    final request = GUpdateFCMTokenReq(
+          (b) => b..vars.token = token,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException is ValidationException ||
+        response.linkException is GeneralApiException) {
+      throw response.linkException!;
+    }
+
+    if (response.data?.updateFCMToken == null) {
+      throw const RequestFailedException();
+    }
+
+    return User.fromFragment(response.data!.updateFCMToken);
   }
 }
