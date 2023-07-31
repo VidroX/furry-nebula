@@ -274,7 +274,7 @@ func (service *shelterService) CreateUserRequest(userId string, userRequestInput
 				"Unable to send message to user %s %s (token: %s): %s",
 				dbUserRequest.Animal.Shelter.RepresentativeUser.FirstName,
 				dbUserRequest.Animal.Shelter.RepresentativeUser.LastName,
-				dbUserRequest.Animal.Shelter.RepresentativeUser.FCMToken,
+				*dbUserRequest.Animal.Shelter.RepresentativeUser.FCMToken,
 				err.Error(),
 			)
 		}
@@ -348,7 +348,7 @@ func (service *shelterService) ChangeUserRequestStatus(userId string, requestId 
 				"Unable to send message to user %s %s (token: %s): %s",
 				userRequest.User.FirstName,
 				userRequest.User.LastName,
-				userRequest.User.FCMToken,
+				*userRequest.User.FCMToken,
 				err.Error(),
 			)
 		}
