@@ -25,7 +25,9 @@
     "clearFilters": "Clear filters",
     "description": "Description",
     "create": "Create",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "update": "Update",
+    "set": "Set"
   },
   "auth": {
     "errors": {
@@ -111,7 +113,10 @@
     "removePrompt": "Are you sure that you want to remove {animal} from the shelter?",
     "removeProgress": "Removing {animal} from the shelter. Please wait...",
     "removedSuccessfully": "{animal} has been successfully removed!",
-    "viewShelter": "View shelter details"
+    "viewShelter": "View shelter details",
+    "updateRating": "Update rating",
+    "setRating": "Set rating",
+    "ratingHasBeenSet": "You have successfully updated rating!"
   },
   "animalTypes": {
     "title": "Animal type",

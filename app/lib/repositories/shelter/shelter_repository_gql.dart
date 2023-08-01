@@ -11,6 +11,7 @@ import 'package:furry_nebula/graphql/mutations/shelter/__generated__/change_user
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/create_user_request.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/delete_shelter.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/remove_animal.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/shelter/__generated__/update_animal_rating.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_animal_by_id.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_animals.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_by_id.req.gql.dart';
@@ -309,5 +310,30 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
     if (response.linkException != null) {
       throw const RequestFailedException();
     }
+  }
+
+  @override
+  Future<ShelterAnimal> updateAnimalRating({
+    required String animalId,
+    required double rating,
+  }) async {
+    final request = GUpdateAnimalRatingReq(
+          (b) => b
+            ..vars.id = animalId
+            ..vars.rating = rating,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException is GeneralApiException ||
+        response.linkException is ValidationException) {
+      throw response.linkException!;
+    }
+
+    if (response.data?.updateAnimalRating == null) {
+      throw const RequestFailedException();
+    }
+
+    return ShelterAnimal.fromFragment(response.data!.updateAnimalRating);
   }
 }

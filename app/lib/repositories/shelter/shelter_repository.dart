@@ -67,4 +67,9 @@ abstract class ShelterRepository {
   Future<void> cancelUserRequest({
     required String requestId,
   });
+
+  Future<ShelterAnimal> updateAnimalRating({
+    required String animalId,
+    required double rating,
+  });
 }

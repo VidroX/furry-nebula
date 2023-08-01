@@ -25,7 +25,9 @@
     "clearFilters": "Очистити фільтри",
     "description": "Опис",
     "create": "Створити",
-    "refresh": "Оновити"
+    "refresh": "Оновити",
+    "update": "Оновити",
+    "set": "Поставити"
   },
   "auth": {
     "errors": {
@@ -111,7 +113,10 @@
     "removePrompt": "Ви впевнені, що хочете вилучити {animal} з притулку?",
     "removeProgress": "Вилучення {animal} з притулку. Будь ласка, зачекайте...",
     "removedSuccessfully": "{animal} успішно вилучено з притулку!",
-    "viewShelter": "Подивитися інформацію про притулок"
+    "viewShelter": "Подивитися інформацію про притулок",
+    "updateRating": "Оновити рейтинг",
+    "setRating": "Поставити рейтинг",
+    "ratingHasBeenSet": "Ви успішно оновили рейтинг!"
   },
   "animalTypes": {
     "title": "Тип тварини",

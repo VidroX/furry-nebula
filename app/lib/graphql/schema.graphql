@@ -90,6 +90,7 @@ type Shelter {
 "Shelter animal"
 type ShelterAnimal {
     animal: Animal!
+    canRate: Boolean!
     description: String!
     id: ID!
     name: String!
@@ -272,6 +273,7 @@ input UserRegistrationInput {
 
 "User request filters"
 input UserRequestFilters {
+    animalId: String
     isApproved: Boolean
     isCancelled: Boolean
     isDenied: Boolean

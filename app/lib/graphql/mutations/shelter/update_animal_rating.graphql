@@ -1,0 +1,7 @@
+# import '../../fragments/shelter_animal_fragment.graphql'
+
+mutation UpdateAnimalRating($id: ID!, $rating: Float!) {
+    updateAnimalRating(id: $id, rating: $rating){
+        ...ShelterAnimalFragment
+    }
+}

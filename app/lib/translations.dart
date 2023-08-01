@@ -24,6 +24,8 @@ class Translations {
   static const String description = 'general.description';
   static const String create = 'general.create';
   static const String refresh = 'general.refresh';
+  static const String update = 'general.update';
+  static const String set = 'general.set';
 
   // Auth
   static const String authSignInError = 'auth.errors.signInError';
@@ -100,6 +102,9 @@ class Translations {
   static const String petDetailsRemoveProgress = 'petDetails.removeProgress';
   static const String petDetailsRemovedSuccessfully = 'petDetails.removedSuccessfully';
   static const String petDetailsViewShelter = 'petDetails.viewShelter';
+  static const String petDetailsUpdateRating = 'petDetails.updateRating';
+  static const String petDetailsSetRating = 'petDetails.setRating';
+  static const String petDetailsRatingHasBeenSet = 'petDetails.ratingHasBeenSet';
 
   // Animal types
   static const String animalTypesTitle = 'animalTypes.title';

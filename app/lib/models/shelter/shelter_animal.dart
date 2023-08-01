@@ -16,6 +16,7 @@ class ShelterAnimal with _$ShelterAnimal {
     required Shelter shelter,
     required double overallRating,
     double? userRating,
+    required bool canRate,
   }) = _ShelterAnimal;
 
   factory ShelterAnimal.fromFragment(GShelterAnimalFragment fragment) =>
@@ -28,6 +29,7 @@ class ShelterAnimal with _$ShelterAnimal {
         shelter: Shelter.fromFragment(fragment.shelter),
         overallRating: fragment.overallRating,
         userRating: fragment.userRating,
+        canRate: fragment.canRate,
       );
 
   const ShelterAnimal._();

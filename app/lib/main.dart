@@ -162,7 +162,6 @@ class _AppContainer extends StatefulWidget {
 }
 
 class _AppContainerState extends State<_AppContainer> with NebulaNotificationHandler {
-
   @override
   void didChangeDependencies() {
     FirebaseMessaging.onMessage.listen(_showFirebaseNotification);
