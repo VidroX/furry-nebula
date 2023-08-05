@@ -1,6 +1,7 @@
 package core
 
 import (
+	"firebase.google.com/go/v4/messaging"
 	"github.com/VidroX/furry-nebula/repositories"
 	"github.com/VidroX/furry-nebula/services/core/shelter"
 	"github.com/VidroX/furry-nebula/services/core/user"
@@ -17,10 +18,11 @@ type Services struct {
 }
 
 type ServiceDependencies struct {
-	Validate     *validator.Validate
-	Localizer    *translator.NebulaLocalizer
-	PrivateJWK   *jwk.ECDSAPrivateKey
-	Repositories repositories.Repositories
+	Validate        *validator.Validate
+	Localizer       *translator.NebulaLocalizer
+	PrivateJWK      *jwk.ECDSAPrivateKey
+	Repositories    repositories.Repositories
+	MessagingClient *messaging.Client
 }
 
 func Init(deps *ServiceDependencies) *Services {
@@ -30,11 +32,13 @@ func Init(deps *ServiceDependencies) *Services {
 			deps.Localizer,
 			deps.PrivateJWK,
 			deps.Repositories.UserRepository,
+			deps.MessagingClient,
 		),
 		ShelterService: shelter.RegisterShelterService(
 			deps.Validate,
 			deps.Localizer,
 			deps.Repositories.ShelterRepository,
+			deps.MessagingClient,
 		),
 	}
 }

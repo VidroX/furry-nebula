@@ -1,0 +1,5 @@
+mutation ChangeUserRequestStatus($id: ID!, $status: UserRequestStatus!) {
+    changeUserRequestStatus(id: $id, status: $status) {
+        message
+    }
+}

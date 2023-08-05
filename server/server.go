@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/messaging"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -16,23 +19,35 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/lestrrat-go/jwx/v2/jwk"
+	"google.golang.org/api/option"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 )
 
 type Environment struct {
-	validate      *validator.Validate
-	controller    *repositories.Repositories
-	jwkPrivateKey *jwk.ECDSAPrivateKey
-	jwkPublicKey  *jwk.ECDSAPublicKey
-	jwkSet        *jwk.Set
+	validate        *validator.Validate
+	controller      *repositories.Repositories
+	firebaseContext *context.Context
+	messagingClient *messaging.Client
+	jwkPrivateKey   *jwk.ECDSAPrivateKey
+	jwkPublicKey    *jwk.ECDSAPublicKey
+	jwkSet          *jwk.Set
 }
 
 func main() {
 	environment.LoadEnvironment(nil)
 
 	private, public := jwx.InitKeySet()
+
+	ctx := context.Background()
+	firebaseApp := setupFirebase(&ctx)
+	client, err := firebaseApp.Messaging(ctx)
+
+	if err != nil {
+		log.Printf("Unable to setup Firebase Messaging: %s", err.Error())
+	}
 
 	loadDatabase()
 
@@ -44,11 +59,13 @@ func main() {
 	validate := validator.New()
 
 	env := Environment{
-		validate:      validate,
-		controller:    controller,
-		jwkPrivateKey: &private,
-		jwkPublicKey:  &public,
-		jwkSet:        &keySet,
+		validate:        validate,
+		controller:      controller,
+		jwkPrivateKey:   &private,
+		jwkPublicKey:    &public,
+		jwkSet:          &keySet,
+		messagingClient: client,
+		firebaseContext: &ctx,
 	}
 
 	r := gin.Default()
@@ -66,6 +83,19 @@ func main() {
 	}
 
 	_ = r.Run()
+}
+
+func setupFirebase(ctx *context.Context) *firebase.App {
+	sdk, _ := base64.StdEncoding.DecodeString(os.Getenv(environment.KeysFirebaseSecret))
+	opt := option.WithCredentialsJSON(sdk)
+	app, err := firebase.NewApp(*ctx, nil, opt)
+
+	if err != nil {
+		log.Fatalf("Unable to setup Firebase: %s", err.Error())
+		return nil
+	}
+
+	return app
 }
 
 func loadDatabase() {
@@ -133,10 +163,11 @@ func (env *Environment) environmentMiddleware() gin.HandlerFunc {
 
 		c.Set(core.ServicesKey, core.Init(
 			&core.ServiceDependencies{
-				Validate:     env.validate,
-				Localizer:    &nebulaLocalizer,
-				Repositories: *env.controller,
-				PrivateJWK:   env.jwkPrivateKey,
+				Validate:        env.validate,
+				Localizer:       &nebulaLocalizer,
+				Repositories:    *env.controller,
+				PrivateJWK:      env.jwkPrivateKey,
+				MessagingClient: env.messagingClient,
 			},
 		))
 

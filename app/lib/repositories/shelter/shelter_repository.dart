@@ -4,7 +4,11 @@ import 'package:furry_nebula/models/pagination/pagination.dart';
 import 'package:furry_nebula/models/shelter/animal_type.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 import 'package:furry_nebula/models/shelter/shelter_animal.dart';
+import 'package:furry_nebula/models/shelter/user_request.dart';
+import 'package:furry_nebula/models/shelter/user_request_status.dart';
+import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
+import 'package:furry_nebula/screens/requests/state/user_requests_filters.dart';
 
 abstract class ShelterRepository {
   Future<GraphPage<Shelter>> getShelters({
@@ -41,4 +45,31 @@ abstract class ShelterRepository {
   Future<void> deleteShelter({ required String shelterId });
 
   Future<void> removeShelterAnimal({ required String shelterAnimalId });
+
+  Future<GraphPage<UserRequest>> getUserRequests({
+    UserRequestsFilters filters = const UserRequestsFilters(),
+    bool shouldGetFromCacheFirst = true,
+    Pagination pagination = const Pagination(),
+  });
+
+  Future<UserRequest> createUserRequest({
+    required String animalId,
+    required UserRequestType requestType,
+    DateTime? fromDate,
+    DateTime? toDate,
+  });
+
+  Future<void> changeUserRequestStatus({
+    required String requestId,
+    UserRequestStatus status = UserRequestStatus.cancelled,
+  });
+
+  Future<void> cancelUserRequest({
+    required String requestId,
+  });
+
+  Future<ShelterAnimal> updateAnimalRating({
+    required String animalId,
+    required double rating,
+  });
 }

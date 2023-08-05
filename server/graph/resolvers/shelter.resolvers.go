@@ -6,8 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/99designs/gqlgen/graphql"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
 	"github.com/VidroX/furry-nebula/errors/validation"
@@ -131,7 +129,84 @@ func (r *mutationResolver) RemoveAnimal(ctx context.Context, id string) (*model.
 
 // UpdateAnimalRating is the resolver for the updateAnimalRating field.
 func (r *mutationResolver) UpdateAnimalRating(ctx context.Context, id string, rating float64) (*model.ShelterAnimal, error) {
-	panic(fmt.Errorf("not implemented: UpdateAnimalRating - updateAnimalRating"))
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterService := gCtx.GetServices().ShelterService
+	shelterAnimal, err := shelterService.AddOrUpdateAnimalRating(user.ID, id, rating)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return shelterAnimal, nil
+}
+
+// CreateUserRequest is the resolver for the createUserRequest field.
+func (r *mutationResolver) CreateUserRequest(ctx context.Context, data model.UserRequestInput) (*model.UserRequest, error) {
+	gCtx := graph.GetGinContext(ctx)
+	shelterService := gCtx.GetServices().ShelterService
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	userRequest, errors := shelterService.CreateUserRequest(user.ID, data)
+
+	if errors != nil && len(errors) > 0 {
+		graph.ProcessErrorsSlice(&ctx, gCtx.GetLocalizer(), errors)
+
+		return nil, nil
+	}
+
+	return userRequest, nil
+}
+
+// ChangeUserRequestStatus is the resolver for the changeUserRequestStatus field.
+func (r *mutationResolver) ChangeUserRequestStatus(ctx context.Context, id string, status model.UserRequestStatus) (*model.ResponseMessage, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterService := gCtx.GetServices().ShelterService
+	err = shelterService.ChangeUserRequestStatus(user.ID, id, status)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return &model.ResponseMessage{
+		Message: translator.WithKey(translator.KeysShelterServiceStatusChanged).Translate(gCtx.GetLocalizer()),
+	}, nil
+}
+
+// CancelUserRequest is the resolver for the cancelUserRequest field.
+func (r *mutationResolver) CancelUserRequest(ctx context.Context, id string) (*model.ResponseMessage, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterService := gCtx.GetServices().ShelterService
+	err = shelterService.ChangeUserRequestStatus(user.ID, id, model.UserRequestStatusCancelled)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	return &model.ResponseMessage{
+		Message: translator.WithKey(translator.KeysShelterServiceCanceledSuccessfully).Translate(gCtx.GetLocalizer()),
+	}, nil
 }
 
 // Shelters is the resolver for the shelters field.
@@ -221,6 +296,37 @@ func (r *queryResolver) ShelterAnimal(ctx context.Context, id string) (*model.Sh
 	return shelterAnimal, nil
 }
 
+// UserRequests is the resolver for the userRequests field.
+func (r *queryResolver) UserRequests(ctx context.Context, filters *model.UserRequestFilters, pagination *model.Pagination) (*model.UserRequestConnection, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterRepo := gCtx.GetRepositories().ShelterRepository
+
+	var userRequests []*model.UserRequest
+	var err2 error
+	var total int64
+
+	if user.HasRole(model.RoleShelter) && (filters.ShowOwnRequests == nil || !(*filters.ShowOwnRequests)) {
+		userRequests, total, err2 = shelterRepo.GetUserRequestsByShelterRepresentativeId(user.ID, filters, pagination)
+	} else {
+		userRequests, total, err2 = shelterRepo.GetUserRequestsByUserId(user.ID, filters, pagination)
+	}
+
+	if err2 != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrInternal)
+	}
+
+	return &model.UserRequestConnection{
+		Node:     userRequests,
+		PageInfo: database.GetPageInfo(total, pagination),
+	}, nil
+}
+
 // Animal is the resolver for the animal field.
 func (r *shelterAnimalResolver) Animal(ctx context.Context, obj *model.ShelterAnimal) (model.Animal, error) {
 	gCtx := graph.GetGinContext(ctx)
@@ -236,14 +342,49 @@ func (r *shelterAnimalResolver) Animal(ctx context.Context, obj *model.ShelterAn
 
 // OverallRating is the resolver for the overallRating field.
 func (r *shelterAnimalResolver) OverallRating(ctx context.Context, obj *model.ShelterAnimal) (float64, error) {
-	// TODO: implement rating logic when ready
-	return 0, nil
+	gCtx := graph.GetGinContext(ctx)
+
+	shelterRepo := gCtx.GetRepositories().ShelterRepository
+	rating, err2 := shelterRepo.GetAnimalRating(obj.ID)
+
+	if err2 != nil {
+		return 0, nil
+	}
+
+	return rating, nil
 }
 
 // UserRating is the resolver for the userRating field.
 func (r *shelterAnimalResolver) UserRating(ctx context.Context, obj *model.ShelterAnimal) (*float64, error) {
-	// TODO: implement rating logic when ready
-	return nil, nil
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	shelterRepo := gCtx.GetRepositories().ShelterRepository
+	rating, err2 := shelterRepo.GetAnimalUserRating(user.ID, obj.ID)
+
+	if err2 != nil {
+		return nil, nil
+	}
+
+	return &rating, nil
+}
+
+// CanRate is the resolver for the canRate field.
+func (r *shelterAnimalResolver) CanRate(ctx context.Context, obj *model.ShelterAnimal) (bool, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil || user == nil {
+		return false, graph.FormatError(gCtx.GetLocalizer(), &generalErrors.ErrNotEnoughPermissions)
+	}
+
+	shelterService := gCtx.GetServices().ShelterService
+
+	return shelterService.IsUserAbleToRateAnimal(user.ID, obj.ID), nil
 }
 
 // ShelterAnimal returns graph.ShelterAnimalResolver implementation.

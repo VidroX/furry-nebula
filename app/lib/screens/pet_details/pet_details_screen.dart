@@ -4,12 +4,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:furry_nebula/extensions/context_extensions.dart';
 import 'package:furry_nebula/models/shelter/shelter_animal.dart';
+import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/models/user/user_role.dart';
 import 'package:furry_nebula/router/router.gr.dart';
 import 'package:furry_nebula/screens/home/shelters/pets/state/pets_bloc.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/screens/pet_details/state/pet_details_bloc.dart';
+import 'package:furry_nebula/screens/pet_details/widgets/pet_accommodation_dialog.dart';
+import 'package:furry_nebula/screens/pet_details/widgets/pet_adoption_dialog.dart';
 import 'package:furry_nebula/screens/pet_details/widgets/remove_pet_dialog.dart';
+import 'package:furry_nebula/screens/pet_details/widgets/update_pet_rating_dialog.dart';
+import 'package:furry_nebula/screens/requests/state/user_requests_bloc.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/translations.dart';
 import 'package:furry_nebula/widgets/layout/dialog_layout.dart';
@@ -19,6 +24,7 @@ import 'package:furry_nebula/widgets/ui/loading_barrier.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_button.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_circular_button.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_image.dart';
+import 'package:furry_nebula/widgets/ui/nebula/nebula_link.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_notification.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_text.dart';
 import 'package:furry_nebula/widgets/ui/neumorphic_container.dart';
@@ -43,8 +49,10 @@ class PetDetailsScreen extends StatefulWidget {
 class _PetDetailsScreenState extends State<PetDetailsScreen> {
   final _bloc = injector.get<PetDetailsBloc>();
   final _petsBloc = injector.get<PetsBloc>();
+  final _requestsBloc = injector.get<UserRequestsBloc>();
 
   bool _firstLoad = true;
+  bool _reloadPetsScreen = false;
 
   bool _canEditShelterAnimal(UserState userState, ShelterAnimal animal) =>
       userState.user != null
@@ -127,7 +135,8 @@ class _PetDetailsScreenState extends State<PetDetailsScreen> {
                                 buttonStyle: _isImagePresent(state.shelterAnimal!.photo)
                                     ? NebulaCircularButtonStyle.background(context)
                                     : NebulaCircularButtonStyle.container(context),
-                                onPress: () => context.popRoute(),
+                                onPress: () =>
+                                    context.popRoute<bool>(_reloadPetsScreen),
                                 padding: EdgeInsets.zero,
                                 child: FaIcon(
                                   FontAwesomeIcons.arrowLeftLong,
@@ -136,18 +145,35 @@ class _PetDetailsScreenState extends State<PetDetailsScreen> {
                                 ),
                               ),
                               const Spacer(),
-                              if (_canEditShelterAnimal(userState, state.shelterAnimal!)) ...[
-                                NebulaCircularButton(
-                                  buttonStyle: NebulaCircularButtonStyle.error(context),
-                                  onPress: () => _onRemoveClicked(state.shelterAnimal!),
-                                  padding: EdgeInsets.zero,
-                                  child: FaIcon(
-                                    FontAwesomeIcons.trash,
-                                    size: 16,
-                                    color: context.colors.text,
+                              if (_canEditShelterAnimal(userState, state.shelterAnimal!))
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.only(end: 12),
+                                  child: NebulaCircularButton(
+                                    buttonStyle: NebulaCircularButtonStyle.error(context),
+                                    onPress: () => _onRemoveClicked(state.shelterAnimal!),
+                                    padding: EdgeInsets.zero,
+                                    child: FaIcon(
+                                      FontAwesomeIcons.trash,
+                                      size: 16,
+                                      color: context.colors.text,
+                                    ),
                                   ),
                                 ),
-                              ],
+                              NebulaCircularButton(
+                                buttonStyle: _isImagePresent(state.shelterAnimal!.photo)
+                                    ? NebulaCircularButtonStyle.background(context)
+                                    : NebulaCircularButtonStyle.container(context),
+                                onPress: () => context.router.push(ShelterDetailsRoute(
+                                  shelterId: state.shelterAnimal!.shelter.id,
+                                  shelter: state.shelterAnimal!.shelter,
+                                ),),
+                                padding: EdgeInsets.zero,
+                                child: FaIcon(
+                                  FontAwesomeIcons.tent,
+                                  size: 16,
+                                  color: context.colors.text,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -224,7 +250,6 @@ class _PetDetailsScreenState extends State<PetDetailsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SizedBox(
                               width: 16,
@@ -237,14 +262,33 @@ class _PetDetailsScreenState extends State<PetDetailsScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Expanded(
-                              child: NebulaText(
-                                state.shelterAnimal!.overallRating
-                                    .toStringAsFixed(1),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
+                            if (!state.isUpdatingRating)
+                              Expanded(
+                                child: state.shelterAnimal!.canRate ? NebulaLink(
+                                  text: state.shelterAnimal!.overallRating
+                                      .toStringAsFixed(1),
+                                  onTap: () =>
+                                      _onRatingClick(state.shelterAnimal!),
+                                ) : NebulaText(
+                                  state.shelterAnimal!.overallRating
+                                      .toStringAsFixed(1),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              )
+                            else
+                              SizedBox(
+                                width: 16 * context.typography.lineHeight,
+                                height: 16 * context.typography.lineHeight,
+                                child: Center(
+                                  child: Transform.scale(
+                                    scale: 0.75,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              )
                           ],
                         ),
                         if (state.shelterAnimal?.description != null &&
@@ -269,24 +313,39 @@ class _PetDetailsScreenState extends State<PetDetailsScreen> {
                               ),
                             ),
                           ),
-                        const SizedBox(height: 24),
-                        NebulaButton.fill(
-                          text: context.translate(
-                            Translations.petDetailsViewShelter,
-                          ),
-                          onPress: () =>
-                              context.router.push(ShelterDetailsRoute(
-                                shelterId: state.shelterAnimal!.shelter.id,
-                                shelter: state.shelterAnimal!.shelter,
-                              ),),
-                          buttonStyle: NebulaButtonStyle.primary(context),
-                          prefixChild: FaIcon(
-                            FontAwesomeIcons.tent,
-                            size: 16,
-                            color: NebulaButtonStyle.primary(context)
-                                .textStyle
-                                .color,
-                          ),
+                        BlocBuilder<UserBloc, UserState>(
+                          builder: (context, userState) {
+                            final shelterRep = state.shelterAnimal!
+                                .shelter
+                                .representativeUser;
+
+                            if (userState.user?.id == shelterRep.id) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(height: 24),
+                                NebulaButton.fill(
+                                  text: context.translate(
+                                    Translations.userRequestRequestToAccommodate,
+                                  ),
+                                  onPress: () => _requestAccommodation(state.shelterAnimal!),
+                                  buttonStyle: NebulaButtonStyle.primary(context),
+                                ),
+                                const SizedBox(height: 12),
+                                NebulaButton.fill(
+                                  text: context.translate(
+                                    Translations.userRequestRequestToAdopt,
+                                  ),
+                                  onPress: () => _requestAdoption(state.shelterAnimal!),
+                                  buttonStyle: NebulaButtonStyle.primary(context),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -332,6 +391,104 @@ class _PetDetailsScreenState extends State<PetDetailsScreen> {
           );
 
           context.popRoute<bool>(true);
+        },
+        onError: context.showApiError,
+      ),
+    );
+  }
+
+  Future<void> _requestAccommodation(ShelterAnimal pet) async {
+    if (!mounted) {
+      return;
+    }
+
+    final dateSet = await showNebulaDialog<PetAccommodationDateSet>(
+      context: context,
+      title: context.translate(Translations.userRequestCreateRequest),
+      child: PetAccommodationDialog(pet: pet),
+    );
+
+    if (!mounted || dateSet == null) {
+      return;
+    }
+
+    _requestsBloc.add(UserRequestsEvent.createRequest(
+      animalId: pet.id,
+      requestType: UserRequestType.accommodation,
+      fromDate: dateSet.fromDate,
+      toDate: dateSet.toDate,
+      onSuccess: (userRequest) => context.showNotification(
+        NebulaNotification.primary(
+          title: context.translate(Translations.info),
+          description: context.translate(Translations.userRequestAccommodationRequestSent),
+        ),
+      ),
+      onError: context.showApiError,
+    ),);
+  }
+
+  Future<void> _requestAdoption(ShelterAnimal pet) async {
+    if (!mounted) {
+      return;
+    }
+
+    final shouldSendRequest = await showNebulaDialog<bool>(
+      context: context,
+      title: context.translate(Translations.userRequestCreateRequest),
+      child: PetAdoptionDialog(pet: pet),
+    );
+
+    if (!mounted || shouldSendRequest == null || !shouldSendRequest) {
+      return;
+    }
+
+    _requestsBloc.add(UserRequestsEvent.createRequest(
+      animalId: pet.id,
+      requestType: UserRequestType.adoption,
+      onSuccess: (userRequest) => context.showNotification(
+        NebulaNotification.primary(
+          title: context.translate(Translations.info),
+          description: context.translate(Translations.userRequestAdoptionRequestSent),
+        ),
+      ),
+      onError: context.showApiError,
+    ),);
+  }
+
+  Future<void> _onRatingClick(ShelterAnimal pet) async {
+    if (!mounted) {
+      return;
+    }
+
+    final animalRating = await showNebulaDialog<double>(
+      context: context,
+      title: pet.userRating == null
+          ? context.translate(Translations.petDetailsSetRating)
+          : context.translate(Translations.petDetailsUpdateRating),
+      child: UpdatePetRatingDialog(pet: pet),
+    );
+
+    if (!mounted || animalRating == null || animalRating < 1 || animalRating > 5) {
+      return;
+    }
+
+    setState(() {
+      _reloadPetsScreen = true;
+    });
+
+    _bloc.add(
+      PetDetailsEvent.updateShelterAnimalRating(
+        id: pet.id,
+        rating: animalRating,
+        onSuccess: (shelterAnimal) {
+          context.showNotification(
+            NebulaNotification.primary(
+              title: context.translate(Translations.info),
+              description: context.translate(
+                Translations.petDetailsRatingHasBeenSet,
+              ),
+            ),
+          );
         },
         onError: context.showApiError,
       ),

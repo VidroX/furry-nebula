@@ -19,6 +19,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         events.map(
           getCurrentUser: (userData) => _getCurrentUser(userData, emit),
           logout: (logoutData) => _logout(logoutData, emit),
+          updateFCMToken: (updateFCMTokenData) =>
+              _updateFCMToken(updateFCMTokenData, emit),
         ),
     );
 
@@ -52,5 +54,26 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(state.copyWith(isLogoutLoading: false));
 
     logoutData.onFinish?.call();
+  }
+
+  Future<void> _updateFCMToken(
+      UpdateFCMToken updateFCMTokenData,
+      Emitter<UserState> emit,
+  ) async {
+    if (!(await userRepository.isAuthenticated())) {
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true));
+
+    try {
+      final user = await userRepository.updateFCMToken(
+        token: updateFCMTokenData.token,
+      );
+
+      emit(state.copyWith(user: user));
+    } finally {
+      emit(state.copyWith(isLoading: false));
+    }
   }
 }

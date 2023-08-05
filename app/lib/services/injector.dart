@@ -11,6 +11,7 @@ import 'package:furry_nebula/screens/home/shelters/pets/state/pets_bloc.dart';
 import 'package:furry_nebula/screens/home/shelters/state/shelters_bloc.dart';
 import 'package:furry_nebula/screens/home/state/user_bloc.dart';
 import 'package:furry_nebula/screens/pet_details/state/pet_details_bloc.dart';
+import 'package:furry_nebula/screens/requests/state/user_requests_bloc.dart';
 import 'package:furry_nebula/screens/shelter_details/state/shelter_details_bloc.dart';
 import 'package:furry_nebula/services/api_client.dart';
 import 'package:get_it/get_it.dart';
@@ -62,5 +63,8 @@ void _initBlocs() {
       )
       ..registerFactory<PetDetailsBloc>(() =>
           PetDetailsBloc(shelterRepository: injector.get()),
+      )
+      ..registerFactory<UserRequestsBloc>(() =>
+          UserRequestsBloc(shelterRepository: injector.get()),
       );
 }

@@ -22,6 +22,10 @@ class Translations {
   static const String all = 'general.all';
   static const String clearFilters = 'general.clearFilters';
   static const String description = 'general.description';
+  static const String create = 'general.create';
+  static const String refresh = 'general.refresh';
+  static const String update = 'general.update';
+  static const String set = 'general.set';
 
   // Auth
   static const String authSignInError = 'auth.errors.signInError';
@@ -98,6 +102,9 @@ class Translations {
   static const String petDetailsRemoveProgress = 'petDetails.removeProgress';
   static const String petDetailsRemovedSuccessfully = 'petDetails.removedSuccessfully';
   static const String petDetailsViewShelter = 'petDetails.viewShelter';
+  static const String petDetailsUpdateRating = 'petDetails.updateRating';
+  static const String petDetailsSetRating = 'petDetails.setRating';
+  static const String petDetailsRatingHasBeenSet = 'petDetails.ratingHasBeenSet';
 
   // Animal types
   static const String animalTypesTitle = 'animalTypes.title';
@@ -105,4 +112,54 @@ class Translations {
   static const String animalTypesDog = 'animalTypes.dog';
   static const String animalTypesBird = 'animalTypes.bird';
   static const String animalTypesRabbit = 'animalTypes.rabbit';
+
+  // Request types
+  static const String requestTypeTitle = 'requestTypes.title';
+  static const String requestTypeAccommodation = 'requestTypes.accommodation';
+  static const String requestTypeAdoption = 'requestTypes.adoption';
+
+  // User requests
+  static const String userRequestErrorsNoRequests = 'userRequests.errors.noRequests';
+  static const String userRequestErrorsNoRequestsFiltered = 'userRequests.errors.noRequestsFiltered';
+  static const String userRequestErrorsNoUserRequests = 'userRequests.errors.noUserRequests';
+  static const String userRequestTitle = 'userRequests.title';
+  static const String userRequestMyPetRequests = 'userRequests.myPetRequests';
+  static const String userRequestViewRequests = 'userRequests.viewRequests';
+  static const String userRequestViewOwnRequests = 'userRequests.viewOwnRequests';
+  static const String userRequestApprove = 'userRequests.approve';
+  static const String userRequestDeny = 'userRequests.deny';
+  static const String userRequestShowOwnRequests = 'userRequests.showOwnRequests';
+  static const String userRequestShowApproved = 'userRequests.showApproved';
+  static const String userRequestShowDenied = 'userRequests.showDenied';
+  static const String userRequestShowPending = 'userRequests.showPending';
+  static const String userRequestShowCancelled = 'userRequests.showCancelled';
+  static const String userRequestShowFulfilled = 'userRequests.showFulfilled';
+  static const String userRequestRequestToAccommodate = 'userRequests.requestToAccommodate';
+  static const String userRequestRequestToAdopt = 'userRequests.requestToAdopt';
+  static const String userRequestCreateRequest = 'userRequests.createRequest';
+  static const String userRequestAccommodatePrompt = 'userRequests.accommodatePrompt';
+  static const String userRequestAdoptPrompt = 'userRequests.adoptPrompt';
+  static const String userRequestAdoption = 'userRequests.adoption';
+  static const String userRequestAccommodation = 'userRequests.accommodation';
+  static const String userRequestAdoptionRequestSent = 'userRequests.adoptionRequestSent';
+  static const String userRequestAccommodationRequestSent = 'userRequests.accommodationRequestSent';
+  static const String userRequestFrom = 'userRequests.from';
+  static const String userRequestTo = 'userRequests.to';
+  static const String userRequestUserDetails = 'userRequests.userDetails';
+  static const String userRequestNoUserDetails = 'userRequests.noUserDetails';
+  static const String userRequestCancelRequest = 'userRequests.cancelRequest';
+  static const String userRequestAnimalReturned = 'userRequests.animalReturned';
+  static const String userRequestRequestApproved = 'userRequests.requestApproved';
+  static const String userRequestRequestDenied = 'userRequests.requestDenied';
+  static const String userRequestRequestCancelled = 'userRequests.requestCancelled';
+  static const String userRequestAnimalReturnedSuccessfully = 'userRequests.animalReturnedSuccessfully';
+  static const String userRequestChangingRequestStatus = 'userRequests.changingRequestStatus';
+
+  // User request statuses
+  static const String userRequestStatusesTitle = 'userRequestStatuses.title';
+  static const String userRequestStatusesApproved = 'userRequestStatuses.approved';
+  static const String userRequestStatusesDenied = 'userRequestStatuses.denied';
+  static const String userRequestStatusesCancelled = 'userRequestStatuses.cancelled';
+  static const String userRequestStatusesPending = 'userRequestStatuses.pending';
+  static const String userRequestStatusesFulfilled = 'userRequestStatuses.fulfilled';
 }

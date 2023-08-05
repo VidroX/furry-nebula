@@ -35,6 +35,7 @@ type User {
   email: String!
   about: String!
   isApproved: Boolean!
+  fcmToken: String
 }
 
 """
@@ -133,4 +134,9 @@ extend type Mutation {
   Change approval status of user by id. Admin user is required.
   """
   changeUserApprovalStatus(userId: ID!, isApproved: Boolean!): ResponseMessage! @hasRole(role: Admin)
+
+  """
+  Update current user's FCM token. Authenticated user is required.
+  """
+  updateFCMToken(token: String!): User! @isAuthenticated
 }

@@ -19,10 +19,10 @@ class ExpandableScrollView extends StatelessWidget {
     controller: controller,
     physics: physics,
     slivers: [
-      SliverFillRemaining(
-        hasScrollBody: false,
-        child: Padding(
-          padding: padding,
+      SliverPadding(
+        padding: padding,
+        sliver: SliverFillRemaining(
+          hasScrollBody: false,
           child: child,
         ),
       ),

@@ -26,9 +26,29 @@
         "errors": {
             "alreadyExists": "Притулок із такою назвою вже існує",
             "shelterNotFound": "Запитаний притулок не знайдено",
-            "shelterAnimalNotFound": "Домашня тварина не знайдена в притулку або вже усиновлена"
+            "shelterAnimalNotFound": "Домашня тварина не знайдена в притулку або вже усиновлена",
+            "incorrectDateRange": "Неправильний діапазон дат. Початкова дата не може бути після кінцевої дати.",
+            "animalAlreadyAdopted": "Домашню тварину вже хтось усиновив",
+            "animalNotAvailable": "Домашня тварина не може бути усиновлена/прилаштована у вказаний діапазон дат",
+            "dateRangeEmpty": "Будь ласка, оберіть діапазон дат",
+            "dateCannotBeInThePast": "Вибрана дата не може бути минулою",
+            "requestNotFound": "Запит із вказаним ID не знайдено",
+            "accommodationNeededToRate": "Перш ніж оцінювати тварину, вам потрібно прилаштувати її у себе",
+            "incorrectRating": "Оцінка має бути у діапазоні від 1 до 5"
         },
         "shelterRemoved": "Притулок успішно видалено з системи!",
-        "shelterAnimalRemoved": "Тварину успішно видалено з притулку!"
+        "shelterAnimalRemoved": "Тварину успішно видалено з притулку!",
+        "statusChanged": "Статус прилаштування/усиновлення тварини з притулку змінено!",
+        "canceledSuccessfully": "Запит успішно скасовано!",
+        "ratingUpdated": "Рейтинг тварини успішно оновлено!",
+        "newRequest": "Новий запит на тварину",
+        "userWantsToAccommodate": "{{ .User }} хоче прилаштувати {{ .Animal }}",
+        "userWantsToAdopt": "{{ .User }} хоче усиновити {{ .Animal }}",
+        "newRequestStatusApproved": "Запит схвалено",
+        "newRequestStatusDenied": "У Вашому запиті було відмовлено",
+        "accommodationApproved": "Ваш запит на прилаштування {{ .Animal }} було схвалено",
+        "accommodationDenied": "У Вашому запиті на прилаштування {{ .Animal }} було відмовлено",
+        "adoptionApproved": "Ваш запит на усиновлення {{ .Animal }} було схвалено",
+        "adoptionDenied": "У Вашому запиті на усиновлення {{ .Animal }} було відмовлено"
     }
 }

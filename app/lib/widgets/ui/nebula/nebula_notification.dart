@@ -56,6 +56,21 @@ class NebulaNotification extends StatelessWidget {
     bannerColor: AppColorsType.primary,
   );
 
+  factory NebulaNotification.info({
+    required String title,
+    String? description,
+    bool closeable = true,
+    Duration animationDuration = const Duration(milliseconds: 200),
+    Duration? hideAfter = const Duration(seconds: 3),
+  }) => NebulaNotification(
+    title: title,
+    description: description,
+    closeable: closeable,
+    animationDuration: animationDuration,
+    hideAfter: hideAfter,
+    bannerColor: AppColorsType.secondary,
+  );
+
   @override
   Widget build(BuildContext context) {
     final boxConstraints = context.isLandscape

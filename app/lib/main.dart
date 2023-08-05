@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:furry_nebula/app_colors.dart';
 import 'package:furry_nebula/app_theme.dart';
 import 'package:furry_nebula/environment_constants.dart';
+import 'package:furry_nebula/firebase_options.dart';
 import 'package:furry_nebula/router/router.dart';
 import 'package:furry_nebula/services/injector.dart';
 import 'package:furry_nebula/widgets/ui/nebula/nebula_notification.dart';
@@ -20,6 +23,10 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   await FastCachedImageConfig.init(
     subDir: (await getApplicationDocumentsDirectory()).path,
     clearCacheAfter: const Duration(days: 7),
@@ -29,6 +36,14 @@ Future<void> main() async {
   initDependencyInjector();
 
   final theme = await _loadTheme();
+
+  await FirebaseMessaging.instance.requestPermission();
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
 
   runApp(MainApp(theme: theme));
 }
@@ -147,6 +162,24 @@ class _AppContainer extends StatefulWidget {
 }
 
 class _AppContainerState extends State<_AppContainer> with NebulaNotificationHandler {
+  @override
+  void didChangeDependencies() {
+    FirebaseMessaging.onMessage.listen(_showFirebaseNotification);
+
+    super.didChangeDependencies();
+  }
+
+  void _showFirebaseNotification(RemoteMessage message) {
+    if (message.notification == null) {
+      return;
+    }
+
+    showNotification(NebulaNotification.info(
+      title: message.notification!.title ?? '',
+      description: message.notification!.body ?? '',
+    ),);
+  }
+
   @override
   Widget build(BuildContext context) => Provider<NebulaGlobalNotificationProvider>(
     create: (_) => NebulaGlobalNotificationProvider(

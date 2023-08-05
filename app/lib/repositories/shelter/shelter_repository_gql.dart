@@ -4,61 +4,36 @@ import 'package:furry_nebula/graphql/__generated__/schema.schema.gql.dart';
 import 'package:furry_nebula/graphql/exceptions/general_api_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/request_failed_exception.dart';
 import 'package:furry_nebula/graphql/exceptions/validation_exception.dart';
-import 'package:furry_nebula/graphql/fragments/__generated__/shelter_animal_fragment.data.gql.dart';
-import 'package:furry_nebula/graphql/fragments/__generated__/shelter_fragment.data.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/add_user_shelter_animal.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/shelter/__generated__/cancel_user_request.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/shelter/__generated__/change_user_request_status.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/shelter/__generated__/create_user_request.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/delete_shelter.req.gql.dart';
 import 'package:furry_nebula/graphql/mutations/shelter/__generated__/remove_animal.req.gql.dart';
+import 'package:furry_nebula/graphql/mutations/shelter/__generated__/update_animal_rating.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_animal_by_id.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_animals.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelter_by_id.req.gql.dart';
 import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_shelters.req.gql.dart';
+import 'package:furry_nebula/graphql/queries/shelter/__generated__/get_user_requests.req.gql.dart';
 import 'package:furry_nebula/models/pagination/graph_page.dart';
 import 'package:furry_nebula/models/pagination/pagination.dart';
 import 'package:furry_nebula/models/shelter/animal_type.dart';
 import 'package:furry_nebula/models/shelter/shelter.dart';
 import 'package:furry_nebula/models/shelter/shelter_animal.dart';
-import 'package:furry_nebula/models/user/user.dart';
-import 'package:furry_nebula/models/user/user_role.dart';
+import 'package:furry_nebula/models/shelter/user_request.dart';
+import 'package:furry_nebula/models/shelter/user_request_status.dart';
+import 'package:furry_nebula/models/shelter/user_request_type.dart';
 import 'package:furry_nebula/repositories/shelter/shelter_repository.dart';
 import 'package:furry_nebula/screens/home/shelters/pets/state/pets_filter.dart';
+import 'package:furry_nebula/screens/requests/state/user_requests_filters.dart';
 import 'package:furry_nebula/services/api_client.dart';
 
 class ShelterRepositoryGraphQL extends ShelterRepository {
   final ApiClient client;
 
   ShelterRepositoryGraphQL({ required this.client });
-
-  Shelter _buildShelter(GShelterFragment shelterFragment) => Shelter(
-    id: shelterFragment.id,
-    name: shelterFragment.name,
-    address: shelterFragment.address,
-    info: shelterFragment.info,
-    photo: shelterFragment.photo,
-    representativeUser: User(
-      id: shelterFragment.representativeUser.id,
-      firstName: shelterFragment.representativeUser.firstName,
-      lastName: shelterFragment.representativeUser.lastName,
-      isApproved: shelterFragment.representativeUser.isApproved,
-      about: shelterFragment.representativeUser.about,
-      role: UserRole.fromGRole(shelterFragment.representativeUser.role)!,
-      email: shelterFragment.representativeUser.email,
-      birthDay: shelterFragment.representativeUser.birthday,
-    ),
-  );
-
-  ShelterAnimal _buildShelterAnimal(GShelterAnimalFragment animalFragment) =>
-      ShelterAnimal(
-        id: animalFragment.id,
-        name: animalFragment.name,
-        description: animalFragment.description,
-        photo: animalFragment.photo,
-        animalType: AnimalType.fromGAnimal(animalFragment.animal)!,
-        shelter: _buildShelter(animalFragment.shelter),
-        overallRating: animalFragment.overallRating,
-        userRating: animalFragment.userRating,
-      );
 
   @override
   Future<Shelter> addShelter({
@@ -90,7 +65,7 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
       throw const RequestFailedException();
     }
 
-    return _buildShelter(response.data!.addShelter);
+    return Shelter.fromFragment(response.data!.addShelter);
   }
 
   @override
@@ -125,7 +100,7 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
       throw const RequestFailedException();
     }
 
-    return _buildShelterAnimal(response.data!.addShelterAnimal);
+    return ShelterAnimal.fromFragment(response.data!.addShelterAnimal);
   }
 
   @override
@@ -162,7 +137,7 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
 
     final pageInfo = response.data!.shelterAnimals.pageInfo;
     final shelterAnimals = response.data!.shelterAnimals.node
-        .map((animal) => _buildShelterAnimal(animal!))
+        .map((animal) => ShelterAnimal.fromFragment(animal))
         .toList();
 
     return GraphPage.fromFragment(
@@ -197,7 +172,7 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
 
     final pageInfo = response.data!.shelters.pageInfo;
     final shelters = response.data!.shelters.node
-        .map((shelter) => _buildShelter(shelter!))
+        .map((shelter) => Shelter.fromFragment(shelter))
         .toList();
 
     return GraphPage.fromFragment(
@@ -227,7 +202,7 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
       throw const RequestFailedException();
     }
 
-    return _buildShelterAnimal(response.data!.shelterAnimal);
+    return ShelterAnimal.fromFragment(response.data!.shelterAnimal);
   }
 
   @override
@@ -240,6 +215,125 @@ class ShelterRepositoryGraphQL extends ShelterRepository {
       throw const RequestFailedException();
     }
 
-    return _buildShelter(response.data!.shelter);
+    return Shelter.fromFragment(response.data!.shelter);
+  }
+
+  @override
+  Future<GraphPage<UserRequest>> getUserRequests({
+    UserRequestsFilters filters = const UserRequestsFilters(),
+    bool shouldGetFromCacheFirst = true,
+    Pagination pagination = const Pagination(),
+  }) async {
+    final request = GGetUserRequestsReq(
+          (b) => b
+            ..vars.filters = filters.toGUserRequestFiltersBuilder
+            ..vars.pagination = pagination.toGPaginationBuilder
+            ..fetchPolicy = shouldGetFromCacheFirst
+                ? FetchPolicy.CacheFirst
+                : FetchPolicy.NetworkOnly,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.data?.userRequests.node == null) {
+      throw const RequestFailedException();
+    }
+
+    final pageInfo = response.data!.userRequests.pageInfo;
+    final userRequests = response.data!.userRequests.node
+        .map((userRequest) => UserRequest.fromFragment(userRequest))
+        .toList();
+
+    return GraphPage.fromFragment(
+      nodes: userRequests,
+      pageInfo: pageInfo,
+    );
+  }
+
+  @override
+  Future<UserRequest> createUserRequest({
+    required String animalId,
+    required UserRequestType requestType,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    final userRequestInput = GUserRequestInputBuilder()
+      ..animalId = animalId
+      ..requestType = requestType.toGUserRequestType
+      ..fromDate = fromDate
+      ..toDate = toDate;
+
+    final request = GCreateUserRequestReq(
+          (b) => b..vars.data = userRequestInput,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException is GeneralApiException ||
+        response.linkException is ValidationException) {
+      throw response.linkException!;
+    }
+
+    if (response.data?.createUserRequest == null) {
+      throw const RequestFailedException();
+    }
+
+    return UserRequest.fromFragment(response.data!.createUserRequest);
+  }
+
+  @override
+  Future<void> changeUserRequestStatus({
+    required String requestId,
+    UserRequestStatus status = UserRequestStatus.cancelled,
+  }) async {
+    final request = GChangeUserRequestStatusReq(
+          (b) => b
+            ..vars.id = requestId
+            ..vars.status = status.toGUserRequestStatus,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException != null) {
+      throw const RequestFailedException();
+    }
+  }
+
+  @override
+  Future<void> cancelUserRequest({required String requestId}) async {
+    final request = GCancelUserRequestReq(
+          (b) => b..vars.id = requestId,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException != null) {
+      throw const RequestFailedException();
+    }
+  }
+
+  @override
+  Future<ShelterAnimal> updateAnimalRating({
+    required String animalId,
+    required double rating,
+  }) async {
+    final request = GUpdateAnimalRatingReq(
+          (b) => b
+            ..vars.id = animalId
+            ..vars.rating = rating,
+    );
+
+    final response = await client.ferryClient.request(request).first;
+
+    if (response.linkException is GeneralApiException ||
+        response.linkException is ValidationException) {
+      throw response.linkException!;
+    }
+
+    if (response.data?.updateAnimalRating == null) {
+      throw const RequestFailedException();
+    }
+
+    return ShelterAnimal.fromFragment(response.data!.updateAnimalRating);
   }
 }

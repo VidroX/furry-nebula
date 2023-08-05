@@ -13,6 +13,7 @@ type UserRepository interface {
 	ChangeUserApprovalStatus(id string, isApproved bool) error
 	GetUserApprovals(isApproved *bool, isReviewed *bool, pagination *model.Pagination) ([]*model.UserApproval, int64, error)
 	GetUsers(pagination *model.Pagination) ([]*model.User, int64, error)
+	SetUserFCMToken(userId string, token string) (*model.User, error)
 }
 
 func Get(database *database.NebulaDb) UserRepository {

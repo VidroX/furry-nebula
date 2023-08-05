@@ -19,6 +19,8 @@ class PetDetailsBloc extends Bloc<PetDetailsEvent, PetDetailsState> {
               _getShelterAnimalById(getShelterAnimalData, emit),
           setShelterAnimal: (setShelterAnimalData) =>
               _setShelterAnimal(setShelterAnimalData, emit),
+          updateShelterAnimalRating: (shelterAnimalRatingData) =>
+              _updateShelterAnimalRating(shelterAnimalRatingData, emit),
         ),
     );
   }
@@ -53,5 +55,31 @@ class PetDetailsBloc extends Bloc<PetDetailsEvent, PetDetailsState> {
       Emitter<PetDetailsState> emit,
   ) async {
     emit(state.copyWith(shelterAnimal: setShelterAnimalData.shelterAnimal));
+  }
+
+  Future<void> _updateShelterAnimalRating(
+      UpdateShelterAnimalRating shelterAnimalRatingData,
+      Emitter<PetDetailsState> emit,
+  ) async {
+    if (state.isUpdatingRating) {
+      return;
+    }
+
+    emit(state.copyWith(isUpdatingRating: true));
+
+    try {
+      final shelterAnimal = await shelterRepository.updateAnimalRating(
+        animalId: shelterAnimalRatingData.id,
+        rating: shelterAnimalRatingData.rating,
+      );
+
+      emit(state.copyWith(shelterAnimal: shelterAnimal));
+
+      shelterAnimalRatingData.onSuccess?.call(shelterAnimal);
+    } on RequestFailedException catch(e) {
+      shelterAnimalRatingData.onError?.call(e);
+    } finally {
+      emit(state.copyWith(isUpdatingRating: false));
+    }
   }
 }

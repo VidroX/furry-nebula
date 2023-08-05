@@ -24,7 +24,7 @@ class UserApprovalsScreen extends StatefulWidget {
 }
 
 class _UserApprovalsScreenState extends State<UserApprovalsScreen> {
-  final _key = GlobalKey<NebulaApiListState>();
+  var _key = GlobalKey<NebulaApiListState>();
   final _bloc = injector.get<UserApprovalsBloc>();
 
   bool _firstLoad = true;
@@ -53,9 +53,15 @@ class _UserApprovalsScreenState extends State<UserApprovalsScreen> {
       padding: const EdgeInsets.all(16),
       items: state.userApprovals,
       pageInfo: state.pageInfo,
+      loading: _firstLoad,
       itemsLoading: _firstLoad || state.isLoading,
       onItemRemoved: (user, index) =>
           _bloc.add(UserApprovalsEvent.removeUser(userId: user.id)),
+      onRefresh: () {
+        _fetchUserApprovals(rebuildList: true);
+
+        return Future<bool>.value(state.isLoading);
+      },
       headerBuilder: (context) => Padding(
         padding: const EdgeInsets.only(bottom: 24),
         child: NebulaText(
@@ -72,6 +78,8 @@ class _UserApprovalsScreenState extends State<UserApprovalsScreen> {
           Translations.userApprovalsUsersNoUsersPendingApproval,
         ),
         icon: FontAwesomeIcons.users,
+        onRefreshPress: () =>
+            _fetchUserApprovals(rebuildList: true),
       ),
       onLoadNextPage: _loadNextPage,
       itemBuilder: (context, item, index) => Padding(
@@ -88,6 +96,20 @@ class _UserApprovalsScreenState extends State<UserApprovalsScreen> {
       ),
     ),
   );
+
+  void _fetchUserApprovals({ bool rebuildList = false }) {
+    if (rebuildList) {
+      setState(() {
+        _key = GlobalKey();
+        _firstLoad = true;
+      });
+    }
+
+    _bloc.add(UserApprovalsEvent.getUnapprovedUsers(
+      onSuccess: (_) => _firstLoad = false,
+      onError: context.showApiError,
+    ),);
+  }
 
   void _loadNextPage() {
     _bloc.add(UserApprovalsEvent.nextPage(

@@ -73,6 +73,21 @@ func (r *mutationResolver) ChangeUserApprovalStatus(ctx context.Context, userID 
 	}, nil
 }
 
+// UpdateFCMToken is the resolver for the updateFCMToken field.
+func (r *mutationResolver) UpdateFCMToken(ctx context.Context, token string) (*model.User, error) {
+	gCtx := graph.GetGinContext(ctx)
+	user, err := gCtx.RequireUser(model.TokenTypeAccess)
+
+	if err != nil {
+		return nil, graph.FormatError(gCtx.GetLocalizer(), err)
+	}
+
+	userService := gCtx.GetServices().UserService
+	user, err = userService.SetUserFCMToken(user.ID, token)
+
+	return user, nil
+}
+
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	gCtx := graph.GetGinContext(ctx)

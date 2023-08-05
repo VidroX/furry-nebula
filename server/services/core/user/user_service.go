@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"firebase.google.com/go/v4/messaging"
 
 	nebulaErrors "github.com/VidroX/furry-nebula/errors"
 	generalErrors "github.com/VidroX/furry-nebula/errors/general"
@@ -24,13 +25,15 @@ type UserService interface {
 	Register(userInfo model.UserRegistrationInput) (*model.UserWithToken, []*nebulaErrors.APIError)
 	ChangeUserApprovalStatus(userId string, isApproved bool) *nebulaErrors.APIError
 	CreateAccessToken(user *model.User) (*model.Token, *nebulaErrors.APIError)
+	SetUserFCMToken(userId string, token string) (*model.User, *nebulaErrors.APIError)
 }
 
 type userService struct {
-	validate       *validator.Validate
-	localizer      *translator.NebulaLocalizer
-	userRepository user.UserRepository
-	privateJWK     *jwk.ECDSAPrivateKey
+	validate        *validator.Validate
+	localizer       *translator.NebulaLocalizer
+	userRepository  user.UserRepository
+	privateJWK      *jwk.ECDSAPrivateKey
+	messagingClient *messaging.Client
 }
 
 func (service *userService) Login(email string, password string) (*model.UserWithToken, []*nebulaErrors.APIError) {
@@ -174,16 +177,28 @@ func (service *userService) ChangeUserApprovalStatus(userId string, isApproved b
 	return nil
 }
 
+func (service *userService) SetUserFCMToken(userId string, token string) (*model.User, *nebulaErrors.APIError) {
+	updatedUser, err := service.userRepository.SetUserFCMToken(userId, token)
+
+	if err != nil {
+		return nil, &generalErrors.ErrInternal
+	}
+
+	return updatedUser, nil
+}
+
 func RegisterUserService(
 	validate *validator.Validate,
 	localizer *translator.NebulaLocalizer,
 	privateJWK *jwk.ECDSAPrivateKey,
 	userRepo user.UserRepository,
+	messagingClient *messaging.Client,
 ) UserService {
 	return &userService{
-		validate:       validate,
-		localizer:      localizer,
-		userRepository: userRepo,
-		privateJWK:     privateJWK,
+		validate:        validate,
+		localizer:       localizer,
+		userRepository:  userRepo,
+		privateJWK:      privateJWK,
+		messagingClient: messagingClient,
 	}
 }

@@ -8,6 +8,7 @@ fragment ShelterAnimalFragment on ShelterAnimal {
     photo
     overallRating
     userRating
+    canRate
     shelter {
         ...ShelterFragment
     }

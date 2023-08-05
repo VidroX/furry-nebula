@@ -3,6 +3,7 @@ part of 'user_approvals_bloc.dart';
 @freezed
 class UserApprovalsEvent with _$UserApprovalsEvent {
   const factory UserApprovalsEvent.getUnapprovedUsers({
+    @Default(true) bool clearFetch,
     Function(GraphPage<User> page)? onSuccess,
     Function(ServerException? exception)? onError,
   }) = GetUnapprovedUsers;

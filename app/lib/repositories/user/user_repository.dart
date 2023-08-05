@@ -23,6 +23,7 @@ abstract class UserRepository {
   });
 
   Future<GraphPage<User>> getUnapprovedUsers({
+    bool shouldGetFromCacheFirst = true,
     Pagination pagination = const Pagination(),
   });
 
@@ -30,4 +31,6 @@ abstract class UserRepository {
     required String userId,
     bool isApproved = false,
   });
+
+  Future<User> updateFCMToken({required String token});
 }

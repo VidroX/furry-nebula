@@ -1,0 +1,19 @@
+# import 'shelter_animal_fragment.graphql'
+# import 'user_fragment.graphql'
+
+fragment UserRequestFragment on UserRequest {
+    id
+    requestType
+    requestStatus
+    fromDate
+    toDate
+    user {
+        ...UserFragment
+    }
+    approvedBy {
+        ...UserFragment
+    }
+    animal {
+        ...ShelterAnimalFragment
+    }
+}

@@ -11,4 +11,11 @@ class PetDetailsEvent with _$PetDetailsEvent {
   const factory PetDetailsEvent.setShelterAnimal({
     required ShelterAnimal shelterAnimal,
   }) = SetShelterAnimal;
+
+  const factory PetDetailsEvent.updateShelterAnimalRating({
+    required String id,
+    required double rating,
+    Function(ShelterAnimal shelterAnimal)? onSuccess,
+    Function(ServerException? exception)? onError,
+  }) = UpdateShelterAnimalRating;
 }

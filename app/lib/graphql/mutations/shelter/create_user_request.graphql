@@ -1,0 +1,7 @@
+# import '../../fragments/user_request_fragment.graphql'
+
+mutation CreateUserRequest($data: UserRequestInput!) {
+    createUserRequest(data: $data){
+        ...UserRequestFragment
+    }
+}
